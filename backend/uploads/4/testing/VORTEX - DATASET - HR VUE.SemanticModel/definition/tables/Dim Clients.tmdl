@@ -1,0 +1,83 @@
+table 'Dim Clients'
+	lineageTag: 587e18da-990d-464a-b401-2a3103d66b49
+
+	column client_id
+		dataType: int64
+		formatString: 0
+		lineageTag: debd316f-e043-41b1-8c15-5eab3817409f
+		summarizeBy: none
+		sourceColumn: client_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_name
+		dataType: string
+		lineageTag: df8e684e-7b9e-47b7-a492-259a0fd11694
+		summarizeBy: none
+		sourceColumn: client_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_expertise_areas
+		dataType: string
+		lineageTag: 9b9286da-b361-459e-9780-cfab1cf8bb49
+		summarizeBy: none
+		sourceColumn: client_expertise_areas
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_state_name
+		dataType: string
+		lineageTag: 6f401fa4-e5dd-4b2a-86c7-6e22a22ba065
+		summarizeBy: none
+		sourceColumn: client_state_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column related_agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 84bc9266-e41b-4bef-8722-688d93f98b86
+		summarizeBy: sum
+		sourceColumn: related_agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_country
+		dataType: string
+		lineageTag: f877caec-1944-4dd5-9b6e-0f325154382d
+		summarizeBy: none
+		sourceColumn: client_country
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_creation_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 2179136b-2134-430a-9272-2bd145cf9344
+		summarizeBy: none
+		sourceColumn: client_creation_date
+
+		variation Variation
+			isDefault
+			relationship: 39c4d55d-54a2-4301-bdb5-46f232dbf0ca
+			defaultHierarchy: LocalDateTable_f13ab90a-94c8-4074-86f2-2d4546e5b018.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Clients' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_client`",
+				    null,
+				    [EnableFolding = true]
+				)
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

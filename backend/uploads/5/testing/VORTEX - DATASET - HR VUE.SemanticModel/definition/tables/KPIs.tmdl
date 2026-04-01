@@ -1,0 +1,1524 @@
+table KPIs
+	lineageTag: 0441d416-80e6-4e81-8264-80dc70042e8c
+
+	measure Turnover =
+			
+			VAR selected_start = MIN ( 'Dim Date'[Day] )
+			VAR selected_end   = MAX ( 'Dim Date'[Day] )
+			VAR departures =
+			    CALCULATE (
+			        COUNTROWS ( 'Dim Resource Flow' ),
+			        KEEPFILTERS ( 'Dim Resource Flow'[flow_type] = "Departure" ),
+			        FILTER (
+			            'Dim Resource Flow',
+			            'Dim Resource Flow'[event_date] >= selected_start
+			                && 'Dim Resource Flow'[event_date] <= selected_end
+			        )
+			    )
+			RETURN
+			IF ( departures = 0, 0, departures )
+		formatString: 0
+		displayFolder: HR\Turnover
+		lineageTag: 1b817034-e2f6-43a0-812e-c428b4565b34
+
+	measure 'Seniority (in months)' = ```
+			
+			VAR selected_window_end = MAX ( 'Dim Date'[Day] )
+			RETURN
+			AVERAGEX (
+			    FILTER (
+			        CALCULATETABLE ( 'Fact Contracts', REMOVEFILTERS ( 'Dim Date' ) ),
+			        'Fact Contracts'[contract_start_date] <= selected_window_end
+			    ),
+			    VAR end_count =  IF ( ISBLANK('Fact Contracts'[contract_end_date]) || 'Fact Contracts'[contract_end_date] >= selected_window_end, 
+			                        selected_window_end, 
+			                        'Fact Contracts'[contract_end_date] 
+			                        ) 
+			    RETURN MAX ( 0, DATEDIFF ( 'Fact Contracts'[contract_start_date], end_count, MONTH ) +1 )
+			)
+			```
+		formatString: 0
+		displayFolder: HR\Info
+		lineageTag: c70fa0f2-489e-4caa-9ac0-6da8ffd16310
+
+	measure Revenue =
+			
+			CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),
+			  NOT ('Fact Invoices'[invoice_state_name] IN {"Impayé", "Proforma"})
+			)
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Revenue
+		lineageTag: 1ca46699-3155-4dd0-bf41-2c5bce46abb0
+
+	measure 'Revenue MTD' = TOTALMTD([Revenue], 'Dim Date'[Day])
+		displayFolder: Finance\Revenue
+		lineageTag: 01acd642-d6ae-4105-9a77-c6c7232b570f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue QTD' = TOTALQTD([Revenue], 'Dim Date'[Day])
+		displayFolder: Finance\Revenue
+		lineageTag: 0eed4e5f-0ade-423a-804e-26557deae7cd
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue YTD' = TOTALYTD([Revenue], 'Dim Date'[Day])
+		displayFolder: Finance\Revenue
+		lineageTag: 688b78fd-9cb3-4078-a780-76e92ca7bed1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue LM' =
+			
+			CALCULATE([Revenue], DATEADD('Dim Date'[Day], -1, MONTH))
+		displayFolder: Finance\Revenue
+		lineageTag: 37b6257f-c232-4b51-9079-2ca22f47ace9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue LQ' =
+			
+			CALCULATE([Revenue], DATEADD('Dim Date'[Day], -1, QUARTER))
+		displayFolder: Finance\Revenue
+		lineageTag: ce08ebbf-1370-40be-8754-fefe42337d45
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue LY' =
+			
+			CALCULATE([Revenue], DATEADD('Dim Date'[Day], -1, YEAR))
+		displayFolder: Finance\Revenue
+		lineageTag: 3b001c16-21e9-427c-af24-ff60322e1d30
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue YoY %' = DIVIDE([Revenue] - [Revenue LY], [Revenue LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Revenue
+		lineageTag: ec9bcc49-3306-4f65-b174-d6c1541e486d
+
+	measure 'Revenue QoQ %' = DIVIDE([Revenue] - [Revenue LQ], [Revenue LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Revenue
+		lineageTag: 6229d7a6-a7ce-4696-bed5-3674930edf66
+
+	measure 'Revenue MoM %' = DIVIDE([Revenue] - [Revenue LM], [Revenue LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Revenue
+		lineageTag: a9d0c91a-8042-488a-a11b-c1be93e64e6d
+
+	measure 'Invoice Count' =
+			COALESCE(
+			CALCULATE(
+			DISTINCTCOUNT('Fact Invoices'[invoice_id]),
+			FILTER( 'Fact Invoices', NOT ('Fact Invoices'[invoice_state_name] IN {"Impayé", "Proforma","Création"}))
+			),0)
+		formatString: 0
+		displayFolder: Finance\Invoice\Count
+		lineageTag: e65fed21-2fff-4833-895a-4733dfa159d0
+
+	measure 'Average Invoice Value (AIV)' = DIVIDE([Revenue], [Invoice Count])
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Invoice\Average
+		lineageTag: 0a045ddc-10f0-4a12-99a6-878f4ecd0f4e
+
+	measure 'Occupation Rate' = ```
+			
+			VAR SelectedStartDate =
+			    MIN ( 'Dim Date'[day] )
+			 
+			VAR SelectedEndDate =
+			    MAX ( 'Dim Date'[day] )
+			 
+			-- Active resources in the selected period,
+			VAR ActiveResources =
+			    CALCULATETABLE (
+			        VALUES ( 'Dim Resources'[resource_id] ),
+			        FILTER (
+			            ALL ( 'Fact Staffing'[day] ),          
+			            'Fact Staffing'[day] >= SelectedStartDate
+			                && 'Fact Staffing'[day] <= SelectedEndDate
+			        )
+			    )
+			 
+			VAR TotalWorkingDaysClient =
+			    SUMX (
+			        ActiveResources,
+			        [Working Days (Client)]
+			    )
+			 
+			VAR TotalWorkingDays =
+			    SUMX (
+			        ActiveResources,
+			       [Working Days]
+			    )
+			 
+			RETURN
+			    DIVIDE ( TotalWorkingDaysClient, TotalWorkingDays, 0 )
+			 
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Occupation Rate
+		lineageTag: bc1958e1-926f-46e7-90f1-bbc56d5eea32
+
+	measure 'Occupation Rate LM' = CALCULATE([Occupation Rate], DATEADD('Dim Date'[Day], -1, MONTH))
+		displayFolder: Finance\Occupation Rate
+		lineageTag: 861ed419-85c6-4d60-9a49-e37b2f5a9281
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Occupation Rate LQ' = CALCULATE([Occupation Rate], DATEADD('Dim Date'[Day], -1, QUARTER))
+		displayFolder: Finance\Occupation Rate
+		lineageTag: c3871ff0-473a-418d-ad4a-a6032bf1f254
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Occupation Rate LY' = CALCULATE([Occupation Rate], DATEADD('Dim Date'[Day], -1, YEAR))
+		formatString: 0.00
+		displayFolder: Finance\Occupation Rate
+		lineageTag: 1e9e06f3-3c38-42b0-9a49-ba5c4156127d
+
+	measure 'Occupation Rate YoY %' =
+			
+			DIVIDE([Occupation Rate] - [Occupation Rate LY], [Occupation Rate LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Occupation Rate
+		lineageTag: 3c5b604a-6647-4179-9428-25bebeebcf3a
+
+	measure 'Occupation Rate QoQ %' =
+			
+			DIVIDE([Occupation Rate] - [Occupation Rate LQ], [Occupation Rate LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Occupation Rate
+		lineageTag: c9259395-f8fa-414e-8057-5cfb30b0830a
+
+	measure 'Occupation Rate MoM %' =
+			
+			DIVIDE([Occupation Rate] - [Occupation Rate LM], [Occupation Rate LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Occupation Rate
+		lineageTag: 1e458867-2a71-49f1-aac3-57f3f139a29b
+
+	measure 'Payroll Internal' = ```
+			
+			    SUMX(
+			        'Fact Payroll (Internal)',
+			        'Fact Payroll (Internal)'[CJM] *
+			        'Fact Payroll (Internal)'[resource_working_days_per_month]
+			    )
+			```
+		displayFolder: Finance\Payroll
+		lineageTag: e3de161c-1684-4056-b74c-6a7eed3b8db2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Payroll LM' = CALCULATE([Payroll Internal],   DATEADD('Dim Date'[Day], -1, MONTH))
+		displayFolder: Finance\Payroll
+		lineageTag: bfb9eb92-a719-4aa8-b913-88e1657f9821
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Payroll LQ' = CALCULATE([Payroll Internal],   DATEADD('Dim Date'[Day], -1, QUARTER))
+		displayFolder: Finance\Payroll
+		lineageTag: e8f1e6ae-f73e-465f-b84d-c1378b185f1b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Payroll LY' = CALCULATE([Payroll Internal],   DATEADD('Dim Date'[Day], -1, YEAR))
+		displayFolder: Finance\Payroll
+		lineageTag: 89019066-f00a-4baa-8eed-58f7154bd5e1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Payroll YoY %' =
+			
+			DIVIDE([Payroll Internal] - [Payroll LY], [Payroll LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Payroll
+		lineageTag: eab82d5d-273a-4f66-a555-34a484d4c0a1
+
+	measure 'Payroll QoQ %' =
+			
+			DIVIDE([Payroll Internal] - [Payroll LQ], [Payroll LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Payroll
+		lineageTag: c0b018b9-d628-462d-ba5b-f025d130c580
+
+	measure 'Payroll MoM %' =
+			
+			DIVIDE([Payroll Internal] - [Payroll LM], [Payroll LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Payroll
+		lineageTag: 38a49fd8-c48c-4b92-99fd-5b93e63c6cf8
+
+	measure Margin = [Revenue] - [Payroll]
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Margin
+		lineageTag: 9fbb689a-8df8-4f09-95ad-9859eb85884c
+
+	measure 'Margin %' = ```
+			DIVIDE([Margin], [Revenue]) 
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Margin
+		lineageTag: 7e741303-8489-4767-9abc-d9f6fffb3b53
+
+	measure 'Margin LM' = CALCULATE([Margin], DATEADD('Dim Date'[Day], -1, MONTH))
+		displayFolder: Finance\Margin
+		lineageTag: 62d2dcf2-e0f3-4802-a5e7-baa81ecf12de
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Margin LQ' = CALCULATE([Margin], DATEADD('Dim Date'[Day], -1, QUARTER))
+		displayFolder: Finance\Margin
+		lineageTag: e5ebf9ed-abe7-4212-bf54-6c70368b2403
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Margin LY' = CALCULATE([Margin], DATEADD('Dim Date'[Day], -1, YEAR))
+		displayFolder: Finance\Margin
+		lineageTag: 43e5a5aa-aa73-4eee-ba79-2ebded1b6451
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Margin % LM' = CALCULATE([Margin %], DATEADD('Dim Date'[Day], -1, MONTH))
+		displayFolder: Finance\Margin
+		lineageTag: a7474a5f-54e7-4f8d-a36d-a8fc44066cb6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Margin % LQ' = CALCULATE([Margin %], DATEADD('Dim Date'[Day], -1, QUARTER))
+		displayFolder: Finance\Margin
+		lineageTag: 61812fcb-1aa0-4f43-a9b7-df718c5b2b69
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Margin % LY' = CALCULATE([Margin %], DATEADD('Dim Date'[Day], -1, YEAR))
+		displayFolder: Finance\Margin
+		lineageTag: e28b2b10-87b2-452f-b250-3fe91ae38c5c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Margin MoM %' = DIVIDE( [Margin] - [Margin LM], [Margin LM] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Growth Ratios
+		lineageTag: 31625c67-7635-49c7-88d3-b9eaf436e21e
+
+	measure 'Margin QoQ %' = DIVIDE( [Margin] - [Margin LQ], [Margin LQ] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Growth Ratios
+		lineageTag: f2e5e0ba-1635-412f-8068-fc7c4af24a40
+
+	measure 'Margin YoY %' = DIVIDE( [Margin] - [Margin LY], [Margin LY] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Growth Ratios
+		lineageTag: 950c3585-1c65-4047-a929-98037777149f
+
+	measure 'Payroll / Revenue' = DIVIDE( [Payroll], [Revenue] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Payroll / Revenue
+		lineageTag: 6d795939-67e8-492f-b418-f3f97e7fdc53
+
+	measure 'Payroll / Revenue LM' = CALCULATE( [Payroll / Revenue], DATEADD('Dim Date'[Day], -1, MONTH) )
+		displayFolder: Finance\Payroll / Revenue
+		lineageTag: f6608310-9144-467b-b78b-79f0f4814abc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Payroll / Revenue LQ' = CALCULATE( [Payroll / Revenue], DATEADD('Dim Date'[Day], -1, QUARTER) )
+		displayFolder: Finance\Payroll / Revenue
+		lineageTag: e267eaa6-581d-47f1-9ff1-921265a9eda8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Payroll / Revenue LY' = CALCULATE( [Payroll / Revenue], DATEADD('Dim Date'[Day], -1, YEAR) )
+		displayFolder: Finance\Payroll / Revenue
+		lineageTag: 6e2d9f5c-0d1e-4eea-9d5a-371366cafeb2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Payroll / Revenue MoM %' = DIVIDE( [Payroll / Revenue] - [Payroll / Revenue LM], [Payroll / Revenue LM] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Payroll / Revenue
+		lineageTag: ebe5e4e1-4fd6-40c8-b4b7-c9749393f9cc
+
+	measure 'Payroll / Revenue QoQ %' = DIVIDE( [Payroll / Revenue] - [Payroll / Revenue LQ], [Payroll / Revenue LQ] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Payroll / Revenue
+		lineageTag: d0ae4eb5-c012-4881-8b03-b1cf1152b844
+
+	measure 'Payroll / Revenue YoY %' = DIVIDE( [Payroll / Revenue] - [Payroll / Revenue LY], [Payroll / Revenue LY] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Payroll / Revenue
+		lineageTag: 0e05eed6-0b9d-45ef-bc9c-835f87d012c6
+
+	measure 'Working Days (Client)' =
+			
+			COALESCE(
+			    CALCULATE(
+			        SUM( 'Fact Sales'[delivery_production_times] ),
+			        FILTER( 'Dim Projects', NOT('Dim Projects'[project_typeof_name]) IN {"Projet Interne"})
+			    ),
+			    0
+			)
+		displayFolder: HR\Activity
+		lineageTag: 92501f19-02dd-413a-aea8-33a14eb43ce7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Working Days (Interne)' =
+			
+			VAR ResourceSet =
+			    VALUES ( 'Dim Resources'[resource_id] )
+			RETURN
+			SUMX (
+			    ResourceSet,
+			    VAR WD =
+			        CALCULATE ( [Real Working Days] )
+			    VAR WDClient =
+			        CALCULATE ( [Working Days (Client)] )
+			    VAR     WDIntternalProject =
+			        CALCULATE ( [Working Days (Internal Proj.)] )
+			    VAR Abs =
+			        CALCULATE ( [Absences] )
+			    VAR InterPerResource =
+			        WD - WDClient - WDIntternalProject - Abs
+			    RETURN
+			        MAX ( 0, InterPerResource )
+			)
+		displayFolder: HR\Activity
+		lineageTag: 9e09907c-1f85-4371-90ee-d488a2bbb8c7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Intercontract Days %' = DIVIDE( [Working Days (Interne)], [Working Days])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Activity
+		lineageTag: 8777029a-727d-4095-b7d6-c5ff746e2de9
+
+	measure 'Intercontract Resource' =
+			
+			CALCULATE(
+			    DISTINCTCOUNT('Dim Resources'[resource_id]),
+			    FILTER(
+			        'Dim Resources',
+			        [Working Days (Interne)] > 0
+			    )
+			)
+		formatString: 0
+		displayFolder: HR\Count
+		lineageTag: 2803ff47-3101-457b-968c-4073ca1da8a5
+
+	measure Absences =
+			
+			VAR TotalAbsences =
+			    SUM ( 'Fact Absences'[absence_duration_day] )
+			RETURN
+			    COALESCE ( TotalAbsences, 0 )
+		formatString: 0.00
+		displayFolder: HR\Activity
+		lineageTag: de07ea58-84d2-4a71-8554-e7f1c22fcde7
+
+	measure Transfers =
+			
+			CALCULATE(
+			    COUNTROWS('Dim Agency Transfers'),
+			    'Dim Agency Transfers'[transfer_date] >= MIN('Dim Date'[Day]),
+			    'Dim Agency Transfers'[transfer_date] <= MAX('Dim Date'[Day])
+			)
+		formatString: 0
+		displayFolder: HR\Transfers
+		lineageTag: c7378c71-7ea3-4fd0-8d6e-7fe75c28288c
+
+	measure 'Transfer Rate %' = DIVIDE( [Transfers], [Active Resources] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Transfers
+		lineageTag: 268ec71a-e52d-4ae9-aefe-141db80f9e0b
+
+	measure 'Seniority (in years)' =
+			
+			VAR selected_window_end = MAX ( 'Dim Date'[Day] )
+			RETURN
+			AVERAGEX (
+			    FILTER (
+			        CALCULATETABLE ( 'Fact Contracts', REMOVEFILTERS ( 'Dim Date' ) ),
+			        'Fact Contracts'[contract_start_date] <= selected_window_end
+			    ),
+			    VAR end_count =
+			        IF (
+			            ISBLANK ( 'Fact Contracts'[contract_end_date] )
+			                || 'Fact Contracts'[contract_end_date] >= selected_window_end,
+			            selected_window_end,
+			            'Fact Contracts'[contract_end_date]
+			        )
+			    VAR months_count =
+			        DATEDIFF ( 'Fact Contracts'[contract_start_date], end_count, MONTH ) + 1
+			    RETURN
+			        MAX ( 0, DIVIDE ( months_count, 12 ) )
+			)
+		displayFolder: HR\Info
+		lineageTag: 194d3079-fb56-4d7b-9707-45a192476d13
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Seniority levels' =
+			
+			VAR m = [Seniority (in months)]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    ISBLANK(m),        "Unknown",
+			    m <= 6,            "<6 mois",
+			    m <= 12,           "6–12 mois",
+			    m <= 24,           "1–2 ans",
+			    m <= 36,           "2–3 ans",
+			    m <= 48,           "3–4 ans",
+			                       ">4 ans"
+			)
+		displayFolder: HR\Info
+		lineageTag: cda008b5-0f57-43b0-9c07-c922a6a65e6a
+
+	measure 'Number of Active Men' = ```
+			
+			CALCULATE ( [Active Resources], 'Dim Resources'[resource_civility_name] = "Homme" ) 
+			```
+		formatString: 0
+		displayFolder: HR\Gender
+		lineageTag: df8ed321-0abb-4016-89e9-396e266d5a09
+
+	measure 'Number of Active Women' = ```
+			
+			CALCULATE ( [Active Resources], 'Dim Resources'[resource_civility_name] = "Femme" ) 
+			```
+		formatString: 0
+		displayFolder: HR\Gender
+		lineageTag: 0f584c55-d1e5-47e1-902b-7bc727530d53
+
+	measure 'Men %' = DIVIDE( [Number of Active Men], [Active Resources])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: bdaea164-e4c0-461e-91eb-09ff3137f1b5
+
+	measure 'Women  %' = DIVIDE( [Number of Active Women], [Active Resources])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: 735e73d2-19dd-4597-ad09-0c57b9930d83
+
+	measure 'Men % LM' = CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, MONTH) )
+		displayFolder: HR\Gender
+		lineageTag: 46775808-84f1-449a-85e1-cbde6668ee22
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Men % LQ' = CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, QUARTER) )
+		displayFolder: HR\Gender
+		lineageTag: 0b57f4ab-5d59-4b26-8e55-ca9d8cc92ccd
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Men % LY' = CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, YEAR) )
+		displayFolder: HR\Gender
+		lineageTag: 722e530d-4d88-4e2a-b6c6-9941f7c27b4c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Women % LY' = CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, YEAR) )
+		displayFolder: HR\Gender
+		lineageTag: 66f6f8cf-26b6-466e-af6a-e252cb8718dc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Women % LM' = CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, MONTH) )
+		displayFolder: HR\Gender
+		lineageTag: 0119d762-ebf3-4c79-a5fe-dac81d062623
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Women % LQ' = CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, QUARTER) )
+		displayFolder: HR\Gender
+		lineageTag: 6942b8fb-1576-4ef6-ae28-b6aac65ac875
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Men MoM %' = DIVIDE( [Men %] - [Men % LM], [Men % LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: 231b0dfb-4f83-4497-be03-b83bf447f2ce
+
+	measure 'Men QoQ %' = DIVIDE( [Men %] - [Men % LQ], [Men % LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: 7d385c5c-ddc5-45d4-89ac-456f3ad4ad26
+
+	measure 'Men YoY %' = DIVIDE( [Men %] - [Men % LY], [Men % LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: eb53c4dd-2932-481d-bb96-aeda728357ed
+
+	measure 'Women MoM %' = DIVIDE( [Women  %] - [Women % LM], [Women % LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: 9a3a4a98-b04b-4b98-b5ba-b0b46ecb58c7
+
+	measure 'Women QoQ %' = DIVIDE( [Women  %] - [Women % LQ], [Women % LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: 29c7017e-2cd0-4a56-a44c-a0493c082009
+
+	measure 'Women YoY %' = DIVIDE( [Women  %] - [Women % LY], [Women % LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Gender
+		lineageTag: b788849c-8cbd-4cf8-81d5-a76c1053bdd1
+
+	measure 'Turnover LM' =
+			CALCULATE(
+			    [Turnover],
+			    DATEADD('Dim Date'[day],-1, MONTH)
+			    )
+		displayFolder: HR\Turnover
+		lineageTag: 536fbbec-8c6f-4780-ad21-cfe987f71281
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Turnover LQ' =
+			CALCULATE(
+			    [Turnover],
+			    DATEADD('Dim Date'[day],-1, QUARTER)
+			    )
+		displayFolder: HR\Turnover
+		lineageTag: 556ee508-f4c8-4f60-b507-fc99f2cb93df
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Turnover LY' =
+			CALCULATE(
+			    [Turnover],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			    )
+		displayFolder: HR\Turnover
+		lineageTag: 1a281b93-d5bd-4b7b-a9e6-0a8503957241
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Turnover MoM %' = DIVIDE( [Turnover] - [Turnover LM], [Turnover LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Turnover
+		lineageTag: aa969b23-2b1e-4286-9713-3db86c3a5660
+
+	measure 'Turnover QoQ %' = DIVIDE( [Turnover] - [Turnover LQ], [Turnover LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Turnover
+		lineageTag: 11970f0a-105f-4cc2-a147-5b8e5c58bb7e
+
+	measure 'Turnover YoY %' = DIVIDE( [Turnover] - [Turnover LY], [Turnover LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Turnover
+		lineageTag: 76878ee6-d432-4717-b6c3-55c67b1573bf
+
+	measure 'Invoice Count LY' =
+			CALCULATE(
+			    [Invoice Count],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		formatString: 0
+		displayFolder: Finance\Invoice\Count
+		lineageTag: dd2c5053-1d59-4f14-9364-3f3ea9d37051
+
+	measure 'Invoice Count LM' =
+			CALCULATE(
+			    [Invoice Count],
+			    DATEADD('Dim Date'[day],-1, MONTH)
+			     )
+		formatString: 0
+		displayFolder: Finance\Invoice\Count
+		lineageTag: 41c7ecfc-a25e-47e0-9c99-580722e0b129
+
+	measure 'Invoice Count LQ' =
+			CALCULATE(
+			    [Invoice Count],
+			    DATEADD('Dim Date'[day],-1, QUARTER)
+			     )
+		formatString: 0
+		displayFolder: Finance\Invoice\Count
+		lineageTag: 32aa9801-d243-415c-a669-a1b7ed60fda3
+
+	measure 'Invoice Count MoM %' = DIVIDE( [Invoice Count] - [Invoice Count LM], [Invoice Count LM] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Invoice\Count
+		lineageTag: 8ebed339-f60b-4c40-a6fd-b23197604549
+
+	measure 'Invoice Count QoQ %' = DIVIDE( [Invoice Count] - [Invoice Count LQ], [Invoice Count LQ] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Invoice\Count
+		lineageTag: a7ea3146-dd57-47d1-b937-05acacac35fd
+
+	measure 'Invoice Count YoY %' = DIVIDE( [Invoice Count] - [Invoice Count LY], [Invoice Count LY] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Invoice\Count
+		lineageTag: 65c17650-240f-4f4d-aece-718c13041793
+
+	measure 'Average Invoice Value LM' =
+			CALCULATE(
+			    [Average Invoice Value (AIV)],
+			    DATEADD('Dim Date'[day],-1, MONTH)
+			     )
+		displayFolder: Finance\Invoice\Average
+		lineageTag: fe7afd5d-57af-419d-a750-d56a04107554
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Invoice Value LQ' =
+			CALCULATE(
+			    [Average Invoice Value (AIV)],
+			    DATEADD('Dim Date'[day],-1, QUARTER)
+			     )
+		displayFolder: Finance\Invoice\Average
+		lineageTag: 8a74d425-461b-469b-b48f-702edf452dd6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Invoice Value LY' =
+			CALCULATE(
+			    [Average Invoice Value (AIV)],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		displayFolder: Finance\Invoice\Average
+		lineageTag: 42be60b5-5223-4be4-9767-31adc0223267
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Invoice Value MoM %' = DIVIDE( [Average Invoice Value (AIV)] - [Average Invoice Value LM], [Average Invoice Value LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Invoice\Average
+		lineageTag: 4ddf1aa3-f577-417d-8b45-ee5cc9a31741
+
+	measure 'Average Invoice Value QoQ %' = DIVIDE( [Average Invoice Value (AIV)] - [Average Invoice Value LQ], [Average Invoice Value LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Invoice\Average
+		lineageTag: 72590bdb-da4c-458b-9dd8-21a9c4c5933b
+
+	measure 'Average Invoice Value YoY %' = DIVIDE( [Average Invoice Value (AIV)] - [Average Invoice Value LY], [Average Invoice Value LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Invoice\Average
+		lineageTag: 39e57586-7225-4362-819f-efb7b72b983b
+
+	measure 'Projects Count (Interne)' =
+			COALESCE(
+			    CALCULATE(
+			    DISTINCTCOUNT( 'Fact Sales'[project_id]),
+			    'Fact Sales'[project_typeof]="Projet Interne")
+			    ,0)
+		formatString: 0
+		displayFolder: Finance\Projects
+		lineageTag: d14b6b92-82de-485c-b38b-50dbc4b6a98f
+
+	measure 'Projects Count LM' =
+			CALCULATE(
+			    [Projects Count (Interne)],
+			    DATEADD('Dim Date'[day],-1, MONTH)
+			     )
+		formatString: 0
+		displayFolder: Finance\Projects
+		lineageTag: 6daf957d-036b-4257-b9bf-a71fbdf2f68d
+
+	measure 'Projects Count LQ' =
+			CALCULATE(
+			    [Projects Count (Interne)],
+			    DATEADD('Dim Date'[day],-1, QUARTER)
+			     )
+		formatString: 0
+		displayFolder: Finance\Projects
+		lineageTag: 05b2120e-36a1-4580-acc6-e7b5203bbcae
+
+	measure 'Projects Count (Interne) LY' =
+			CALCULATE(
+			    [Projects Count (Interne)],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		formatString: 0
+		displayFolder: Finance\Projects
+		lineageTag: e201e896-2530-4ceb-97fc-191898d3a7ee
+
+	measure 'Projects Count MoM %' = DIVIDE( [Projects Count (Interne)] - [Projects Count LM],  [Projects Count LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Projects
+		lineageTag: ffd79623-8feb-4a3e-9bde-659010765976
+
+	measure 'Projects Count QoQ %' = DIVIDE( [Projects Count (Interne)] - [Projects Count LQ],  [Projects Count LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Projects
+		lineageTag: 2e1310ea-f139-4b1a-bf1a-485425d6887e
+
+	measure 'Projects Count (Interne) YoY %' = DIVIDE( [Projects Count (Interne)] - [Projects Count (Interne) LY],  [Projects Count (Interne) LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Projects
+		lineageTag: de822ebe-0ff1-43b7-9a4a-7762f8bd2618
+
+	measure 'Clients Count' =
+			COALESCE(
+			DISTINCTCOUNT('Fact Invoices'[client_id]),0)
+		formatString: 0
+		displayFolder: Finance\Clients
+		lineageTag: 4809a7b3-da65-47a4-b0b8-5521a927042f
+
+	measure 'Clients Count LM' =
+			CALCULATE(
+			    [Clients Count],
+			    DATEADD('Dim Date'[day],-1, MONTH)
+			     )
+		formatString: 0
+		displayFolder: Finance\Clients
+		lineageTag: b96ac3ac-5e3b-455f-91cf-f75f8157f627
+
+	measure 'Clients Count LQ' =
+			CALCULATE(
+			    [Clients Count],
+			    DATEADD('Dim Date'[day],-1, QUARTER)
+			     )
+		formatString: 0
+		displayFolder: Finance\Clients
+		lineageTag: 66adb979-46e0-46d1-9248-96237c9a41f9
+
+	measure 'Clients Count LY' =
+			CALCULATE(
+			    [Clients Count],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		formatString: 0
+		displayFolder: Finance\Clients
+		lineageTag: 8ff4d27a-ec69-4ecc-8e98-d18c37bb3279
+
+	measure 'Clients Count MoM %' = DIVIDE( [Clients Count] - [Clients Count LM], [Clients Count LM])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Clients
+		lineageTag: 2b8e93ff-e77d-402b-af4f-a604939fa34b
+
+	measure 'Clients Count QoQ %' = DIVIDE( [Clients Count] - [Clients Count LQ], [Clients Count LQ])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Clients
+		lineageTag: 7834da55-2381-42e6-aeda-fa519c102d0a
+
+	measure 'Clients Count YoY %' = DIVIDE( [Clients Count] - [Clients Count LY], [Clients Count LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Clients
+		lineageTag: b1fa55c1-a551-48eb-afd1-dc6f0de9a5d6
+
+	measure 'Payroll External' =
+			
+			CALCULATE(
+			    SUMX(
+			        FILTER('Fact Costs', 'Fact Costs'[resource_type] = "Consultant Externe"),
+			        'Fact Costs'[resource_cost]
+			    )
+			)
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Payroll
+		lineageTag: 2e0c5f09-2b4d-409e-9ac6-6e8d013ca5b6
+
+	measure 'Selected General KPI LY' =
+			
+			VAR KPIName =
+			SELECTEDVALUE ( 'General KPIs'[General KPIs Champs] )
+			VAR SelectedMeasure =
+			SWITCH (
+			KPIName,
+			"'KPIs'[Revenue]", [Revenue LY],
+			"'KPIs'[Payroll]", [Payroll LY],
+			"'KPIs'[Margin %]", [Margin % LY],
+			"'KPIs'[Payroll / Revenue]", [Payroll / Revenue LY],
+			"'KPIs'[Number of HR]", [Active Resources],
+			"'KPIs'[Occupation Rate]", [Occupation Rate LY],
+			"'KPIs'[Intercontract Cost]", [Intercontract Cost LY],
+			"'KPIs'[Turnover %]", [Turnover LY],
+			"'KPIs'[Invoice Count]", [Invoice Count LY],
+			"'KPIs'[Average Invoice Value (AIV)]", [Average Invoice Value LY],
+			"'KPIs'[Number of Projects]", [Projects Count (Interne) LY],
+			"'KPIs'[Number of Clients]", [Clients Count LY],
+			BLANK ()
+			)
+			RETURN
+			CALCULATE (
+			SelectedMeasure,
+			SAMEPERIODLASTYEAR ( 'Dim Date'[day] )
+			)
+		lineageTag: 31f12254-8828-47d1-9d3c-435ec2623e20
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Payment Period (APP) Days' = ```
+			
+			AVERAGEX(
+			    FILTER(
+			        'Fact Invoices',
+			        'Fact Invoices'[invoice_state_name] = "Payée"                                   
+			            && NOT ISBLANK('Fact Invoices'[performed_payment_date])  -- date paiement connue
+			            && NOT ISBLANK('Fact Invoices'[invoice_date])             -- date facture connue
+			    ),
+			    DATEDIFF('Fact Invoices'[invoice_date], 'Fact Invoices'[performed_payment_date], DAY)
+			)
+			```
+		displayFolder: Finance\Invoice
+		lineageTag: c6aec062-5b3a-4548-9559-d7ed2088fdea
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Issued Invoice Count' =
+			CALCULATE(  DISTINCTCOUNT('Fact Invoices'[invoice_id]),
+			  NOT ('Fact Invoices'[invoice_state_name] IN {"Impayé", "Proforma","Création"})
+			) -- IN {"Transmis au client", "Relance 1","Relance 2", Email au client})
+		formatString: 0
+		displayFolder: Finance\Invoice
+		lineageTag: d2a03aaa-d554-410e-a1cf-eeaf7af6b347
+
+	measure 'Paid Invoice Count' =
+			CALCULATE(  DISTINCTCOUNT('Fact Invoices'[invoice_id]),
+			  'Fact Invoices'[invoice_state_name] = "Payée" )
+		formatString: 0
+		displayFolder: Finance\Invoice
+		lineageTag: 08e8af62-5460-4255-b436-332566f9a3b5
+
+	measure 'Paid Invoice Turnover' =
+			CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),
+			  'Fact Invoices'[invoice_state_name] = "Payée" )
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Invoice
+		lineageTag: 42ec8f62-b26a-4f12-a57d-65dd82f7e428
+
+	measure 'Issued Invoice Turnover' =
+			CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),
+			  NOT ('Fact Invoices'[invoice_state_name] IN {"Impayé", "Proforma","Création"})
+			)
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Invoice
+		lineageTag: 9b768843-d25b-4aa7-86c3-4e81080ae304
+
+	measure 'Billing Gap Amount' = [Issued Invoice Turnover] - [Paid Invoice Turnover]
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Invoice
+		lineageTag: 4a975f66-47a0-45d6-b6d9-3974bbcff2b4
+
+	measure 'Invoice in Collection Count' =
+			CALCULATE(  DISTINCTCOUNT('Fact Invoices'[invoice_id]),
+			('Fact Invoices'[invoice_state_name] IN {"Relance 1", "Relance 2","Email au client"})
+			)
+		formatString: 0
+		displayFolder: Finance\Invoice
+		lineageTag: 99faf3a6-fc6e-45fa-b741-bb4c7a9c3ba8
+
+	measure 'Invoice in Collection Turnover' =
+			CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),
+			('Fact Invoices'[invoice_state_name] IN {"Relance 1", "Relance 2","Email au client"})
+			)
+		displayFolder: Finance\Invoice
+		lineageTag: da365aed-6a2f-4acf-b7f1-a72b01586eeb
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Payroll = [Payroll Internal] + [Payroll External]
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Payroll
+		lineageTag: 7218a701-0126-41e5-947c-ed1529e6e997
+
+	measure 'Working Days' =
+			
+			VAR Region_ = SELECTEDVALUE('Fact Staffing'[agency_id])   -- TN = 1, FR = 2, UAE = 3
+			VAR WorkDays =
+			    SWITCH (
+			        TRUE(),
+			        Region_ = 1,
+			            CALCULATE (
+			                COUNTROWS ( 'Dim Date' ),
+			                KEEPFILTERS ( 'Dim Date'[is_weekend] = FALSE() )
+			            --    KEEPFILTERS ( 'Dim Date'[is_holiday_TN] = FALSE() )
+			            ),
+			            Region_ = 2,
+			            CALCULATE (
+			                COUNTROWS ( 'Dim Date' ),
+			                KEEPFILTERS ( 'Dim Date'[is_weekend] = FALSE() )
+			            --    KEEPFILTERS ( 'Dim Date'[is_holiday_FR] = FALSE() )
+			            ),
+			            Region_ = 3,
+			            CALCULATE (
+			                COUNTROWS ( 'Dim Date' ),
+			                KEEPFILTERS ( 'Dim Date'[is_weekend] = FALSE() )
+			            --    KEEPFILTERS ( 'Dim Date'[is_holiday_UAE] = FALSE() )
+			            ),
+			        BLANK()  -- if Region_ is blank or not one of the above
+			    )
+			RETURN
+			COALESCE ( WorkDays, 22 )
+		formatString: 0
+		displayFolder: HR\Activity
+		lineageTag: dd67bbcd-7693-4717-a8f7-b3ab31538aef
+
+	measure 'Intercontract Cost' = ```
+			
+			VAR SelectedStartDate =
+			    MIN ( 'Dim Date'[day] )
+			 
+			VAR SelectedEndDate =
+			    MAX ( 'Dim Date'[day] )
+			 
+			-- Active resources in the selected period (from Staffing)
+			VAR ActiveResources =
+			    CALCULATETABLE (
+			        DISTINCT ( 'Dim Resources'[resource_id] ),
+			        FILTER (
+			            ALL ( 'Fact Staffing' ),
+			            'Fact Staffing'[day] >= SelectedStartDate
+			                && 'Fact Staffing'[day] <= SelectedEndDate
+			        )
+			    )
+			 
+			-- Sum cost per resource, then aggregate
+			VAR IntercontractCost_Total =
+			    SUMX (
+			        ActiveResources,
+			        VAR ThisResourceID = 'Dim Resources'[resource_id]
+			 
+			        -- CJM for this resource in the period
+			        VAR ResourceCJM =
+			            CALCULATE (
+			                AVERAGE ( 'Fact Payroll (Internal)'[CJM] ),
+			                'Dim Resources'[resource_id] = ThisResourceID,
+			                'Fact Payroll (Internal)'[payroll_date] >= SelectedStartDate,
+			                'Fact Payroll (Internal)'[payroll_date] <= SelectedEndDate
+			            )
+			 
+			        -- Intercontract working days for this resource in the period
+			        VAR ResourceWD_Interne =
+			            CALCULATE (
+			                [Working Days (Interne)],
+			                'Dim Resources'[resource_id] = ThisResourceID,
+			                'Fact Staffing'[day] >= SelectedStartDate,
+			                'Fact Staffing'[day] <= SelectedEndDate
+			            )
+			 
+			        -- Internal projects cost
+			        VAR InternalProjectCost =  
+			                CALCULATE(
+			                    SUM( 'Fact Costs'[client_ppd_cost] ),
+			                    FILTER( 'Dim Projects', ('Dim Projects'[project_typeof_name]) IN {"Projet Interne"})
+			                )
+			        RETURN
+			            ((ResourceWD_Interne * ResourceCJM) + InternalProjectCost
+			    ) )
+			 
+			RETURN
+			    COALESCE ( IntercontractCost_Total, 0 )
+			 
+			```
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		displayFolder: Finance\Cost
+		lineageTag: 79b34031-a3bf-4783-99ef-c77cd781f011
+
+	measure 'Revenue from Sales' =
+			
+			COALESCE(
+			    CALCULATE(
+			        SUM ( 'Fact Sales'[resource_sale] )
+			    ),
+			    0
+			)
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		displayFolder: Finance\Sales
+		lineageTag: 7295b1bf-0237-4d73-b07f-145de2500346
+
+	measure 'Cost from Sales' =
+			
+			VAR is_internal_consultant =
+			    NOT (SELECTEDVALUE ( 'Fact Costs'[resource_type] ) IN {"Consultant Externe","Consultant Interne P","Conseil Assistance"})
+			
+			VAR cost_internal_consultant =
+			   COALESCE (
+			    SUMX (
+			        VALUES ( 'Fact Costs'[times_reports_term] ),
+			        CALCULATE (
+			            AVERAGE ( 'Fact Costs'[resource_cost] ),
+			            FILTER (
+			                'Dim Projects',
+			                NOT ( 'Dim Projects'[project_typeof_name] IN { "Projet Interne" } )
+			            )
+			        )
+			    ),
+			    0
+			)
+			VAR cost_dynamic =
+			    COALESCE (
+			        CALCULATE (
+			            SUM ( 'Fact Costs'[client_ppd_cost] ),
+			            FILTER (
+			                'Dim Projects',
+			                NOT ( 'Dim Projects'[project_typeof_name] IN { "Projet Interne" } )
+			            )
+			        ),
+			        0
+			    )
+			
+			RETURN
+			IF (
+			    is_internal_consultant,
+			    cost_internal_consultant,
+			    cost_dynamic
+			)
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		displayFolder: Finance\Resource
+		lineageTag: 095f21c4-ccd9-4233-8028-9755e7b2a1c1
+
+	measure 'Margin from Sales' = [Revenue from Sales] - [Total Resource Cost]
+		formatString: "€"\ #,0.000;-"€"\ #,0.000;"€"\ #,0.000
+		displayFolder: Finance\Resource
+		lineageTag: 20c5d058-4f95-4c38-b1d5-57541421dc83
+
+	measure 'AVG Revenue per Resource' =
+			
+			CALCULATE(
+			    [Revenue from Sales],
+			    REMOVEFILTERS('Dim Resources')
+			)
+		displayFolder: Finance\Resource
+		lineageTag: 3bb85fa0-6ce2-44a1-b71c-f19b94f72584
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AVG Margin from Sales' =
+			
+			CALCULATE(
+			    [Margin from Sales],
+			    REMOVEFILTERS('Dim Resources')
+			)
+		displayFolder: Finance\Resource
+		lineageTag: 3a2b5257-2285-4288-96de-436bea5ecf33
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Contract Start date' =
+			CALCULATE(
+			    MIN( 'Fact Staffing'[tech_start]),
+			    REMOVEFILTERS('Dim Date'[day])
+			)
+		formatString: Short Date
+		displayFolder: HR\Contract
+		lineageTag: 02a53b3b-be84-4f1a-9501-b6457ac0324a
+
+	measure 'Intercontract Cost LY' = CALCULATE([Intercontract Cost], DATEADD('Dim Date'[Day], -1, YEAR))
+		displayFolder: Finance\Cost
+		lineageTag: c4e4247c-8447-4167-8041-da784e73087a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Intercontract Cost YoY %' = DIVIDE([Intercontract Cost] - [Intercontract Cost LY], [Intercontract Cost LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Cost
+		lineageTag: a8a5f695-f1d9-4e11-be2f-d893b9adb560
+
+	measure 'Billing Gap YoY %' = DIVIDE( [Billing Gap Amount] - [Billing Gap Amount LY] , [Billing Gap Amount LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Growth Ratios
+		lineageTag: 0aa5ef61-5764-4f04-af72-687d8779109a
+
+	measure 'Average Payment Period LY' =
+			CALCULATE(
+			    [Average Payment Period (APP) Days],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		displayFolder: Finance\Invoice
+		lineageTag: f2f7182f-4fb3-4374-9e05-224920d823b3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Billing Gap Amount LY' =
+			CALCULATE(
+			    [Billing Gap Amount],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		displayFolder: Finance\Invoice
+		lineageTag: c1ebb25a-52f1-4624-8f4d-637d01af9cf7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Payment Period YoY %' = DIVIDE( [Average Payment Period (APP) Days] - [Average Payment Period LY] , [Average Invoice Value LY])
+		formatString: 0.000\ %;-0.000\ %;0.000\ %
+		displayFolder: Finance\Growth Ratios
+		lineageTag: 9eed85dd-1d6b-4080-a96f-ec58d60acccc
+
+	measure 'Active Resources' = ```
+			
+			VAR end_date = MAX('Dim Date'[day])
+			VAR active_resource = 
+			CALCULATE(
+			DISTINCTCOUNT('Fact Staffing'[resource_id]),
+			'Fact Staffing'[day] = end_date
+			)
+			RETURN
+			active_resource
+			```
+		formatString: 0
+		displayFolder: HR\Count
+		lineageTag: ba8c249f-e544-48eb-9390-3147fca20b63
+
+	measure 'Intercontract Cost LM' = CALCULATE([Intercontract Cost], DATEADD('Dim Date'[Day], -1, MONTH))
+		displayFolder: Finance\Cost
+		lineageTag: 17db490d-56bf-4b55-a209-77a2204fb765
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Intercontract Cost LQ' = CALCULATE([Intercontract Cost], DATEADD('Dim Date'[Day], -1, QUARTER))
+		displayFolder: Finance\Cost
+		lineageTag: 8c365b79-b8d5-430d-91d8-c6ce50c3f292
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Intercontract Cost MoM %' = DIVIDE([Intercontract Cost] - [Intercontract Cost LM], [Intercontract Cost LM])
+		displayFolder: Finance\Cost
+		lineageTag: b753f293-d7a6-4854-93e6-a3e81f790926
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Intercontract Cost QoQ %' = DIVIDE([Intercontract Cost] - [Intercontract Cost LQ], [Intercontract Cost LQ])
+		displayFolder: Finance\Cost
+		lineageTag: 30b43781-d0fa-4c25-989b-0ef18575baf4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Client Resource' = DISTINCTCOUNT('Dim Resources'[resource_id])
+		formatString: 0
+		lineageTag: 7e4fd506-572f-4a24-a021-2d90628e6c09
+
+	measure 'Revenue from Client' = ```
+			
+			        SUM ( 'Fact Sales'[resource_sale] )
+			```
+		displayFolder: Finance\Sales
+		lineageTag: b97b22e2-657a-4130-a859-9f9c442fd644
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cost from Client' = ```
+			
+			        SUM ( 'Fact Costs'[client_ppd_cost] )
+			```
+		displayFolder: Finance\Sales
+		lineageTag: 1e0b0153-a2a3-4c42-86d3-5fea16c5ed32
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Margin from Client' = ```
+			
+			       [Revenue from Client] - [Cost from Client]
+			```
+		displayFolder: Finance\Sales
+		lineageTag: a8760c28-6159-4207-91da-7c591ed95cc6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Resource Cost' =
+			
+			VAR is_internal_consultant =
+			    NOT ( SELECTEDVALUE( 'Fact Costs'[resource_type] ) IN {"Consultant Externe", "Consultant Interne P", "Conseil Assistance"})
+			
+			VAR cost_internal_consultant =
+			   COALESCE (
+			    SUMX (
+			        VALUES ( 'Fact Costs'[times_reports_term] ),
+			        CALCULATE (
+			            AVERAGE ( 'Fact Costs'[resource_cost] ) /*,
+			            FILTER (
+			                'Dim Projects',
+			                NOT ( 'Dim Projects'[project_typeof_name] IN { "Projet Interne" } )
+			            )*/
+			        )
+			    ),
+			    0
+			)
+			
+			VAR cost_dynamic =
+			    COALESCE (
+			        CALCULATE (
+			            SUM ( 'Fact Costs'[client_ppd_cost] ),
+			            FILTER (
+			                'Dim Projects',
+			                NOT ( 'Dim Projects'[project_typeof_name] IN { "Projet Interne" } )
+			            )
+			        ),
+			        0
+			    )
+			
+			VAR intercontract_cost =
+			    [Intercontract Cost]
+			
+			RETURN
+			IF (
+			    is_internal_consultant,
+			    cost_internal_consultant,
+			    cost_dynamic + intercontract_cost
+			)
+		displayFolder: Finance\Resource
+		lineageTag: c1102408-c6fd-45b9-bf31-0991647fa2ec
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Project count (sales)' =
+			
+			DISTINCTCOUNT('Fact Sales'[project_id])
+		formatString: 0
+		displayFolder: Finance\Projects
+		lineageTag: 3aeac678-0db9-48a3-b831-c1de62267874
+
+	measure 'Clients Count (sales)' =
+			COALESCE(
+			    CALCULATE(
+			            DISTINCTCOUNT('Fact Sales'[client_id]),
+			            FILTER('Dim Projects', NOT('Dim Projects'[project_typeof_name]) IN {"Projet Interne"})
+			    ),0)
+		formatString: 0
+		displayFolder: Finance\Clients
+		lineageTag: 3cbbd0ea-581f-4898-a6df-3c323fcda5c8
+
+	measure 'Working Days (Internal Proj.)' =
+			
+			COALESCE(
+			    CALCULATE(
+			        SUM( 'Fact Sales'[delivery_production_times] ),
+			        FILTER( 'Dim Projects', 'Dim Projects'[project_typeof_name] IN {"Projet Interne"})
+			    ),
+			    0
+			)
+		displayFolder: HR\Activity
+		lineageTag: 11f4a97c-872b-49d9-ba01-1a5c36ffdcef
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Contract Type Count' =
+			
+			VAR SelectedStartDate =
+			    MIN ( 'Dim Date'[day] )
+			
+			VAR SelectedEndDate =
+			    MAX ( 'Dim Date'[day] )
+			
+			VAR ActiveResources =
+			    CALCULATETABLE (
+			        VALUES ( 'Dim Resources'[resource_id] ),
+			        FILTER (
+			            ALL ( 'Fact Staffing'[day] ),
+			            'Fact Staffing'[day] >= SelectedStartDate
+			                && 'Fact Staffing'[day] <= SelectedEndDate
+			        )
+			    )
+			
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Fact Contracts' ),
+			        'Fact Contracts'[is_active_contract] = TRUE(),
+			        TREATAS ( ActiveResources, 'Dim Resources'[resource_id] )
+			    )
+		formatString: 0
+		displayFolder: HR\Contract
+		lineageTag: aacadcd8-ac59-48ef-8ecd-a62688232a2a
+
+	measure 'Contract End Date' =
+			
+			COALESCE (
+			    VAR SelectedStartDate =
+			        MIN ( 'Dim Date'[day] )
+			
+			    VAR SelectedEndDate =
+			        MAX ( 'Dim Date'[day] )
+			
+			    -- Active resources
+			    VAR ActiveResources =
+			        CALCULATETABLE (
+			            VALUES ( 'Dim Resources'[resource_id] ),
+			            FILTER (
+			                ALL ( 'Fact Staffing'[day] ),
+			                'Fact Staffing'[day] >= SelectedStartDate
+			                    && 'Fact Staffing'[day] <= SelectedEndDate
+			            )
+			        )
+			
+			    VAR CurrentResource =
+			        SELECTEDVALUE ( 'Dim Resources'[resource_id] )
+			
+			    VAR IsResourceActive =
+			        CurrentResource IN ActiveResources
+			
+			    -- Latest contract_start_date among active contracts
+			    VAR MaxStartDate =
+			        CALCULATE (
+			            MAX ( 'Fact Contracts'[contract_start_date] ),
+			            'Fact Contracts'[resource_id] = CurrentResource,
+			            'Fact Contracts'[is_active_contract] = TRUE ()
+			        )
+			
+			    -- Filter to the single most recent active contract
+			    VAR ResourceContracts =
+			        CALCULATETABLE (
+			            FILTER (
+			                'Fact Contracts',
+			                'Fact Contracts'[is_active_contract] = TRUE ()
+			                    && 'Fact Contracts'[resource_id] = CurrentResource
+			                    && 'Fact Contracts'[contract_start_date] = MaxStartDate
+			            )
+			        )
+			
+			    -- End date with 2999 fallback
+			    VAR LatestEndDateWith2999 =
+			        MINX (
+			            ResourceContracts,
+			            IF (
+			                ISBLANK ( 'Fact Contracts'[contract_end_date] ),
+			                DATE ( 2999, 1, 1 ),
+			                'Fact Contracts'[contract_end_date]
+			            )
+			        )
+			
+			    VAR FinalDate =
+			        IF ( IsResourceActive, LatestEndDateWith2999 )
+			
+			    RETURN
+			        IF (
+			            FinalDate = DATE ( 2999, 1, 1 ) || ISBLANK ( FinalDate ),
+			            BLANK (),                              -- will become "undefined"
+			            FORMAT ( FinalDate, "dd/MM/yyyy" )     -- display real date
+			        ),
+			    "undefined"
+			)
+		displayFolder: HR\Contract
+		lineageTag: 9f6a1fd9-ee08-4a96-bb2c-f21d9b9993c9
+
+	measure 'Resource Client Count' =
+			
+			VAR SelectedStartDate =
+			    MIN ( 'Dim Date'[day] )
+			
+			VAR SelectedEndDate =
+			    MAX ( 'Dim Date'[day] )
+			
+			VAR ActiveResources =
+			    CALCULATETABLE (
+			        VALUES ( 'Dim Resources'[resource_id] ),
+			        FILTER (
+			            ALL ( 'Fact Staffing'[day] ),
+			            'Fact Staffing'[day] >= SelectedStartDate
+			                && 'Fact Staffing'[day] <= SelectedEndDate
+			        )
+			    )
+			
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Fact Sales' ),
+			        TREATAS ( ActiveResources, 'Dim Resources'[resource_id] )
+			    )
+		formatString: 0
+		lineageTag: 03b44e90-c1fa-40c0-9e69-b99fe49202a3
+
+	measure 'Projects Count (Client)' =
+			COALESCE(
+			    CALCULATE(
+			    DISTINCTCOUNT( 'Fact Invoices'[project_id]),
+			    FILTER('Dim Projects', NOT('Dim Projects'[project_type] IN {"Projet Interne"})))
+			    ,0)
+		formatString: 0
+		displayFolder: Finance\Projects
+		lineageTag: a05a19a7-d61c-4e55-a461-cad40fdcc33c
+
+	measure 'Projects Count (Client) LY' =
+			CALCULATE(
+			    [Projects Count (Client)],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		formatString: 0
+		displayFolder: Finance\Projects
+		lineageTag: 5ece3af6-be02-4ca2-858f-36fe01f565a3
+
+	measure 'Projects Count (Client) YoY %' = DIVIDE( [Projects Count (Client)] - [Projects Count (Client) LY],  [Projects Count (Client) LY])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: Finance\Projects
+		lineageTag: 1db73da0-b9fd-48e0-9a5c-d2f9c4453d41
+
+	measure 'Active Resources LY' =
+			CALCULATE(
+			    [Active Resources],
+			    DATEADD('Dim Date'[day],-1, YEAR)
+			     )
+		formatString: 0
+		displayFolder: HR\Count
+		lineageTag: 990ab067-a2b5-4fc5-bc6d-1ef26d8a33d1
+
+	measure 'Real Working Days' = ```
+			
+			VAR internal_days = SUM( 'Fact Payroll (Internal)'[resource_working_days_per_month])
+			VAR external_days = SUM( 'Fact Sales'[delivery_production_times])
+			VAR is_internal = NOT (SELECTEDVALUE ( 'Dim Resources'[resource_typeof_name] ) IN {"Consultant Externe","Consultant Interne P","Conseil Assistance"})
+			RETURN 
+			IF ( is_internal , internal_days, external_days)
+			```
+		formatString: 0
+		displayFolder: HR\Activity
+		lineageTag: 950fab91-9268-47c1-b5d2-747fee6fbed5
+
+	measure 'New Active Resources' = ```
+			
+			VAR end_date = MAX('Dim Date'[day])
+			VAR active_resource = 
+			CALCULATE(
+			DISTINCTCOUNT('Fact Staffing'[resource_id]),
+			'Fact Staffing'[day] <= end_date
+			)
+			RETURN
+			active_resource
+			```
+		formatString: 0
+		displayFolder: HR\Count
+		lineageTag: dc2a218e-2744-462b-ab16-63634f461a0f
+
+	measure 'Activity Filter' =
+			
+			VAR segment_start_date =
+			    MIN ( 'Dim Date'[day] )
+			VAR segment_end_date =
+			    MAX ( 'Dim Date'[day] )
+			VAR contract_start_date =
+			    DATEVALUE ( [Contract Start date] )
+			VAR contract_end_date_raw = [Contract End Date]
+			VAR contract_end_date =
+			    IF (
+			        contract_end_date_raw = "undefined",
+			        DATE ( 2099, 12, 31 ),
+			        DATE ( VALUE ( RIGHT ( contract_end_date_raw, 4 ) ), VALUE ( MID ( contract_end_date_raw, 4, 2 ) ), VALUE ( LEFT ( contract_end_date_raw, 2 ) ) )
+			    )
+			VAR activity_condition = contract_start_date <= segment_end_date
+			    && contract_end_date >= segment_start_date
+			    && contract_end_date >= segment_end_date
+			RETURN
+			    IF ( activity_condition, "Active", "Not Active" )
+		displayFolder: HR\Contract
+		lineageTag: cd3aa849-5973-477c-95b3-3e35cf5c2c31
+
+	measure 'flag from client' = IF ( NOT ([Revenue from Client] = 0 && [Cost from Client] = 0) , 1, 0 )
+		formatString: 0
+		lineageTag: 37943986-02b2-4542-a067-8d1940bfe6e7
+
+	column Name
+		isHidden
+		formatString: 0
+		lineageTag: 28a2ba90-0c70-4195-a457-d76e4c152a95
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition KPIs = calculated
+		mode: import
+		source = ```
+				
+				SELECTCOLUMNS(
+				    {}, 
+				    "Name", BLANK()
+				)
+				```
+
+	annotation PBI_Id = 76a007c9e6f04929b7babad8df0b658f
+

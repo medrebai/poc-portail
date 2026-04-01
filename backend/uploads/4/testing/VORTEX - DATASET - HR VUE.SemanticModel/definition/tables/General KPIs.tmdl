@@ -1,0 +1,58 @@
+table 'General KPIs'
+	lineageTag: e52128fe-4736-450e-a60f-b6573f8ff76d
+
+	column 'General KPIs'
+		lineageTag: 0255ef2f-c26d-4401-adf9-7ebbdb252b33
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'General KPIs Commande'
+
+		relatedColumnDetails
+			groupByColumn: 'General KPIs Champs'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'General KPIs Champs'
+		isHidden
+		lineageTag: b5e38a38-b5a5-48a3-835e-0fad6fe2b323
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'General KPIs Commande'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'General KPIs Commande'
+		isHidden
+		formatString: 0
+		lineageTag: 8a868fc3-04f8-476b-878f-78a518e7f9f5
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'General KPIs' = calculated
+		mode: import
+		source =
+				{
+				    ("REVENUE", NAMEOF('KPIs'[Revenue]), 0),
+				    ("PAYROLL", NAMEOF('KPIs'[Payroll]), 1),
+				    ("MARGIN", NAMEOF('KPIs'[Margin]), 2),
+				    ("PAYROLL / REVENUE %", NAMEOF('KPIs'[Payroll / Revenue]), 3),
+				    ("INVOICE", NAMEOF('KPIs'[Invoice Count]),4),
+				    ("AVERAGE INVOICE VALUE", NAMEOF('KPIs'[Average Invoice Value (AIV)]), 5),
+				    ("RESOURCES", NAMEOF('KPIs'[Active Resources]), 6),
+				    ("CLIENTS", NAMEOF('KPIs'[Clients Count]), 7),
+				    ("PROJECTS", NAMEOF('KPIs'[Projects Count (Interne)]), 8),
+				    ("INTERCONTRACT COST", NAMEOF('KPIs'[Intercontract Cost]), 9),
+				    ("OCCUPATION RATE", NAMEOF('KPIs'[Occupation Rate]), 10),
+				    ("TURNOVER", NAMEOF('KPIs'[Turnover]), 11)
+				}
+
+	annotation PBI_Id = e04837c0e23c4e7c9c68d4df27d70330
+

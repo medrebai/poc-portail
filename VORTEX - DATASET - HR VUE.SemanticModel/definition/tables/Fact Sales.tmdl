@@ -1,0 +1,242 @@
+table 'Fact Sales'
+	lineageTag: 0dc28362-ae90-476c-affb-aeadb86f4dce
+
+	column delivery_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 9ec939f8-9b2c-4aa0-8276-98f9bf7d1ba6
+		summarizeBy: sum
+		sourceColumn: delivery_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_production_times
+		dataType: double
+		lineageTag: 22fa7afe-871f-4212-989b-8a640345108b
+		summarizeBy: sum
+		sourceColumn: delivery_production_times
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column delivery_production_times_in_work_units
+		dataType: double
+		lineageTag: f66895ca-7f43-42c3-8aee-c68c58e00253
+		summarizeBy: sum
+		sourceColumn: delivery_production_times_in_work_units
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_daily_price_excl_tax
+		dataType: double
+		lineageTag: 20dcebc2-6750-4483-97a9-cfda7a711dde
+		summarizeBy: sum
+		sourceColumn: avg_daily_price_excl_tax
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column delivery_number_correlated_orders
+		dataType: int64
+		formatString: 0
+		lineageTag: e64c731f-27b3-49a3-a8bc-03e189dce02d
+		summarizeBy: sum
+		sourceColumn: delivery_number_correlated_orders
+
+		annotation SummarizationSetBy = Automatic
+
+	column times_report_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 98cf2170-9d9e-4331-a1c2-afcc5dae8363
+		summarizeBy: sum
+		sourceColumn: times_report_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column times_report_term
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ff96c27e-4404-4c42-9a6b-6eccef0bd43e
+		summarizeBy: none
+		sourceColumn: times_report_term
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column times_report_state
+		dataType: string
+		lineageTag: 0d1f1eeb-5787-4409-91f5-d69da6a533b9
+		summarizeBy: none
+		sourceColumn: times_report_state
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_nb
+		dataType: int64
+		formatString: 0
+		lineageTag: f3982f7e-d0fe-432f-a447-2ec4fa83dc2d
+		summarizeBy: sum
+		sourceColumn: month_nb
+
+		annotation SummarizationSetBy = Automatic
+
+	column year_nb
+		dataType: int64
+		formatString: 0
+		lineageTag: 2f5bd5af-f791-4b5d-95cf-0d4c40264b97
+		summarizeBy: sum
+		sourceColumn: year_nb
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 60516058-6585-48cf-b4d7-0e452f920190
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b358cf3f-f5ca-4970-b291-0b9bcc02526b
+		summarizeBy: none
+		sourceColumn: project_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 0411b4f3-bf4a-4f56-ba97-7bd074c7c917
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_id
+		dataType: int64
+		formatString: 0
+		lineageTag: eefd661f-5ba5-4b02-8910-ff768f5b40c8
+		summarizeBy: sum
+		sourceColumn: client_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_sale
+		dataType: double
+		lineageTag: 8e1338c3-c6c3-45f9-a859-8e4c6a058c6d
+		summarizeBy: sum
+		sourceColumn: resource_sale
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column project_typeof
+		dataType: string
+		lineageTag: d86eac0e-278b-4230-8255-fdd8e795a5db
+		summarizeBy: none
+		sourceColumn: project_typeof
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_name
+		dataType: string
+		lineageTag: 8f27b4d2-cdb4-4892-b2f1-bf66dc7e2dec
+		summarizeBy: none
+		sourceColumn: client_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_type
+		dataType: string
+		lineageTag: dddcd3cf-e8bb-40e9-ae29-e5c0a6bf3101
+		summarizeBy: none
+		sourceColumn: project_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Project Name'
+		dataType: string
+		lineageTag: 13965203-fa74-4679-9108-f402d28cfb47
+		summarizeBy: none
+		sourceColumn: Project Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Fact Sales' = m
+		mode: import
+		source =
+				let
+				    Source =
+				        Value.NativeQuery(
+				            GoogleBigQuery.Database([BillingProject = BQ_Proj]){[Name = BQ_Proj]}[Data],
+				            "SELECT
+				                *
+				             FROM `" & BQ_Proj & ".03_datawarehouse.fact_sales`",
+				            null,
+				            [EnableFolding = true]
+				        ),
+				
+				    #"Requêtes fusionnées" =
+				        Table.NestedJoin(
+				            Source,
+				            {"client_id"},
+				            #"Dim Clients",
+				            {"client_id"},
+				            "Dim Clients",
+				            JoinKind.LeftOuter
+				        ),
+				
+				    #"Dim Clients développé" =
+				        Table.ExpandTableColumn(
+				            #"Requêtes fusionnées",
+				            "Dim Clients",
+				            {"client_name"},
+				            {"client_name"}
+				        ),
+				
+				    #"Type modifié" =
+				        Table.TransformColumnTypes(
+				            #"Dim Clients développé",
+				            {{"times_report_term", type date}}
+				        ),
+				
+				    #"Fin du mois calculée" =
+				        Table.TransformColumns(
+				            #"Type modifié",
+				            {{"times_report_term", Date.EndOfMonth, type date}}
+				        ),
+				    #"project_type ajouté" =
+				        Table.AddColumn(
+				            #"Fin du mois calculée",
+				            "project_type",
+				            each
+				                if [project_typeof] = "Projet Interne"
+				                    or [project_typeof] = "Produit" then
+				                    "Projet Interne"
+				                else if [project_typeof] = "Régie"
+				                    or [project_typeof] = "Forfait" then
+				                    "Projet Client"
+				                else
+				                    "Other",
+				            type text
+				        ),
+				    #"Requêtes fusionnées1" = Table.NestedJoin(#"project_type ajouté", {"project_id"}, #"Dim Projects", {"project_id"}, "Dim Projects", JoinKind.LeftOuter),
+				    #"Dim Projects développé" = Table.ExpandTableColumn(#"Requêtes fusionnées1", "Dim Projects", {"Project Name"}, {"Project Name"})
+				in
+				    #"Dim Projects développé"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

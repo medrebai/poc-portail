@@ -1,0 +1,110 @@
+<div class="layout-viewer-container">
+  <mat-card class="viewer-card">
+    <div class="viewer-header">
+      <mat-form-field appearance="outline" class="page-selector">
+        <mat-label>Select Page</mat-label>
+        <mat-select [formControl]="pageControl">
+          @for (page of pages; track page.name) {
+            <mat-option [value]="page.name">{{ page.displayName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+    </div>
+
+    @if (selectedPage) {
+      <div class="page-info">
+        <span class="page-dim">{{ selectedPage.width }} × {{ selectedPage.height }}px</span>
+        <span class="visual-count">{{ selectedPage.visuals.length }} visuals</span>
+      </div>
+
+      <div class="viewer-content">
+        <div class="canvas-wrapper">
+          <div
+            class="canvas"
+            [style.width.px]="canvasWidth"
+            [style.height.px]="canvasHeight"
+          >
+            @for (visual of selectedPage.visuals; track visual.id) {
+              <div
+                class="visual"
+                [style.left.px]="visual.x * scale"
+                [style.top.px]="visual.y * scale"
+                [style.width.px]="visual.width * scale"
+                [style.height.px]="visual.height * scale"
+                [style.background-color]="getVisualColor(visual.category)"
+                [class.hovered]="hoveredVisual?.id === visual.id"
+                (mouseenter)="onVisualHover(visual)"
+                (mouseleave)="onVisualLeave()"
+              >
+                <span class="visual-label">{{ visual.title }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (hoveredVisual) {
+          <div class="visual-details">
+            <h3>Visual Details</h3>
+            <div class="detail-item">
+              <span class="detail-label">Name</span>
+              <span class="detail-value">{{ hoveredVisual.name }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Title</span>
+              <span class="detail-value">{{ hoveredVisual.title }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Type</span>
+              <span class="detail-value type-chip" [style.background-color]="getVisualColor(hoveredVisual.category)">{{ hoveredVisual.type }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Category</span>
+              <span class="detail-value">{{ getVisualCategory(hoveredVisual.category) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Position</span>
+              <span class="detail-value">X: {{ hoveredVisual.x | number:'1.0-0' }}, Y: {{ hoveredVisual.y | number:'1.0-0' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Size</span>
+              <span class="detail-value">{{ hoveredVisual.width | number:'1.0-0' }} × {{ hoveredVisual.height | number:'1.0-0' }}</span>
+            </div>
+            @if (hoveredVisual.fields.length > 0) {
+              <div class="detail-item">
+                <span class="detail-label">Fields</span>
+                <div class="fields-list">
+                  @for (field of hoveredVisual.fields; track field) {
+                    <span class="field-chip">{{ field }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="legend">
+        <div class="legend-title">Visual Types</div>
+        <div class="legend-items">
+          @for (item of [
+            { type: 'slicer', name: 'Slicer' },
+            { type: 'chart', name: 'Chart' },
+            { type: 'table', name: 'Table' },
+            { type: 'card', name: 'Card/KPI' },
+            { type: 'map', name: 'Map' },
+            { type: 'text', name: 'Text' }
+          ]; track item.type) {
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                [style.background-color]="getVisualColor(item.type)"
+              ></div>
+              <span>{{ item.name }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </mat-card>
+</div>

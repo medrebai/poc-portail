@@ -1,0 +1,61 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: fr-FR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup Parameters
+
+	annotation PBI_QueryGroupOrder = 0
+
+annotation PBI_QueryOrder = ["BQ_Proj","RowsNum","Fact Sales","Fact Invoices","Fact Contracts","Fact Absences","Dim Agencies","Dim Agency Transfers","Dim Clients","Dim Date","Dim Projects","Dim Resources","Dim Resource Flow","Fact Payroll (Internal)","Fact Costs","Fact Staffing","Dim Resource Image","Users Mapping"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table DateTableTemplate_a2a57322-33f3-4900-8744-424874360bc0
+ref table KPIs
+ref table 'Fact Sales'
+ref table 'Dim Agencies'
+ref table 'Dim Agency Transfers'
+ref table 'Dim Clients'
+ref table 'Dim Date'
+ref table LocalDateTable_bde56bc2-a9bd-4a1b-970b-289561876ed9
+ref table 'Dim Projects'
+ref table LocalDateTable_73c5209c-ead4-42fd-babf-5bc5abfb1597
+ref table LocalDateTable_0836d3f0-1db9-4092-afa3-e9bc6f39474c
+ref table 'Dim Resources'
+ref table 'Fact Absences'
+ref table 'Fact Contracts'
+ref table LocalDateTable_23858a4b-e72f-427a-9e5d-7dfb934a5240
+ref table 'Fact Invoices'
+ref table LocalDateTable_3b6694be-6513-4772-8d8c-8c58b39a35c3
+ref table LocalDateTable_f2b87ed4-8624-43b5-8411-ae1ce44d982f
+ref table LocalDateTable_3b3bf5e2-3558-4973-b651-575d8f2db2fc
+ref table LocalDateTable_4fcf911b-3009-431a-b209-9b456bfdec63
+ref table 'Working Days'
+ref table 'Date Hierarchy Filter'
+ref table 'General KPIs'
+ref table 'Invoice KPIs'
+ref table LocalDateTable_f13ab90a-94c8-4074-86f2-2d4546e5b018
+ref table 'Fact Payroll (Internal)'
+ref table 'Fact Costs'
+ref table LocalDateTable_52d5e91e-5b6d-43ee-8db5-8777a23d4ff6
+ref table LocalDateTable_24f99b51-d6ce-4daf-8fce-e47e9cea1a0c
+ref table LocalDateTable_75ddfa64-ca5f-42b6-8cac-47a0ecbce335
+ref table 'Dim Resource Flow'
+ref table 'KPIs HR'
+ref table 'Fact Staffing'
+ref table LocalDateTable_76d39721-9c57-4d31-a8ad-309b7246526e
+ref table LocalDateTable_8a805ecc-0e9d-4481-af6f-e18723a9d6a9
+ref table 'Dim Resource Image'
+ref table 'Users Mapping'
+ref table LocalDateTable_496c376b-72c6-46e2-a81a-88723cf1f83f
+
+ref role REGION
+
+ref cultureInfo en-US
+

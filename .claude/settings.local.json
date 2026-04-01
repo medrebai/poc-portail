@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip --version)",
+      "Bash(npm --version)",
+      "Bash(pg_isready)",
+      "Bash(psql --version)",
+      "Bash(mongod --version)",
+      "Bash(mongosh --version)",
+      "Bash(where.exe psql:*)",
+      "Bash(docker --version)",
+      "Bash(ng version:*)",
+      "Bash(npx ng:*)",
+      "Bash(where.exe mongosh:*)",
+      "Bash(powershell.exe -Command \"Get-Service MongoDB* | Format-Table Name,Status\")",
+      "Bash(powershell.exe -Command \"Restart-Service postgresql-x64-18\")",
+      "Bash(python -m venv venv)",
+      "Bash(source venv/Scripts/activate)",
+      "Bash(pip install:*)",
+      "Bash(ls -la \"C:\\\\Users\\\\medre\\\\Documents\\\\PFE 2026\\\\month 2\\\\poc portail\\\\VORTEX - DATASET - HR VUE.SemanticModel\\\\definition\"\" | grep -E \"^d)",
+      "Bash(expressions \")",
+      "Bash(python -c \"import json; rules=json.load\\(open\\(''backend/rules/BPARules-Custom.json'',''r'',encoding=''utf-8-sig''\\)\\); cats=set\\(\\); [cats.add\\(r.get\\(''Category'',''''\\)\\) for r in rules]; print\\(sorted\\(cats\\)\\)\")",
+      "Bash(python -c \"from app import create_app, db; app = create_app\\(\\); ctx = app.app_context\\(\\); ctx.push\\(\\); db.create_all\\(\\); print\\(''DB tables updated OK''\\)\")",
+      "Bash(find 'C:\\\\Users\\\\medre\\\\Documents\\\\PFE 2026\\\\month 2\\\\poc portail\\\\backend' -maxdepth 3 -type d -name *venv* -o -name *env -o -type f -name python.exe)",
+      "Bash(venvScriptspython.exe -c \"from app import create_app, db; app = create_app\\(\\); ctx = app.app_context\\(\\); ctx.push\\(\\); db.create_all\\(\\); print\\(''DB tables updated OK''\\)\")",
+      "Bash(\"./venv/Scripts/python.exe\" -c \"from app import create_app, db; app = create_app\\(\\); ctx = app.app_context\\(\\); ctx.push\\(\\); db.create_all\\(\\); print\\(''DB tables updated OK''\\)\")",
+      "Bash(npm install:*)",
+      "Bash(\"C:/Program Files/PostgreSQL/18/bin/psql.exe\" -U postgres -d bi_quality -c \"ALTER TABLE projects ADD COLUMN IF NOT EXISTS data_source_count INTEGER; ALTER TABLE projects ADD COLUMN IF NOT EXISTS visual_count INTEGER;\")",
+      "Bash(\"C:/Program Files/PostgreSQL/18/bin/psql.exe\" -U postgres -d bi_quality -c \"ALTER TABLE projects ADD COLUMN IF NOT EXISTS data_source_count INTEGER;\" -c \"ALTER TABLE projects ADD COLUMN IF NOT EXISTS visual_count INTEGER;\")",
+      "Bash(\"./venv/Scripts/python.exe\" -c \":*)",
+      "Bash(python -c \":*)",
+      "Bash(npm run:*)",
+      "Bash(find 'C:\\\\Users\\\\medre\\\\Documents\\\\PFE 2026\\\\month 2\\\\poc portail\\\\backend\\\\uploads\\\\4\\\\testing' -type f -name *.json)",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(xargs -I {} sh -c \"echo \"\"{}:\"\" && find \"\"{}\"\" -type f\")"
+    ]
+  }
+}

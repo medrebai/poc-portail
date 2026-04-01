@@ -1,0 +1,42 @@
+{
+  "name": "OliveSoft Minimal Theme",
+  "dataColors": [
+    "#193B68",
+    "#56BBD3",
+    "#97D4C7",
+    "#FACD65",
+    "#B280B8",
+    "#6380C0",
+    "#B7E2EC",
+    "#F26975"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#193B68",
+  "tableAccent": "#193B68",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI"
+    },
+    "header": {
+      "fontFace": "Segoe UI"
+    },
+    "label": {
+      "fontFace": "Segoe UI"
+    }
+  },
+  "visualStyles": {
+    "page": {
+      "*": {
+        "outspace": [
+          {
+            "color": {
+              "solid": {
+                "color": "#F7F7F7"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

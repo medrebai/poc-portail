@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-02-26T12:14:41.675203+00:00",
+  "model": "groq/llama-3.3-70b-versatile",
+  "totalLLMSuggestions": 3,
+  "bpaFixes": [
+    {
+      "ruleId": "DAX_COLUMNS_FULLY_QUALIFIED",
+      "ruleName": "Column references should be fully qualified",
+      "source": "bpa",
+      "severity": 2,
+      "affectedCount": 97,
+      "object": "Fact Invoices[Invoice_state_group_details]",
+      "daxExpression": null,
+      "llmFixSuggestion": "Update the 'Fact Invoices[Invoice_state_group_details]' column to use a fully qualified reference, such as 'Fact Invoices'[Invoice_state_group_details], in all DAX expressions.",
+      "correctedExpression": "'Fact Invoices'[Invoice_state_group_details]",
+      "effort": "low",
+      "affectsMultiple": true,
+      "llmGenerated": true
+    },
+    {
+      "ruleId": "META_AVOID_FLOAT",
+      "ruleName": "Do not use floating point data types",
+      "source": "bpa",
+      "severity": 3,
+      "affectedCount": 22,
+      "object": "Fact Sales[delivery_production_times]",
+      "daxExpression": null,
+      "llmFixSuggestion": "Change the data type of the 'Fact Sales[delivery_production_times]' column to a fixed decimal number type, such as Decimal Number, to avoid potential issues with floating point precision.",
+      "correctedExpression": null,
+      "effort": "trivial",
+      "affectsMultiple": true,
+      "llmGenerated": true
+    }
+  ],
+  "inspectorFixes": [
+    {
+      "ruleId": "LOCAL_REPORT_SETTINGS",
+      "ruleName": "Local report settings",
+      "source": "inspector",
+      "severity": "",
+      "affectedCount": 1,
+      "object": "N/A",
+      "daxExpression": null,
+      "llmFixSuggestion": "Review and update the local report settings to match the expected values, specifically 'exportDataMode' should be set to 'AllowSummarizedAndUnderlying' and other null values should be set to their corresponding expected values.",
+      "correctedExpression": null,
+      "effort": "medium",
+      "affectsMultiple": false,
+      "llmGenerated": true
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+.chart-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+  background: var(--bg-card);
+  transition: box-shadow 200ms var(--ease);
+}
+
+.chart-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+h3 {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(90px, 1.2fr) 2fr auto;
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+.row:last-child { margin-bottom: 0; }
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label.has-tooltip {
+  cursor: help;
+  text-decoration: underline dotted var(--text-muted);
+  text-underline-offset: 2px;
+}
+
+.value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+  min-width: 28px;
+}
+
+.bar-wrap {
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--brand-gradient);
+  transition: width 500ms var(--ease);
+}

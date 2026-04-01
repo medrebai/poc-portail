@@ -1,0 +1,54 @@
+table 'Date Hierarchy Filter'
+	lineageTag: a525c56e-dce8-4b98-9235-ea555b78ef5a
+
+	measure 'Active Resources YoY %' = DIVIDE( [Active Resources] - [Active Resources LY], [Active Resources LY] )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: HR\Count
+		lineageTag: ba69daff-71eb-400d-a67f-3ccac7e3e9d2
+
+	column 'Date Hierarchy Filter'
+		lineageTag: 608abb9f-ed22-4228-b3af-612fc81c6220
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Paramètre Commande'
+
+		relatedColumnDetails
+			groupByColumn: 'Paramètre Champs'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Paramètre Champs'
+		isHidden
+		lineageTag: e1c9c122-298c-4b52-a84c-24e5ae7ca67e
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Paramètre Commande'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Paramètre Commande'
+		isHidden
+		formatString: 0
+		lineageTag: ead9907c-d0f4-4ba1-97dd-94d7fe9d3908
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Date Hierarchy Filter' = calculated
+		mode: import
+		source =
+				{
+				    ("YEAR", NAMEOF('Dim Date'[year]), 0),
+				    ("QUARTER", NAMEOF('Dim Date'[quarter_year_key]), 1),
+				    ("MONTH", NAMEOF('Dim Date'[month_year_key]), 2)
+				}
+
+	annotation PBI_Id = 23929ed2e71a419bb7c9d5a928378d79
+

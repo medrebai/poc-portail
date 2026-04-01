@@ -1,0 +1,304 @@
+table 'Fact Invoices'
+	lineageTag: 2225891e-106a-4039-969a-3576d0216607
+
+	column invoice_id
+		dataType: int64
+		formatString: 0
+		lineageTag: bf9f99d5-6b9b-468a-8a55-49af7e731922
+		summarizeBy: sum
+		sourceColumn: invoice_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_closed
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 3414fbab-f8f3-4bfe-863f-d70d1c96f90b
+		summarizeBy: none
+		sourceColumn: is_closed
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: beec73ad-d4aa-4c87-8bc0-acd67da0672c
+		summarizeBy: none
+		sourceColumn: invoice_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column invoice_currency_name
+		dataType: string
+		lineageTag: 5dcce5bc-7f6e-4619-a1e4-eb0052068089
+		summarizeBy: none
+		sourceColumn: invoice_currency_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_exchange_rate
+		dataType: double
+		lineageTag: 9509803b-6904-4f9d-9196-4162d8712032
+		summarizeBy: sum
+		sourceColumn: invoice_exchange_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_credit_note
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: b606bced-a275-4552-aec2-ff6eb92e7eff
+		summarizeBy: none
+		sourceColumn: is_credit_note
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_state_name
+		dataType: string
+		lineageTag: 75e1db42-cfd4-44d2-95f9-fa06614cf0a1
+		summarizeBy: none
+		sourceColumn: invoice_state_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_payment_method
+		dataType: string
+		lineageTag: 807eb4f9-3266-4f24-adde-a6d504c3d97b
+		summarizeBy: none
+		sourceColumn: invoice_payment_method
+
+		annotation SummarizationSetBy = Automatic
+
+	column turnover_invoiced_TE
+		dataType: double
+		lineageTag: 03936740-4b7b-4a98-be2e-85eebb46a774
+		summarizeBy: sum
+		sourceColumn: turnover_invoiced_TE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column turnover_invoiced_TI
+		dataType: double
+		lineageTag: a54e56d9-2686-43ff-aec0-54c91f3537d7
+		summarizeBy: sum
+		sourceColumn: turnover_invoiced_TI
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_payable_TI
+		dataType: double
+		lineageTag: d4252ec4-1a57-4b17-91da-16e192403765
+		summarizeBy: sum
+		sourceColumn: total_payable_TI
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column invoice_start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 276d7c62-40d9-41db-a687-8c81b55092de
+		summarizeBy: none
+		sourceColumn: invoice_start_date
+
+		variation Variation
+			isDefault
+			relationship: 4f772da2-8d21-41bc-9d99-3eec385d1cd2
+			defaultHierarchy: LocalDateTable_3b6694be-6513-4772-8d8c-8c58b39a35c3.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column invoice_end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 1df30a92-1a88-446e-9e7d-1e0632a94728
+		summarizeBy: none
+		sourceColumn: invoice_end_date
+
+		variation Variation
+			isDefault
+			relationship: 5521191a-a27e-4417-ad96-d633437e8f76
+			defaultHierarchy: LocalDateTable_f2b87ed4-8624-43b5-8411-ae1ce44d982f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column expected_payment_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4cbbe311-27cb-456f-b31c-2c4461a12426
+		summarizeBy: none
+		sourceColumn: expected_payment_date
+
+		variation Variation
+			isDefault
+			relationship: 47630046-9aa0-4034-9144-b584843bed64
+			defaultHierarchy: LocalDateTable_3b3bf5e2-3558-4973-b651-575d8f2db2fc.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column performed_payment_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8a718086-e150-4230-b5a1-5273839517ff
+		summarizeBy: none
+		sourceColumn: performed_payment_date
+
+		variation Variation
+			isDefault
+			relationship: 3e828e4e-94b5-4c9b-a0fb-fb19b929aded
+			defaultHierarchy: LocalDateTable_4fcf911b-3009-431a-b209-9b456bfdec63.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column project_id
+		dataType: int64
+		formatString: 0
+		lineageTag: e90be5ba-038e-44c2-9e00-06204f343909
+		summarizeBy: none
+		sourceColumn: project_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 341269d5-8c24-415e-93d4-acca2deb2570
+		summarizeBy: sum
+		sourceColumn: client_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: f8cbd2d7-78cd-424d-aee4-9a6b741bb8cb
+		summarizeBy: none
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_status_group =
+			
+			SWITCH(
+			    TRUE(),
+			    'Fact Invoices'[invoice_state_name] IN {"Transmis au client","Relance 1","Relance 2","Email au client"}, "Issued",
+			    'Fact Invoices'[invoice_state_name] = "Payée", "Paid",
+			    'Fact Invoices'[invoice_state_name] = "Impayée", "Unpaid",
+			    'Fact Invoices'[invoice_state_name] IN {"ProForma","Création"}, "Draft",
+			    "Other"
+			)
+		lineageTag: f512627c-2458-4ccc-955e-88896d730e40
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_status_collection =
+			
+			VAR s = 'Fact Invoices'[invoice_state_name]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    s = "Transmis au client", "Sent",
+			    s IN {"Relance 1","Relance 2","Email au client"}, "In Collection",
+			    'Fact Invoices'[invoice_status_group]
+			)
+		lineageTag: 3ade7070-883d-4d82-bcb5-a9f7f5e1f7aa
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Invoice_state_group_details = ```
+			
+			VAR s = 'Fact Invoices'[invoice_state_name]
+			RETURN
+			IF(
+			    [invoice_status_group] = "Issued",
+			    SWITCH(
+			        TRUE(),
+			        s = "Transmis au client", "Sent",
+			        s IN {"Relance 1","Relance 2","Email au client"}, s, 
+			        BLANK()
+			    ),
+			    'Fact Invoices'[invoice_status_group]
+			)
+			```
+		lineageTag: 19fea6f7-a95f-4416-9acd-14c20907c55c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_reference
+		dataType: string
+		lineageTag: c05d5d5d-9e15-45aa-886b-d57f68746f81
+		summarizeBy: none
+		sourceColumn: invoice_reference
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 382b40a7-6efa-40ef-a7a7-b5085527dc7d
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_name
+		dataType: string
+		lineageTag: 6abac469-443e-41bd-8f31-7eef9f295f9e
+		summarizeBy: none
+		sourceColumn: client_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_reference
+		dataType: string
+		lineageTag: ae6a32d7-1b69-4446-93dd-760348e267ae
+		summarizeBy: none
+		sourceColumn: project_reference
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Fact Invoices' = m
+		mode: import
+		source = ```
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.fact_invoice`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Personnalisée ajoutée" = Table.AddColumn(Source, "Region", each if [agency_id] = 1 then "TN" 
+				else if [agency_id] = 2 then "FR" 
+				else if [agency_id] = 3 then "UE" 
+				else "Other"),
+				    #"Requêtes fusionnées" = Table.NestedJoin(#"Personnalisée ajoutée", {"client_id"}, #"Dim Clients", {"client_id"}, "Dim Clients", JoinKind.LeftOuter),
+				    #"Dim Clients développé" = Table.ExpandTableColumn(#"Requêtes fusionnées", "Dim Clients", {"client_name"}, {"Dim Clients.client_name"}),
+				    #"Colonnes renommées" = Table.RenameColumns(#"Dim Clients développé",{{"Dim Clients.client_name", "client_name"}}),
+				    #"Requêtes fusionnées1" = Table.NestedJoin(#"Colonnes renommées", {"project_id"}, #"Dim Projects", {"project_id"}, "Dim Projects", JoinKind.LeftOuter),
+				    #"Dim Projects développé" = Table.ExpandTableColumn(#"Requêtes fusionnées1", "Dim Projects", {"project_reference"}, {"project_reference"})
+				in
+				    #"Dim Projects développé"
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

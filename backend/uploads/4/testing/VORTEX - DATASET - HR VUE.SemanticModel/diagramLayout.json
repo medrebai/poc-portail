@@ -1,0 +1,308 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 650.99809547898246,
+            "y": 0
+          },
+          "nodeIndex": "Fact Invoices",
+          "nodeLineageTag": "2225891e-106a-4039-969a-3576d0216607",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 988.01956005518377,
+            "y": 0
+          },
+          "nodeIndex": "Fact Sales",
+          "nodeLineageTag": "0dc28362-ae90-476c-affb-aeadb86f4dce",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 18
+        },
+        {
+          "location": {
+            "x": 602.15290059474739,
+            "y": 459.1205116325732
+          },
+          "nodeIndex": "Dim Resources",
+          "nodeLineageTag": "94d75a97-f058-48df-bb0b-6abe8dad9b9b",
+          "size": {
+            "height": 312.38528179267462,
+            "width": 234
+          },
+          "zIndex": 19
+        },
+        {
+          "location": {
+            "x": 318.21272815079783,
+            "y": 468.17971326509371
+          },
+          "nodeIndex": "Dim Agencies",
+          "nodeLineageTag": "535b1298-6d00-4297-8d4a-242f3206b0c5",
+          "size": {
+            "height": 300.28057748213166,
+            "width": 234
+          },
+          "zIndex": 17
+        },
+        {
+          "location": {
+            "x": 898.64323854007159,
+            "y": 459.37533462533963
+          },
+          "nodeIndex": "Dim Clients",
+          "nodeLineageTag": "587e18da-990d-464a-b401-2a3103d66b49",
+          "size": {
+            "height": 308.8417324463951,
+            "width": 234
+          },
+          "zIndex": 22
+        },
+        {
+          "location": {
+            "x": 1172.8844939145458,
+            "y": 464.76773646741708
+          },
+          "nodeIndex": "Dim Projects",
+          "nodeLineageTag": "b9f6da6f-5b85-48cd-b1ba-24a80376fecd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 2438.3499583583207,
+            "y": 358.48937595577485
+          },
+          "nodeIndex": "KPIs",
+          "nodeLineageTag": "0441d416-80e6-4e81-8264-80dc70042e8c",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 880.176293851802
+          },
+          "nodeIndex": "Dim Agency Transfers",
+          "nodeLineageTag": "543ab58b-abdf-4be0-9950-819500a01115",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 1437.1197489352112,
+            "y": 458.70668572696252
+          },
+          "nodeIndex": "Dim Date",
+          "nodeLineageTag": "8ca39fe7-3c70-4688-9542-2e59ec726216",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 21
+        },
+        {
+          "location": {
+            "x": 513.06305515053634,
+            "y": 954.85369746091624
+          },
+          "nodeIndex": "Fact Contracts",
+          "nodeLineageTag": "75cc3481-94b9-431e-958f-00814afe3d5e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 14
+        },
+        {
+          "location": {
+            "x": 787.07551801677437,
+            "y": 958.94018003737619
+          },
+          "nodeIndex": "Fact Absences",
+          "nodeLineageTag": "6a461d84-b4f3-46b5-9849-42fdd1d00479",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 2136.1378060460611,
+            "y": 1082.9570760912106
+          },
+          "nodeIndex": "Working Days",
+          "nodeLineageTag": "27a7a736-43cf-4ff3-94f3-9967cdd95612",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 2130.8181047929866,
+            "y": 909.15454234445667
+          },
+          "nodeIndex": "Date Hierarchy Filter",
+          "nodeLineageTag": "a525c56e-dce8-4b98-9235-ea555b78ef5a",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 2440.7571693940044,
+            "y": 767.69277374463456
+          },
+          "nodeIndex": "General KPIs",
+          "nodeLineageTag": "e52128fe-4736-450e-a60f-b6573f8ff76d",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 2439.768865595031,
+            "y": 940.81499001335374
+          },
+          "nodeIndex": "Invoice KPIs",
+          "nodeLineageTag": "8b44acda-82c9-4593-9801-30672994facb",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 1325.6196446147808,
+            "y": 3.5527136788005009E-15
+          },
+          "nodeIndex": "Fact Costs",
+          "nodeLineageTag": "2c21694b-8137-4c97-96ec-3f4da5afa5f4",
+          "size": {
+            "height": 294.5677163147509,
+            "width": 234
+          },
+          "zIndex": 15
+        },
+        {
+          "location": {
+            "x": 1342.5766585023571,
+            "y": 952.17670689779175
+          },
+          "nodeIndex": "Fact Payroll (Internal)",
+          "nodeLineageTag": "f7a8a542-32b3-4072-9331-7dfeb3670bfd",
+          "size": {
+            "height": 313.24055144998806,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 386.39440151253893
+          },
+          "nodeIndex": "Dim Resource Flow",
+          "nodeLineageTag": "d7884a68-f990-4c3c-abae-bdfa0e747e4c",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 20
+        },
+        {
+          "location": {
+            "x": 2439.7809725861825,
+            "y": 584.78145165284457
+          },
+          "nodeIndex": "KPIs HR",
+          "nodeLineageTag": "5f8771ff-7716-4497-8679-8c8cddbc7314",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 1063.3770222313306,
+            "y": 967.57312455604756
+          },
+          "nodeIndex": "Fact Staffing",
+          "nodeLineageTag": "dc3be5d3-2f5d-41f1-8d22-5967729adb80",
+          "size": {
+            "height": 298.44835934098023,
+            "width": 234
+          },
+          "zIndex": 16
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 118.51737921245802
+          },
+          "nodeIndex": "Dim Resource Image",
+          "nodeLineageTag": "d61b2d77-83c1-4b30-af49-50c9f3b122e8",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 688.238411451995
+          },
+          "nodeIndex": "Users Mapping",
+          "nodeLineageTag": "11aec6a3-3b49-45a7-9fe0-974356720675",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 1
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 51.537850466585745,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

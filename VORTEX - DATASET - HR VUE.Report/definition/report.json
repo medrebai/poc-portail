@@ -1,0 +1,110 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.1.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY25SU10",
+      "reportVersionAtImport": {
+        "visual": "2.1.0",
+        "report": "3.0.0",
+        "page": "2.3.0"
+      },
+      "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "OliveSoft_Minimal_Theme7541288163471447.json",
+      "reportVersionAtImport": {
+        "visual": "2.1.0",
+        "report": "3.0.0",
+        "page": "2.3.0"
+      },
+      "type": "RegisteredResources"
+    }
+  },
+  "objects": {
+    "section": [
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "false"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "publicCustomVisuals": [
+    "card5A9FD14587EA41CC817AC5AAB1CAC59A",
+    "HierarchySlicer1458836712039",
+    "kpi_tree",
+    "RoseDonutPiechart762B562BE2774F939Fvdsfdsf1FfasfD1F32D91sdw",
+    "simpleImageEBC4593F96F1425FB3D84C5BF02B5075"
+  ],
+  "resourcePackages": [
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "man_(1)1383865810945022.png",
+          "path": "man_(1)1383865810945022.png",
+          "type": "Image"
+        },
+        {
+          "name": "olivesoft-logo-full-color-rgb-9087093620359565.png",
+          "path": "olivesoft-logo-full-color-rgb-9087093620359565.png",
+          "type": "Image"
+        },
+        {
+          "name": "olivesoft-logo-mark-full-color22409121139907606.jpg",
+          "path": "olivesoft-logo-mark-full-color22409121139907606.jpg",
+          "type": "Image"
+        },
+        {
+          "name": "OliveSoft_Minimal_Theme7541288163471447.json",
+          "path": "OliveSoft_Minimal_Theme7541288163471447.json",
+          "type": "Image"
+        },
+        {
+          "name": "woman-avatar730088917350078.png",
+          "path": "woman-avatar730088917350078.png",
+          "type": "Image"
+        }
+      ]
+    },
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "CY25SU10",
+          "path": "BaseThemes/CY25SU10.json",
+          "type": "BaseTheme"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true
+  }
+}

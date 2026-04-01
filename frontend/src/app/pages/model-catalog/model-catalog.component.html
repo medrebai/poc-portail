@@ -1,0 +1,309 @@
+@if (catalog && project) {
+	<section class="model-shell">
+		<mat-card class="project-header-card">
+			<div class="project-header-main">
+				<div class="project-thumb" aria-hidden="true">
+					<mat-icon>analytics</mat-icon>
+				</div>
+				<div class="project-meta">
+					<div class="project-title-row">
+						<h1>{{ project.name }}</h1>
+						<span class="env-chip">dev</span>
+					</div>
+					<p>Last updated {{ project.updated_at ? (project.updated_at | date:'medium') : 'n/a' }}</p>
+					<p>Created {{ project.created_at ? (project.created_at | date:'medium') : 'n/a' }}</p>
+				</div>
+			</div>
+			<div class="project-header-actions">
+				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
+				<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']">View documentation</a>
+			</div>
+		</mat-card>
+
+		<div class="page-head">
+			<div>
+				<h1 class="page-title">Model Documentation Explorer</h1>
+				<p class="page-subtitle">Browse every table, column, measure, relationship, and role with granular filters.</p>
+			</div>
+			<button mat-flat-button color="primary" (click)="exportCatalog()">
+				<mat-icon>download</mat-icon>
+				Export Catalog
+			</button>
+		</div>
+
+		<div class="nav-tabs">
+			<a class="tab" [routerLink]="['/projects', projectId]">Overview</a>
+			<a class="tab" [routerLink]="['/projects', projectId, 'bpa']">Model</a>
+			<a class="tab" [routerLink]="['/projects', projectId, 'inspector']">Visual</a>
+			<a class="tab active" [routerLink]="['/projects', projectId, 'catalog']">Documentation</a>
+		</div>
+
+		<!-- Top Stats Cards -->
+		<div class="top-cards-grid">
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ (catalog?.tables || []).length }}</div>
+				<div class="top-card-label">Tables</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ allMeasures.length }}</div>
+				<div class="top-card-label">Measures</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ totalPartitions }}</div>
+				<div class="top-card-label">Total Partitions</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ (catalog?.relationships || []).length }}</div>
+				<div class="top-card-label">Relationships</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ (catalog?.roles || []).length }}</div>
+				<div class="top-card-label">RLS Roles</div>
+			</mat-card>
+		</div>
+
+		<mat-tab-group>
+			<!-- Tables Tab -->
+			<mat-tab label="Tables">
+				<div class="tab-content">
+					<div class="section-card">
+						<h2>Tables Overview</h2>
+
+						<div class="toolbar-grid top-space">
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Search table</mat-label>
+								<input matInput [formControl]="tableSearch" placeholder="Search by table name..." />
+								<mat-icon matSuffix>search</mat-icon>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Mode</mat-label>
+								<mat-select [formControl]="tableMode">
+									<mat-option value="all">All</mat-option>
+									<mat-option value="import">Import</mat-option>
+									<mat-option value="directQuery">DirectQuery</mat-option>
+								</mat-select>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Filter by Measure</mat-label>
+								<input matInput [formControl]="tableMeasureFilter" [matAutocomplete]="measureAuto" placeholder="Search measures..." />
+								<mat-autocomplete #measureAuto="matAutocomplete">
+									<mat-option value="">All Measures</mat-option>
+									@for (measure of filteredTableMeasures; track measure) {
+										<mat-option [value]="measure">{{ measure }}</mat-option>
+									}
+								</mat-autocomplete>
+							</mat-form-field>
+
+							<mat-checkbox [formControl]="showHiddenTables" class="filter-checkbox">Show hidden tables</mat-checkbox>
+						</div>
+
+						<div class="table-stats">
+							<span class="stat-badge">{{ filteredTables.length }} results</span>
+							<span class="stat-badge">Page {{ tableCurrentPage }} of {{ tablePageNumbers.length || 1 }}</span>
+						</div>
+
+						<mat-accordion class="tables-accordion">
+							@for (table of tablePaginatedTables; track table.id) {
+								<mat-expansion-panel>
+									<mat-expansion-panel-header>
+										<div class="panel-header-wrap">
+											<div class="panel-title-line">
+												<span class="table-name">{{ table.name }}</span>
+												<span class="table-badge" [ngClass]="table.mode.toLowerCase()">{{ table.mode }}</span>
+											</div>
+											<div class="panel-desc-line">
+												{{ table.column_count }} columns · {{ table.measure_count }} measures · {{ table.partition_count || 0 }} partitions
+											</div>
+										</div>
+									</mat-expansion-panel-header>
+
+									<div class="table-detail-grid">
+										<div class="detail-section">
+											<h3>Columns</h3>
+											<div class="columns-list">
+												@for (column of (table.columns || []).slice(0, isExpanded(table.id, 'columns') ? undefined : 5); track column.id) {
+													<div class="column-item">
+														<span class="column-name">{{ column.name }}</span>
+														<span class="column-type">{{ column.data_type || 'unknown' }}</span>
+													</div>
+												}
+											</div>
+											@if ((table.columns || []).length > 5) {
+												<button
+													mat-stroked-button
+													class="view-more-btn"
+													(click)="toggleExpanded(table.id, 'columns')"
+												>
+													{{ isExpanded(table.id, 'columns') ? 'View Less' : 'View More' }}
+													({{ (table.columns || []).length - 5 }} more)
+												</button>
+											}
+										</div>
+										<div class="detail-section">
+											<h3>Measures</h3>
+											<div class="measures-list">
+												@for (measure of (table.measures || []).slice(0, isExpanded(table.id, 'measures') ? undefined : 5); track measure.id) {
+													<div class="measure-item">{{ measure.name }}</div>
+												} @empty {
+													<p class="empty-msg">No measures</p>
+												}
+											</div>
+											@if ((table.measures || []).length > 5) {
+												<button
+													mat-stroked-button
+													class="view-more-btn"
+													(click)="toggleExpanded(table.id, 'measures')"
+												>
+													{{ isExpanded(table.id, 'measures') ? 'View Less' : 'View More' }}
+													({{ (table.measures || []).length - 5 }} more)
+												</button>
+											}
+										</div>
+									</div>
+								</mat-expansion-panel>
+							}
+						</mat-accordion>
+
+						@if (tablePageNumbers.length > 1) {
+							<div class="pagination-nav">
+								<button mat-icon-button (click)="goToTablePage(tableCurrentPage - 1)" [disabled]="tableCurrentPage === 1">
+									<mat-icon>chevron_left</mat-icon>
+								</button>
+								@for (page of tablePageNumbers; track page) {
+									<button
+										mat-stroked-button
+										(click)="goToTablePage(page)"
+										[class.page-btn-active]="tableCurrentPage === page"
+									>
+										{{ page }}
+									</button>
+								}
+								<button mat-icon-button (click)="goToTablePage(tableCurrentPage + 1)" [disabled]="tableCurrentPage === tablePageNumbers.length">
+									<mat-icon>chevron_right</mat-icon>
+								</button>
+							</div>
+						}
+					</div>
+				</div>
+			</mat-tab>
+
+			<!-- Measures Tab -->
+			<mat-tab label="Measures">
+				<div class="tab-content">
+					<div class="section-card">
+						<h2>Measures</h2>
+
+						<div class="toolbar-grid top-space">
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Search measure</mat-label>
+								<input matInput [formControl]="measureSearch" placeholder="Search by measure name..." />
+								<mat-icon matSuffix>search</mat-icon>
+							</mat-form-field>
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Table</mat-label>
+								<mat-select [formControl]="measureTable">
+									<mat-option value="all">All</mat-option>
+									@for (table of measureTables; track table) {
+										<mat-option [value]="table">{{ table }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Display folder</mat-label>
+								<mat-select [formControl]="measureFolder">
+									<mat-option value="all">All</mat-option>
+									@for (folder of measureFolders; track folder) {
+										<mat-option [value]="folder">{{ folder }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="data-table-wrap">
+							<table mat-table [dataSource]="filteredMeasures">
+								<ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Measure</th><td mat-cell *matCellDef="let row">{{ row.name }}</td></ng-container>
+								<ng-container matColumnDef="table_name"><th mat-header-cell *matHeaderCellDef>Table</th><td mat-cell *matCellDef="let row">{{ row.table_name }}</td></ng-container>
+								<ng-container matColumnDef="display_folder"><th mat-header-cell *matHeaderCellDef>Folder</th><td mat-cell *matCellDef="let row">{{ row.display_folder || '-' }}</td></ng-container>
+								<ng-container matColumnDef="format_string"><th mat-header-cell *matHeaderCellDef>Format</th><td mat-cell *matCellDef="let row">{{ row.format_string || '-' }}</td></ng-container>
+								<ng-container matColumnDef="is_hidden"><th mat-header-cell *matHeaderCellDef>Hidden</th><td mat-cell *matCellDef="let row">{{ row.is_hidden ? 'Yes' : 'No' }}</td></ng-container>
+								<tr mat-header-row *matHeaderRowDef="measureColumns"></tr>
+								<tr mat-row *matRowDef="let row; columns: measureColumns"></tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</mat-tab>
+
+			<!-- Relationships Tab -->
+			<mat-tab label="Relationships">
+				<div class="tab-content">
+					<div class="section-card">
+						<h2>Relationships</h2>
+
+						<div class="toolbar-grid top-space">
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Filter by table</mat-label>
+								<input matInput [formControl]="relationshipSearch" placeholder="Search tables..." />
+								<mat-icon matSuffix>search</mat-icon>
+							</mat-form-field>
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>State</mat-label>
+								<mat-select [formControl]="relationshipActive">
+									<mat-option value="all">All</mat-option>
+									<mat-option value="active">Active</mat-option>
+									<mat-option value="inactive">Inactive</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="data-table-wrap">
+							<table mat-table [dataSource]="filteredRelationships">
+								<ng-container matColumnDef="from"><th mat-header-cell *matHeaderCellDef>From</th><td mat-cell *matCellDef="let row">{{ row.from_table }}[{{ row.from_column }}]</td></ng-container>
+								<ng-container matColumnDef="to"><th mat-header-cell *matHeaderCellDef>To</th><td mat-cell *matCellDef="let row">{{ row.to_table }}[{{ row.to_column }}]</td></ng-container>
+								<ng-container matColumnDef="cardinality"><th mat-header-cell *matHeaderCellDef>Cardinality</th><td mat-cell *matCellDef="let row">{{ row.from_cardinality }} → {{ row.to_cardinality }}</td></ng-container>
+								<ng-container matColumnDef="cross_filter"><th mat-header-cell *matHeaderCellDef>Cross Filter</th><td mat-cell *matCellDef="let row">{{ row.cross_filter }}</td></ng-container>
+								<ng-container matColumnDef="is_active"><th mat-header-cell *matHeaderCellDef>Active</th><td mat-cell *matCellDef="let row">{{ row.is_active ? 'Yes' : 'No' }}</td></ng-container>
+								<tr mat-header-row *matHeaderRowDef="relationshipColumns"></tr>
+								<tr mat-row *matRowDef="let row; columns: relationshipColumns"></tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</mat-tab>
+
+			<!-- RLS Roles Tab -->
+			<mat-tab label="RLS Roles">
+				<div class="tab-content">
+					<div class="section-card">
+						<h2>RLS (Row-Level Security) Roles</h2>
+
+						<mat-accordion class="roles-accordion">
+							@for (role of roles; track role.id) {
+								<mat-expansion-panel>
+									<mat-expansion-panel-header>
+										<div class="panel-header-wrap">
+											<div class="panel-title-line">
+												<span class="role-name">{{ role.name }}</span>
+											</div>
+											<div class="panel-desc-line">
+												{{ role.filters.length }} filters
+											</div>
+										</div>
+									</mat-expansion-panel-header>
+									@for (filter of role.filters; track filter.table + filter.expression) {
+										<div class="role-filter">
+											<div class="filter-table">{{ filter.table }}</div>
+											<pre class="filter-expression">{{ filter.expression }}</pre>
+										</div>
+									}
+								</mat-expansion-panel>
+							}
+						</mat-accordion>
+					</div>
+				</div>
+			</mat-tab>
+		</mat-tab-group>
+	</section>
+}

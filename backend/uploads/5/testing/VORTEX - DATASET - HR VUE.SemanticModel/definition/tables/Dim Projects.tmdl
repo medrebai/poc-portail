@@ -1,0 +1,196 @@
+table 'Dim Projects'
+	lineageTag: b9f6da6f-5b85-48cd-b1ba-24a80376fecd
+
+	column project_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c940c60-3b41-4525-a6b2-b8e1ed922611
+		summarizeBy: none
+		sourceColumn: project_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_start_day
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e49f03a7-dea0-4ec6-aa41-2ef2ddef0e77
+		summarizeBy: none
+		sourceColumn: project_start_day
+
+		variation Variation
+			isDefault
+			relationship: e64d3ca9-62d3-40a8-89a1-eb4b5f98a76b
+			defaultHierarchy: LocalDateTable_73c5209c-ead4-42fd-babf-5bc5abfb1597.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column project_end_day
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5f4aaf8c-3de7-4ae3-8010-f1d007c6ea06
+		summarizeBy: none
+		sourceColumn: project_end_day
+
+		variation Variation
+			isDefault
+			relationship: 71097c65-57a6-4588-bdb4-269ba17a7a8f
+			defaultHierarchy: LocalDateTable_0836d3f0-1db9-4092-afa3-e9bc6f39474c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column project_mode
+		dataType: int64
+		formatString: 0
+		lineageTag: 8aad3102-cef7-4682-82e5-f2ec86b5c0c8
+		summarizeBy: sum
+		sourceColumn: project_mode
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_reference
+		dataType: string
+		lineageTag: c328b1de-cd71-4b4f-93b5-58b059d67a64
+		summarizeBy: none
+		sourceColumn: project_reference
+
+		annotation SummarizationSetBy = Automatic
+
+	column turnover_simulated_TE
+		dataType: double
+		lineageTag: c3b9c8cf-4c46-45f8-917c-dacdb733802c
+		summarizeBy: sum
+		sourceColumn: turnover_simulated_TE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column margin_simulated_TE
+		dataType: double
+		lineageTag: 8dde5bd1-01a0-4ad2-9278-cbef502a0ade
+		summarizeBy: sum
+		sourceColumn: margin_simulated_TE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column profitability_simulated_TE
+		dataType: double
+		lineageTag: 60bf16d9-d154-48d2-949c-3127572bbece
+		summarizeBy: sum
+		sourceColumn: profitability_simulated_TE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column contact_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d53f9e99-7e07-4676-8b45-03b15c15ada6
+		summarizeBy: sum
+		sourceColumn: contact_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_id
+		dataType: int64
+		formatString: 0
+		lineageTag: bda615b4-6ba8-46f7-bbf8-9ef2450d01af
+		summarizeBy: none
+		sourceColumn: client_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d85e9bfe-dbfc-4e19-a8c9-402bae5b087a
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_typeof_name
+		dataType: string
+		lineageTag: 4d09894f-4bda-4dab-be73-c38c728149be
+		summarizeBy: none
+		sourceColumn: project_typeof_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_currency
+		dataType: string
+		lineageTag: 7b89c819-09ef-4604-88cb-ae0157672832
+		summarizeBy: none
+		sourceColumn: project_currency
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dim Agencies.Region'
+		dataType: string
+		lineageTag: 15906cad-8cdd-4d96-ae00-7ee5f4cf2b42
+		summarizeBy: none
+		sourceColumn: Dim Agencies.Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Project Name'
+		dataType: string
+		lineageTag: ce75641e-e7b4-4c52-9aae-f037e14b132b
+		summarizeBy: none
+		sourceColumn: Project Name
+		sortByColumn: agency_id
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column project_type =
+			
+			SWITCH(
+			    TRUE(),
+			    'Dim Projects'[project_typeof_name] IN {"Projet Interne","Produit"}, "Projet Interne",
+			    'Dim Projects'[project_typeof_name] IN {"Régie", "Forfait"}, "Projet Client",
+			    "Other"
+			)
+		lineageTag: 5461ad9a-efdb-4102-a43d-8a40037d18b4
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_name
+		dataType: string
+		lineageTag: 94229255-7230-4dd6-9ed7-94e356e732bd
+		summarizeBy: none
+		sourceColumn: client_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Projects' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_project`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Requêtes fusionnées" = Table.NestedJoin(Source, {"agency_id"}, #"Dim Agencies", {"agency_id"}, "Dim Agencies", JoinKind.LeftOuter),
+				    #"Dim Agencies développé" = Table.ExpandTableColumn(#"Requêtes fusionnées", "Dim Agencies", {"Region"}, {"Dim Agencies.Region"}),
+				    #"Personnalisée ajoutée" = Table.AddColumn(#"Dim Agencies développé", "Project Name", each [Dim Agencies.Region] & " - " & [project_reference]),
+				    #"Requêtes fusionnées1" = Table.NestedJoin(#"Personnalisée ajoutée", {"client_id"}, #"Dim Clients", {"client_id"}, "Dim Clients", JoinKind.LeftOuter),
+				    #"Dim Clients développé" = Table.ExpandTableColumn(#"Requêtes fusionnées1", "Dim Clients", {"client_name"}, {"client_name"}),
+				    #"Colonnes permutées" = Table.ReorderColumns(#"Dim Clients développé",{"project_id", "project_start_day", "project_end_day", "project_typeof_name", "project_currency", "project_mode", "project_reference", "turnover_simulated_TE", "margin_simulated_TE", "profitability_simulated_TE", "contact_id", "client_id", "client_name", "agency_id", "Dim Agencies.Region", "Project Name"})
+				in
+				    #"Colonnes permutées"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

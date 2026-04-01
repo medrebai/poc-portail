@@ -1,0 +1,108 @@
+table 'Fact Costs'
+	lineageTag: 2c21694b-8137-4c97-96ec-3f4da5afa5f4
+
+	column delivery_id
+		dataType: int64
+		formatString: 0
+		lineageTag: ba4d6f9e-5f46-4519-8b61-1c2de4726c95
+		summarizeBy: sum
+		sourceColumn: delivery_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 5e827fa5-d579-459e-b468-5e8c3ccd3af1
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column times_reports_term
+		dataType: dateTime
+		formatString: yyyy-mm
+		lineageTag: 829d43be-66b0-45f2-800c-72c8d629dc2d
+		summarizeBy: none
+		sourceColumn: times_reports_term
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column resource_cost
+		dataType: double
+		lineageTag: a009845b-5635-4336-8e36-157fb300efb2
+		summarizeBy: sum
+		sourceColumn: resource_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column project_id
+		dataType: int64
+		formatString: 0
+		lineageTag: fe8a958a-8f34-44d5-b871-7a5077067e74
+		summarizeBy: none
+		sourceColumn: project_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_type
+		dataType: string
+		lineageTag: 67166680-90bd-46be-bb01-708eae15da0f
+		summarizeBy: none
+		sourceColumn: resource_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 73287dd5-c7fc-4d2e-8c89-851e713206a4
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_id
+		dataType: int64
+		formatString: 0
+		lineageTag: f2fc83a6-3832-43b7-9228-dfeef01befd8
+		summarizeBy: sum
+		sourceColumn: client_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_ppd_cost
+		dataType: double
+		lineageTag: 40514461-6788-46de-9604-0f6de133ea77
+		summarizeBy: sum
+		sourceColumn: client_ppd_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Fact Costs' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.fact_costs`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Type modifié" = Table.TransformColumnTypes(Source,{{"times_reports_term", type date}}),
+				    #"Fin du mois calculée" = Table.TransformColumns(#"Type modifié",{{"times_reports_term", Date.EndOfMonth, type date}}),
+				    #"Requêtes fusionnées" = Table.NestedJoin(#"Fin du mois calculée", {"resource_id"}, #"Dim Resources", {"resource_id"}, "Dim Resources", JoinKind.LeftOuter)
+				in
+				    #"Requêtes fusionnées"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

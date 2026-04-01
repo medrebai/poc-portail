@@ -1,0 +1,56 @@
+table 'Dim Resource Flow'
+	lineageTag: d7884a68-f990-4c3c-abae-bdfa0e747e4c
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 51623e35-7e68-4d50-8124-fdd31761557a
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column event_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 49729cd6-24e5-423f-a263-2ea85285b054
+		summarizeBy: none
+		sourceColumn: event_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8d98f0d0-77b9-433a-bcf3-cad427f647c3
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column flow_type
+		dataType: string
+		lineageTag: f4387d84-6064-4e5d-ba5c-03564c4bb26d
+		summarizeBy: none
+		sourceColumn: flow_type
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Resource Flow' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_resource_flow`",
+				    null,
+				    [EnableFolding = true]
+				)
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

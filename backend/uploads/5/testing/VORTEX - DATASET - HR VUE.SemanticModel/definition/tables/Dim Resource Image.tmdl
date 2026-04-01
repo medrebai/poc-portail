@@ -1,0 +1,49 @@
+table 'Dim Resource Image'
+	lineageTag: d61b2d77-83c1-4b30-af49-50c9f3b122e8
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: eb4458aa-1736-4228-b0c5-c20d8c1afc78
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column image
+		dataType: string
+		lineageTag: ca1a30e9-7372-423a-9e86-a5f017990d1b
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: image
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Image Converted'
+		dataType: string
+		lineageTag: b0e06acd-ae9d-4171-8f50-c21bc94bbd18
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: Image Converted
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Resource Image' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_resources_images`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Personnalisée ajoutée" = Table.AddColumn(Source, "Personnalisé", each "data:image/png;base64," & [image]),
+				    #"Colonnes renommées" = Table.RenameColumns(#"Personnalisée ajoutée",{{"Personnalisé", "Image Converted"}}),
+				    #"Lignes filtrées" = Table.SelectRows(#"Colonnes renommées", each true)
+				in
+				    #"Lignes filtrées"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

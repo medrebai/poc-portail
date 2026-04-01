@@ -1,0 +1,423 @@
+# =============================================================
+#  Power BI PBIP — CI Pipeline (Option 1: Git-based Deployments)
+#  Azure DevOps — Self-hosted agent (pool: Default)
+#
+#  Architecture:
+#    - Branches: feature/* → dev → uat → main
+#    - Each branch linked to a Fabric workspace via Git Sync
+#      (Dev / UAT / Prod)
+#    - Deployment = merge to branch → Fabric auto-syncs workspace
+#    - License: PPU (no XMLA write, no Service Principal)
+#
+#  CI scope:
+#    - Triggers on Pull Requests to dev only
+#    - Runs PBIP validation, BPA, PBI Inspector, TMDL checks
+#    - Does NOT block PRs — reports violations as data, not errors
+# =============================================================
+#
+#  To reuse for another project:
+#    1. Update 'projectName' below (must match your .SemanticModel folder prefix)
+#    2. Commit — everything else is derived automatically
+# =============================================================
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - master
+      - dev
+      - uat
+  paths:
+    include:
+      - '*.SemanticModel/**'
+      - '*.Report/**'
+      - 'ci-tools/**'
+
+pool:
+  name: 'Default'
+
+# -------------------------------------------------------------
+#  VARIABLES — Only projectName is project-specific
+# -------------------------------------------------------------
+variables:
+  # ── Project-specific (change this per project) ──
+  projectName:  'VORTEX - DATASET - HR VUE'
+
+  # ── Derived paths (do NOT edit) ──
+  modelPath:    '$(System.DefaultWorkingDirectory)\$(projectName).SemanticModel\definition'
+  reportPath:   '$(System.DefaultWorkingDirectory)\$(projectName).Report'
+  ciToolsPath:  '$(System.DefaultWorkingDirectory)\ci-tools'
+
+  # ── Tool versions & cache ──
+  toolsCache:   '$(Pipeline.Workspace)\tools-cache'
+  TE2_VERSION:  '2.27.2'
+  PBII_VERSION: '2.4.5'
+
+
+# =============================================================
+#  STAGE 1 — PBIP STRUCTURAL VALIDATION
+#  Fast, no external tools needed (~1 min)
+#  Hard-fails if required files are missing or malformed
+# =============================================================
+stages:
+
+- stage: Validate
+  displayName: '1 · PBIP Structure Validation'
+  jobs:
+  - job: ValidateStructure
+    displayName: 'Validate PBIP File Structure'
+    steps:
+
+    - checkout: self
+      displayName: 'Checkout Repository'
+
+    - task: PowerShell@2
+      displayName: 'List Repository Contents'
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          Write-Host "Working directory: $(Get-Location)"
+          Write-Host "Project: $(projectName)"
+          Get-ChildItem -Name | ForEach-Object { Write-Host "  $_" }
+
+    - task: PowerShell@2
+      displayName: 'Check Required PBIP Files'
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $errors = 0
+
+          $modelDef  = "$(modelPath)"
+          $reportDir = "$(reportPath)"
+
+          # SemanticModel definition folder
+          if (Test-Path $modelDef) {
+            Write-Host "[OK] SemanticModel definition folder found" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] $modelDef"
+            $errors++
+          }
+
+          # model.tmdl
+          $modelTmdl = Join-Path $modelDef "model.tmdl"
+          if (Test-Path $modelTmdl) {
+            Write-Host "[OK] model.tmdl found" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] model.tmdl"
+            $errors++
+          }
+
+          # relationships.tmdl
+          $relTmdl = Join-Path $modelDef "relationships.tmdl"
+          if (Test-Path $relTmdl) {
+            Write-Host "[OK] relationships.tmdl found" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] relationships.tmdl"
+            $errors++
+          }
+
+          # Report folder
+          if (Test-Path $reportDir) {
+            Write-Host "[OK] Report folder found" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] $reportDir"
+            $errors++
+          }
+
+          # report.json (with JSON validation)
+          $reportJson = Join-Path $reportDir "definition\report.json"
+          if (Test-Path $reportJson) {
+            Write-Host "[OK] report.json found" -ForegroundColor Green
+            try {
+              Get-Content $reportJson -Raw | ConvertFrom-Json | Out-Null
+              Write-Host "[OK] report.json is valid JSON" -ForegroundColor Green
+            } catch {
+              Write-Host "##vso[task.logissue type=error][INVALID] report.json is not valid JSON: $_"
+              $errors++
+            }
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] report.json"
+            $errors++
+          }
+
+          # ci-tools folder
+          if (Test-Path "$(ciToolsPath)") {
+            Write-Host "[OK] ci-tools/ folder found" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] ci-tools/"
+            $errors++
+          }
+
+          if ($errors -gt 0) {
+            Write-Host ""
+            Write-Host "$errors check(s) failed." -ForegroundColor Red
+            exit 1
+          }
+          Write-Host ""
+          Write-Host "All checks passed!" -ForegroundColor Green
+
+
+# =============================================================
+#  STAGE 2 — TOOL SETUP
+#  Downloads Tabular Editor 2 and PBI Inspector to cache
+#  Cache key = tool versions — only re-downloads on version bump
+# =============================================================
+
+- stage: SetupTools
+  displayName: '2 · Download CI Tools'
+  dependsOn: Validate
+  jobs:
+  - job: DownloadTools
+    displayName: 'Download Tabular Editor & PBI Inspector'
+    steps:
+
+    - checkout: none
+
+    - task: Cache@2
+      displayName: 'Cache CI Tools'
+      inputs:
+        key: '"ci-tools" | "te2-$(TE2_VERSION)" | "pbii-$(PBII_VERSION)"'
+        path: '$(toolsCache)'
+        cacheHitVar: 'TOOLS_CACHE_HIT'
+
+    - task: PowerShell@2
+      displayName: 'Download Tabular Editor $(TE2_VERSION)'
+      condition: ne(variables.TOOLS_CACHE_HIT, 'true')
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $dest = "$(toolsCache)\TabularEditor"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+
+          $url = "https://cdn.tabulareditor.com/files/TabularEditor.$(TE2_VERSION).zip"
+          $zip = "$dest\TabularEditor.zip"
+
+          Write-Host "Downloading Tabular Editor $(TE2_VERSION)..."
+          Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
+
+          Write-Host "Extracting..."
+          Expand-Archive -Path $zip -DestinationPath $dest -Force
+          Remove-Item $zip -Force
+
+          $exe = Get-ChildItem -Path $dest -Filter "TabularEditor.exe" -Recurse | Select-Object -First 1
+          if (-not $exe) {
+            Write-Host "##vso[task.logissue type=error]TabularEditor.exe not found after extraction."
+            exit 1
+          }
+          Write-Host "[OK] Tabular Editor ready at: $($exe.FullName)" -ForegroundColor Green
+
+    - task: PowerShell@2
+      displayName: 'Download PBI Inspector $(PBII_VERSION)'
+      condition: ne(variables.TOOLS_CACHE_HIT, 'true')
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $dest = "$(toolsCache)\PBIInspector"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+
+          $url = "https://github.com/NatVanG/PBI-InspectorV2/releases/download/v$(PBII_VERSION)/win-x64-CLI.zip"
+          $zip = "$dest\pbii.zip"
+
+          Write-Host "Downloading PBI Inspector $(PBII_VERSION)..."
+          Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
+
+          Write-Host "Extracting..."
+          Expand-Archive -Path $zip -DestinationPath $dest -Force
+          Remove-Item $zip -Force
+
+          $exe = Get-ChildItem -Path $dest -Filter "PBIRInspectorCLI.exe" -Recurse | Select-Object -First 1
+          if (-not $exe) {
+            Write-Host "##vso[task.logissue type=error]PBIRInspectorCLI.exe not found after extraction."
+            exit 1
+          }
+          Write-Host "[OK] PBI Inspector ready at: $($exe.FullName)" -ForegroundColor Green
+
+    - task: PowerShell@2
+      displayName: 'Verify Python 3'
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+          if ($pythonCmd) {
+            $py = python --version 2>&1
+            Write-Host "[OK] Python: $py" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=warning]Python not found — TMDL extraction will be skipped in Stage 3."
+          }
+
+    - task: PowerShell@2
+      displayName: 'Verify All Tools'
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $errors = 0
+
+          $te = Get-ChildItem -Path "$(toolsCache)\TabularEditor" -Filter "TabularEditor.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($te) {
+            Write-Host "[OK] Tabular Editor: $($te.FullName)" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] TabularEditor.exe not found"
+            $errors++
+          }
+
+          $pbi = Get-ChildItem -Path "$(toolsCache)\PBIInspector" -Filter "PBIRInspectorCLI.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($pbi) {
+            Write-Host "[OK] PBI Inspector: $($pbi.FullName)" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=error][MISSING] PBIRInspectorCLI.exe not found"
+            $errors++
+          }
+
+          if ($errors -gt 0) { exit 1 }
+          Write-Host "All tools ready!" -ForegroundColor Green
+
+
+# =============================================================
+#  STAGE 3 — QUALITY CHECKS
+#  Runs all checks via single orchestrator script:
+#    BPA (Tabular Editor) + PBI Inspector + TMDL extraction + merge
+#  Violations are DATA not errors — pipeline never fails on them
+# =============================================================
+
+- stage: QualityChecks
+  displayName: '3 · BPA + Visual + TMDL Quality Checks'
+  dependsOn: SetupTools
+  jobs:
+  - job: RunChecks
+    displayName: 'Run All Quality Checks'
+    steps:
+
+    - checkout: self
+      displayName: 'Checkout Repository'
+      persistCredentials: true
+
+    - task: Cache@2
+      displayName: 'Restore CI Tools from Cache'
+      inputs:
+        key: '"ci-tools" | "te2-$(TE2_VERSION)" | "pbii-$(PBII_VERSION)"'
+        path: '$(toolsCache)'
+        cacheHitVar: 'TOOLS_CACHE_HIT'
+
+    - task: PowerShell@2
+      displayName: 'Resolve Tool Paths'
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $te = Get-ChildItem -Path "$(toolsCache)\TabularEditor" -Filter "TabularEditor.exe" -Recurse | Select-Object -First 1
+          if (-not $te) {
+            Write-Host "##vso[task.logissue type=error]TabularEditor.exe not found in cache."
+            exit 1
+          }
+          Write-Host "##vso[task.setvariable variable=TE_PATH]$($te.FullName)"
+          Write-Host "TE  : $($te.FullName)"
+
+          $pbi = Get-ChildItem -Path "$(toolsCache)\PBIInspector" -Filter "PBIRInspectorCLI.exe" -Recurse | Select-Object -First 1
+          if (-not $pbi) {
+            Write-Host "##vso[task.logissue type=error]PBIRInspectorCLI.exe not found in cache."
+            exit 1
+          }
+          Write-Host "##vso[task.setvariable variable=PBI_PATH]$($pbi.FullName)"
+          Write-Host "PBI : $($pbi.FullName)"
+
+    - task: PowerShell@2
+      displayName: 'Run Quality Checks (BPA + Inspector + TMDL + Merge)'
+      continueOnError: true
+      env:
+        TABULAR_EDITOR_PATH: '$(TE_PATH)'
+        PYTHONUTF8:          '1'
+        PYTHONIOENCODING:    'utf-8'
+        # Pipeline context for artifact injection
+        PROJECT_NAME:        '$(projectName)'
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          & "$(ciToolsPath)\run-all-quality-checks.ps1" `
+            -ModelPath     "$(modelPath)" `
+            -ReportPath    "$(reportPath)" `
+            -OutputPath    "$(ciToolsPath)" `
+            -InspectorPath "$(PBI_PATH)"
+
+    - task: PowerShell@2
+      displayName: 'Verify Outputs'
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $files = @(
+            "$(ciToolsPath)\bpa-results.json",
+            "$(ciToolsPath)\pbi-inspector-results.json",
+            "$(ciToolsPath)\model-catalog.json",
+            "$(ciToolsPath)\quality-summary.json"
+          )
+          $errors = 0
+          foreach ($f in $files) {
+            if (Test-Path $f) {
+              Write-Host "[OK] $f" -ForegroundColor Green
+            } else {
+              Write-Host "##vso[task.logissue type=error][MISSING] $f"
+              $errors++
+            }
+          }
+          if ($errors -gt 0) { exit 1 }
+          Write-Host "All outputs verified." -ForegroundColor Green
+
+    - task: PowerShell@2
+      displayName: 'Post Quality Summary to PR'
+      condition: and(succeeded(), ne(variables['System.PullRequest.PullRequestId'], ''))
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          & "$(ciToolsPath)\post-pr-comment.ps1" `
+            -SummaryJsonPath   "$(ciToolsPath)\quality-summary.json" `
+            -ProjectDisplayName "$(projectName)" `
+            -OrgUrl            "$(System.CollectionUri)" `
+            -Project           "$(System.TeamProject)" `
+            -RepoId            "$(Build.Repository.ID)" `
+            -PrId              "$(System.PullRequest.PullRequestId)" `
+            -AccessToken       $env:SYSTEM_ACCESSTOKEN
+
+    - task: PowerShell@2
+      displayName: 'Prepare Artifacts Folder'
+      condition: always()
+      inputs:
+        pwsh: false
+        targetType: inline
+        script: |
+          $artifactsDir = "$(System.DefaultWorkingDirectory)\artifacts"
+          New-Item -ItemType Directory -Force -Path $artifactsDir | Out-Null
+
+          $files = @(
+            "$(ciToolsPath)\bpa-results.json",
+            "$(ciToolsPath)\pbi-inspector-results.json",
+            "$(ciToolsPath)\model-catalog.json",
+            "$(ciToolsPath)\quality-summary.json"
+          )
+
+          foreach ($f in $files) {
+            if (Test-Path $f) {
+              Copy-Item $f $artifactsDir
+              Write-Host "[OK] Copied: $(Split-Path $f -Leaf)" -ForegroundColor Green
+            } else {
+              Write-Host "[SKIP] Not found: $(Split-Path $f -Leaf)" -ForegroundColor Yellow
+            }
+          }
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Quality Reports'
+      condition: always()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)\artifacts'
+        artifact: 'QualityReports'
+        publishLocation: 'pipeline'

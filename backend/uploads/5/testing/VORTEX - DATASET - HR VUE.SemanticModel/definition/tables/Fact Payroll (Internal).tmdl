@@ -1,0 +1,169 @@
+table 'Fact Payroll (Internal)'
+	lineageTag: f7a8a542-32b3-4072-9331-7dfeb3670bfd
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 588d7b1f-7ddc-4baf-bfb4-711d3ffea000
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column date
+		dataType: string
+		lineageTag: 703e2734-e034-4796-a27b-6e7440d8698b
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+	column working_days_per_month
+		dataType: int64
+		formatString: 0
+		lineageTag: d1efe701-26a8-48b9-90bc-0df070368c95
+		summarizeBy: sum
+		sourceColumn: working_days_per_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_avg_daily_cost
+		dataType: double
+		lineageTag: 97e9c56b-32a0-4412-bcb3-6abe58589f6c
+		summarizeBy: sum
+		sourceColumn: contract_avg_daily_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column contract_monthly_salary
+		dataType: double
+		lineageTag: 89566382-6ed8-42fe-8229-aa0c553a06c2
+		summarizeBy: sum
+		sourceColumn: contract_monthly_salary
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CJM
+		dataType: double
+		lineageTag: 3054de94-8968-485a-91ae-90a504c87619
+		summarizeBy: sum
+		sourceColumn: CJM
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f2bfe42-71f8-4e9b-bfe7-ab308b4a8217
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 963b925c-2859-4967-9023-3dd8b0a264bf
+		summarizeBy: none
+		sourceColumn: contract_start_date
+
+		variation Variation
+			isDefault
+			relationship: b8edd5b8-f7ff-4d36-b38e-bc5f8f96affa
+			defaultHierarchy: LocalDateTable_52d5e91e-5b6d-43ee-8db5-8777a23d4ff6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column contract_end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 223b96cd-6730-4a59-9bb5-9eb958619994
+		summarizeBy: none
+		sourceColumn: contract_end_date
+
+		variation Variation
+			isDefault
+			relationship: 04160449-34bd-4dd6-845f-e45dd7678b73
+			defaultHierarchy: LocalDateTable_24f99b51-d6ce-4daf-8fce-e47e9cea1a0c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column resource_working_days_per_month
+		dataType: int64
+		formatString: 0
+		lineageTag: 3dd2d275-3c1c-4e63-8e6d-9f62fb993c41
+		summarizeBy: sum
+		sourceColumn: resource_working_days_per_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8d1a8211-f56c-4614-8805-620e2d1cf501
+		summarizeBy: sum
+		sourceColumn: contract_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column rn
+		dataType: int64
+		formatString: 0
+		lineageTag: bd53f9bd-93df-4d74-a36b-7a6cfc291004
+		summarizeBy: sum
+		sourceColumn: rn
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_start_date
+		dataType: string
+		lineageTag: b69ffb17-619d-4c0c-be4d-f6a9ccea0280
+		summarizeBy: none
+		sourceColumn: month_start_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column payroll_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d9d2b4cd-95c7-4850-8ccf-c2e2ba6a9c2c
+		summarizeBy: none
+		sourceColumn: payroll_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Fact Payroll (Internal)' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.fact_payroll_internal`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Personnalisée ajoutée" = Table.AddColumn(Source, "month_start_date", each #date(
+				    Number.FromText(Text.Start([date], 4)),
+				    Number.FromText(Text.End([date], 2)),
+				    1
+				  )),
+				    #"Fin de mois insérée" = Table.AddColumn(#"Personnalisée ajoutée", "Fin du mois", each Date.EndOfMonth([month_start_date]), type date),
+				    #"Colonnes renommées" = Table.RenameColumns(#"Fin de mois insérée",{{"Fin du mois", "payroll_date"}})
+				in
+				    #"Colonnes renommées"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

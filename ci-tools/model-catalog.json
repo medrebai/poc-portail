@@ -1,0 +1,5023 @@
+{
+  "model": {
+    "culture": "en-US",
+    "sourceQueryCulture": "fr-FR",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "autoDateTime": true,
+    "tables": [
+      "KPIs",
+      "Fact Sales",
+      "Dim Agencies",
+      "Dim Agency Transfers",
+      "Dim Clients",
+      "Dim Date",
+      "Dim Projects",
+      "Dim Resources",
+      "Fact Absences",
+      "Fact Contracts",
+      "Fact Invoices",
+      "Working Days",
+      "Date Hierarchy Filter",
+      "General KPIs",
+      "Invoice KPIs",
+      "Fact Payroll (Internal)",
+      "Fact Costs",
+      "Dim Resource Flow",
+      "KPIs HR",
+      "Fact Staffing",
+      "Dim Resource Image",
+      "Users Mapping"
+    ]
+  },
+  "tables": [
+    {
+      "name": "Date Hierarchy Filter",
+      "isHidden": true,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "Date Hierarchy Filter",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'Paramètre Commande'",
+          "sourceColumn": "[Value1]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Paramètre Champs",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'Paramètre Commande'",
+          "sourceColumn": "[Value2]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Paramètre Commande",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[Value3]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [
+        {
+          "name": "Active Resources YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Count",
+          "isHidden": true,
+          "expression": "DIVIDE( [Active Resources] - [Active Resources LY], [Active Resources LY] )",
+          "missingFormatString": false
+        }
+      ],
+      "partitions": [
+        {
+          "partitionName": "Date Hierarchy Filter",
+          "queryType": "calculated",
+          "mode": "import",
+          "datasource": "Unknown",
+          "bqProject": "",
+          "bqDataset": "",
+          "bqTable": "",
+          "sqlQuery": "",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "{\n\t    (\"YEAR\", NAMEOF('Dim Date'[year]), 0),\n\t    (\"QUARTER\", NAMEOF('Dim Date'[quarter_year_key]), 1),\n\t    (\"MONTH\", NAMEOF('Dim Date'[month_year_key]), 2)\n\t}"
+        }
+      ]
+    },
+    {
+      "name": "Dim Agencies",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "agency_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_work_unit_rate",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_work_unit_rate",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "number_of_working_days_per_year",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "number_of_working_days_per_year",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_vat_number",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "agency_vat_number",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_currency",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "agency_currency",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "staff_per_agency",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "staff_per_agency",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Region",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Region",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Agencies",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_agency",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_agency`",
+          "transformations": [
+            "Add column"
+          ],
+          "stepCount": 1,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_agency`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Personnalisée ajoutée\" = Table.AddColumn(Source, \"Region\", each if [agency_id]  = 1 then \"FR\"\n\telse if [agency_id] =  2 then \"TN\"\n\telse if [agency_id] =  3 then \"UE\"\n\telse null)\n\tin\n\t    #\"Personnalisée ajoutée\""
+        }
+      ]
+    },
+    {
+      "name": "Dim Agency Transfers",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "current_agency",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "current_agency",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "last_agency",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "last_agency",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "transfer_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "transfer_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Agency Transfers",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_agency_transfers",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_agency_transfers`",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_agency_transfers`\",\n\t    null,\n\t    [EnableFolding = true]\n\t)\n\tin\n\t    Source"
+        }
+      ]
+    },
+    {
+      "name": "Dim Clients",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "client_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_expertise_areas",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_expertise_areas",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_state_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_state_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "related_agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "related_agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_country",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_country",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_creation_date",
+          "dataType": "dateTime",
+          "formatString": "General Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_creation_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Clients",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_client",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_client`",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_client`\",\n\t    null,\n\t    [EnableFolding = true]\n\t)\n\tin\n\t    Source"
+        }
+      ]
+    },
+    {
+      "name": "Dim Date",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "day",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "day",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "year",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "year",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "quarter_no",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "quarter_no",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_no",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "month_no",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "day_of_month",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "day_of_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "day_of_week_iso",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "day_of_week_iso",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "week_no_iso",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "week_no_iso",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "iso_year",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "iso_year",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "year_month_key",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "year_month",
+          "sourceColumn": "year_month_key",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "year_quarter_key",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "quarter_year_key",
+          "sourceColumn": "year_quarter_key",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "month_no",
+          "sourceColumn": "month_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_short",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "month_short",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "year_month",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "year_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "quarter_cod",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "quarter_cod",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "week_cod",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "week_cod",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_weekend",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_weekend",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_current_month",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_current_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_complete_month",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_complete_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_today",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_today",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "relative_month_offset",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "relative_month_offset",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_holiday_TN",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_holiday_TN",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_holiday_FR",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_holiday_FR",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_holiday_UAE",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_holiday_UAE",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "working_days_per_month",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "working_days_per_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_year_key",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "year_month_key",
+          "sourceColumn": "month_year_key",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "quarter_year_key",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "quarter_year_key",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Date",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_date",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_date`",
+          "transformations": [
+            "Add column"
+          ],
+          "stepCount": 2,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_date`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Personnalisée ajoutée\" = Table.AddColumn(Source, \"month_year_key\", each [month_short] & \" - \" & Text.From([year])),\n\t    #\"Personnalisée ajoutée1\" = Table.AddColumn(#\"Personnalisée ajoutée\", \"quarter_year_key\", each [quarter_cod] & \" - \" & Text.From([year]))\n\tin\n\t    #\"Personnalisée ajoutée1\""
+        }
+      ]
+    },
+    {
+      "name": "Dim Projects",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "project_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_start_day",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_start_day",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_end_day",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_end_day",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_mode",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "project_mode",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_reference",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_reference",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "turnover_simulated_TE",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "turnover_simulated_TE",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "margin_simulated_TE",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "margin_simulated_TE",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "profitability_simulated_TE",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "profitability_simulated_TE",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "contact_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contact_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_typeof_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_typeof_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_currency",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_currency",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Dim Agencies.Region",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Dim Agencies.Region",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Project Name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "agency_id",
+          "sourceColumn": "Project Name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_type =",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_type =",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Projects",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_project",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_project`",
+          "transformations": [
+            "Join",
+            "Expand columns",
+            "Add column"
+          ],
+          "stepCount": 6,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_project`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Requêtes fusionnées\" = Table.NestedJoin(Source, {\"agency_id\"}, #\"Dim Agencies\", {\"agency_id\"}, \"Dim Agencies\", JoinKind.LeftOuter),\n\t    #\"Dim Agencies développé\" = Table.ExpandTableColumn(#\"Requêtes fusionnées\", \"Dim Agencies\", {\"Region\"}, {\"Dim Agencies.Region\"}),\n\t    #\"Personnalisée ajoutée\" = Table.AddColumn(#\"Dim Agencies développé\", \"Project Name\", each [Dim Agencies.Region] & \" - \" & [project_reference]),\n\t    #\"Requêtes fusionnées1\" = Table.NestedJoin(#\"Personnalisée ajoutée\", {\"client_id\"}, #\"Dim Clients\", {\"client_id\"}, \"Dim Clients\", JoinKind.LeftOuter),\n\t    #\"Dim Clients développé\" = Table.ExpandTableColumn(#\"Requêtes fusionnées1\", \"Dim Clients\", {\"client_name\"}, {\"client_name\"}),\n\t    #\"Colonnes permutées\" = Table.ReorderColumns(#\"Dim Clients développé\",{\"project_id\", \"project_start_day\", \"project_end_day\", \"project_typeof_name\", \"project_currency\", \"project_mode\", \"project_reference\", \"turnover_simulated_TE\", \"margin_simulated_TE\", \"profitability_simulated_TE\", \"contact_id\", \"client_id\", \"client_name\", \"agency_id\", \"Dim Agencies.Region\", \"Project Name\"})\n\tin\n\t    #\"Colonnes permutées\""
+        }
+      ]
+    },
+    {
+      "name": "Dim Resource Flow",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "event_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "event_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "flow_type",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "flow_type",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Resource Flow",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_resource_flow",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_resource_flow`",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_resource_flow`\",\n\t    null,\n\t    [EnableFolding = true]\n\t)\n\tin\n\t    Source"
+        }
+      ]
+    },
+    {
+      "name": "Dim Resource Image",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "image",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "image",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Image Converted",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Image Converted",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Resource Image",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_resources_images",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_resources_images`",
+          "transformations": [
+            "Add column",
+            "Rename columns",
+            "Select rows"
+          ],
+          "stepCount": 3,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_resources_images`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Personnalisée ajoutée\" = Table.AddColumn(Source, \"Personnalisé\", each \"data:image/png;base64,\" & [image]),\n\t    #\"Colonnes renommées\" = Table.RenameColumns(#\"Personnalisée ajoutée\",{{\"Personnalisé\", \"Image Converted\"}}),\n\t    #\"Lignes filtrées\" = Table.SelectRows(#\"Colonnes renommées\", each true)\n\tin\n\t    #\"Lignes filtrées\""
+        }
+      ]
+    },
+    {
+      "name": "Dim Resources",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_first_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_first_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resources_last_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resources_last_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_civility_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_civility_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_title",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_title",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_mobility_areas",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_mobility_areas",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_avg_daily_price_TE",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "resource_avg_daily_price_TE",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "resource_expertise_areas",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_expertise_areas",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_experience",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "resource_experience",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_typeof_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_typeof_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_state_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_state_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_currency",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_currency",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "seniority_month",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "seniority_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_activity_flag",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_activity_flag",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "current_year_remaining_leave",
+          "dataType": "double",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "current_year_remaining_leave",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": true
+        },
+        {
+          "name": "resource_full_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_full_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "region_name = LOOKUPVALUE(",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "region_name = LOOKUPVALUE(",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Region",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Region",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_typeOf",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_typeOf",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_type_group",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_type_group",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Dim Resources",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "dim_resources",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_resources`",
+          "transformations": [
+            "Add column",
+            "Transform types",
+            "Rename columns"
+          ],
+          "stepCount": 5,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.dim_resources`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Personnalisée ajoutée\" = Table.AddColumn(Source, \"Personnalisé\", each [resource_first_name] & \" \" & [resources_last_name]),\n\t    #\"Colonnes renommées\" = Table.RenameColumns(#\"Personnalisée ajoutée\",{{\"Personnalisé\", \"resource_full_name\"}}),\n\t    #\"Personnalisée ajoutée1\" = Table.AddColumn(#\"Colonnes renommées\", \"Region\", each if [agency_id] = 1 then \"FR\" else if [agency_id] = 2 then \"TN\" else if [agency_id] = 3 then \"UE\" else \"Other\"),\n\t    #\"Type modifié\" = Table.TransformColumnTypes(#\"Personnalisée ajoutée1\",{{\"resource_full_name\", type text}}),\n\t    #\"Personnalisée ajoutée2\" = Table.AddColumn(#\"Type modifié\", \"resource_type_group\", each if List.Contains(\n\t    {\"Consultant Externe\",\"Consultant Interne P\",\"Conseil Assistance\"},\n\t    [resource_typeof_name]\n\t) then \"External Resource\" else \"Internal Resource\")\n\tin\n\t    #\"Personnalisée ajoutée2\""
+        }
+      ]
+    },
+    {
+      "name": "Fact Absences",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "absence_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "absence_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "absence_title",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "absence_title",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "absence_duration_day",
+          "dataType": "double",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "absence_duration_day",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": true
+        },
+        {
+          "name": "work_unit_type_reference",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "work_unit_type_reference",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "work_unit_type_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "work_unit_type_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "absence_report_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "absence_report_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "id_daily",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "id_daily",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "absence_start_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "absence_start_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Fact Absences",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "fact_absences",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_absences`",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_absences`\",\n\t    null,\n\t    [EnableFolding = true]\n\t)\n\tin\n\t    Source"
+        }
+      ]
+    },
+    {
+      "name": "Fact Contracts",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "contract_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_typeOf",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_typeOf",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_start_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_start_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_end_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_end_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_monthly_salary",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_monthly_salary",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "contract_avg_daily_cost",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_avg_daily_cost",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "contract_currency",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_currency",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_exchange_rate",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_exchange_rate",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_typeof_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_typeof_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_civility_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_civility_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_full_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_full_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Region",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Region",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_active_contract",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_active_contract",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "end_contract_alerte",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "end_contract_alerte",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Fact Contracts",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "fact_contract",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_contract`",
+          "transformations": [
+            "Join",
+            "Expand columns"
+          ],
+          "stepCount": 6,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_contract`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Requêtes fusionnées\" = Table.NestedJoin(Source, {\"resource_id\"}, #\"Dim Resources\", {\"resource_id\"}, \"Dim Resources\", JoinKind.LeftOuter),\n\t    #\"Dim Resources développé\" = Table.ExpandTableColumn(#\"Requêtes fusionnées\", \"Dim Resources\", {\"resource_civility_name\", \"resource_typeof_name\"}, {\"resource_civility_name\", \"resource_typeof_name\"}),\n\t    #\"Requêtes fusionnées1\" = Table.NestedJoin(#\"Dim Resources développé\", {\"resource_id\"}, #\"Dim Resources\", {\"resource_id\"}, \"Dim Resources\", JoinKind.LeftOuter),\n\t    #\"Dim Resources développé1\" = Table.ExpandTableColumn(#\"Requêtes fusionnées1\", \"Dim Resources\", {\"resource_full_name\"}, {\"resource_full_name\"}),\n\t    #\"Requêtes fusionnées2\" = Table.NestedJoin(#\"Dim Resources développé1\", {\"agency_id\"}, #\"Dim Agencies\", {\"agency_id\"}, \"Dim Agencies\", JoinKind.LeftOuter),\n\t    #\"Dim Agencies développé\" = Table.ExpandTableColumn(#\"Requêtes fusionnées2\", \"Dim Agencies\", {\"Region\"}, {\"Region\"})\n\tin\n\t    #\"Dim Agencies développé\""
+        }
+      ]
+    },
+    {
+      "name": "Fact Costs",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "delivery_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "delivery_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "times_reports_term",
+          "dataType": "dateTime",
+          "formatString": "yyyy-mm",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "times_reports_term",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_cost",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "resource_cost",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "project_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_type",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_type",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "client_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_ppd_cost",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "client_ppd_cost",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Fact Costs",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "fact_costs",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_costs`",
+          "transformations": [
+            "Join",
+            "Transform types"
+          ],
+          "stepCount": 3,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_costs`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Type modifié\" = Table.TransformColumnTypes(Source,{{\"times_reports_term\", type date}}),\n\t    #\"Fin du mois calculée\" = Table.TransformColumns(#\"Type modifié\",{{\"times_reports_term\", Date.EndOfMonth, type date}}),\n\t    #\"Requêtes fusionnées\" = Table.NestedJoin(#\"Fin du mois calculée\", {\"resource_id\"}, #\"Dim Resources\", {\"resource_id\"}, \"Dim Resources\", JoinKind.LeftOuter)\n\tin\n\t    #\"Requêtes fusionnées\""
+        }
+      ]
+    },
+    {
+      "name": "Fact Invoices",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "invoice_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "is_closed",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_closed",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_currency_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_currency_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_exchange_rate",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_exchange_rate",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "is_credit_note",
+          "dataType": "boolean",
+          "formatString": "\"\"\"TRUE\"\";\"\"TRUE\"\";\"\"FALSE\"\"\"",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "is_credit_note",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_state_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_state_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_payment_method",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_payment_method",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "turnover_invoiced_TE",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "turnover_invoiced_TE",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "turnover_invoiced_TI",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "turnover_invoiced_TI",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "total_payable_TI",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "total_payable_TI",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "invoice_start_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_start_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_end_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_end_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "expected_payment_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "expected_payment_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "performed_payment_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "performed_payment_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "client_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_status_group =",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_status_group =",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_status_collection =",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_status_collection =",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Invoice_state_group_details = ```",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Invoice_state_group_details = ```",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "invoice_reference",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "invoice_reference",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Region",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Region",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_reference",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_reference",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Fact Invoices",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "fact_invoice",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_invoice`",
+          "transformations": [
+            "Join",
+            "Expand columns",
+            "Add column",
+            "Rename columns"
+          ],
+          "stepCount": 0,
+          "mQuery": ""
+        }
+      ]
+    },
+    {
+      "name": "Fact Payroll (Internal)",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "date",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "working_days_per_month",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "working_days_per_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_avg_daily_cost",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_avg_daily_cost",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "contract_monthly_salary",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_monthly_salary",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "CJM",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "CJM",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_start_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_start_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_end_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_end_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_working_days_per_month",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "resource_working_days_per_month",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "rn",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "rn",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_start_date",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "month_start_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "payroll_date",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "payroll_date",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Fact Payroll (Internal)",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "fact_payroll_internal",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_payroll_internal`",
+          "transformations": [
+            "Add column",
+            "Rename columns"
+          ],
+          "stepCount": 3,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_payroll_internal`\",\n\t    null,\n\t    [EnableFolding = true]\n\t),\n\t    #\"Personnalisée ajoutée\" = Table.AddColumn(Source, \"month_start_date\", each #date(\n\t    Number.FromText(Text.Start([date], 4)),\n\t    Number.FromText(Text.End([date], 2)),\n\t    1\n\t  )),\n\t    #\"Fin de mois insérée\" = Table.AddColumn(#\"Personnalisée ajoutée\", \"Fin du mois\", each Date.EndOfMonth([month_start_date]), type date),\n\t    #\"Colonnes renommées\" = Table.RenameColumns(#\"Fin de mois insérée\",{{\"Fin du mois\", \"payroll_date\"}})\n\tin\n\t    #\"Colonnes renommées\""
+        }
+      ]
+    },
+    {
+      "name": "Fact Sales",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "delivery_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "delivery_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "delivery_production_times",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "delivery_production_times",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "delivery_production_times_in_work_units",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "delivery_production_times_in_work_units",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "avg_daily_price_excl_tax",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "avg_daily_price_excl_tax",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "delivery_number_correlated_orders",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "delivery_number_correlated_orders",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "times_report_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "times_report_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "times_report_term",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "times_report_term",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "times_report_state",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "times_report_state",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_nb",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "month_nb",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "year_nb",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "year_nb",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "client_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_sale",
+          "dataType": "double",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "resource_sale",
+          "isCalculated": false,
+          "missingFormatString": true,
+          "isFloat": true
+        },
+        {
+          "name": "project_typeof",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_typeof",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "client_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "client_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "project_type",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "project_type",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Project Name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Project Name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Fact Sales",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "fact_sales",
+          "sqlQuery": "SELECT\n\t\t\t\t                *\n\t\t\t\t             FROM `\" & BQ_Proj & \".03_datawarehouse.fact_sales`",
+          "transformations": [
+            "Join",
+            "Expand columns",
+            "Add column",
+            "Transform types"
+          ],
+          "stepCount": 7,
+          "mQuery": "let\n\t    Source =\n\t        Value.NativeQuery(\n\t            GoogleBigQuery.Database([BillingProject = BQ_Proj]){[Name = BQ_Proj]}[Data],\n\t            \"SELECT\n\t                *\n\t             FROM `\" & BQ_Proj & \".03_datawarehouse.fact_sales`\",\n\t            null,\n\t            [EnableFolding = true]\n\t        ),\n\t\n\t    #\"Requêtes fusionnées\" =\n\t        Table.NestedJoin(\n\t            Source,\n\t            {\"client_id\"},\n\t            #\"Dim Clients\",\n\t            {\"client_id\"},\n\t            \"Dim Clients\",\n\t            JoinKind.LeftOuter\n\t        ),\n\t\n\t    #\"Dim Clients développé\" =\n\t        Table.ExpandTableColumn(\n\t            #\"Requêtes fusionnées\",\n\t            \"Dim Clients\",\n\t            {\"client_name\"},\n\t            {\"client_name\"}\n\t        ),\n\t\n\t    #\"Type modifié\" =\n\t        Table.TransformColumnTypes(\n\t            #\"Dim Clients développé\",\n\t            {{\"times_report_term\", type date}}\n\t        ),\n\t\n\t    #\"Fin du mois calculée\" =\n\t        Table.TransformColumns(\n\t            #\"Type modifié\",\n\t            {{\"times_report_term\", Date.EndOfMonth, type date}}\n\t        ),\n\t    #\"project_type ajouté\" =\n\t        Table.AddColumn(\n\t            #\"Fin du mois calculée\",\n\t            \"project_type\",\n\t            each\n\t                if [project_typeof] = \"Projet Interne\"\n\t                    or [project_typeof] = \"Produit\" then\n\t                    \"Projet Interne\"\n\t                else if [project_typeof] = \"Régie\"\n\t                    or [project_typeof] = \"Forfait\" then\n\t                    \"Projet Client\"\n\t                else\n\t                    \"Other\",\n\t            type text\n\t        ),\n\t    #\"Requêtes fusionnées1\" = Table.NestedJoin(#\"project_type ajouté\", {\"project_id\"}, #\"Dim Projects\", {\"project_id\"}, \"Dim Projects\", JoinKind.LeftOuter),\n\t    #\"Dim Projects développé\" = Table.ExpandTableColumn(#\"Requêtes fusionnées1\", \"Dim Projects\", {\"Project Name\"}, {\"Project Name\"})\n\tin\n\t    #\"Dim Projects développé\""
+        }
+      ]
+    },
+    {
+      "name": "Fact Staffing",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "resource_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "day",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "day",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "tech_start",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "tech_start",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "tech_end",
+          "dataType": "dateTime",
+          "formatString": "Long Date",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "tech_end",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "contract_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "contract_typeOf",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "contract_typeOf",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_full_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_full_name",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_civility",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_civility",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_typeOf",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_typeOf",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "resource_title",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "resource_title",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Fact Staffing",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "03_datawarehouse",
+          "bqTable": "fact_active_staffing",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_active_staffing`",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".03_datawarehouse.fact_active_staffing`\",\n\t    null,\n\t    [EnableFolding = true]\n\t)\n\tin\n\t    Source"
+        }
+      ]
+    },
+    {
+      "name": "General KPIs",
+      "isHidden": true,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "General KPIs",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'General KPIs Commande'",
+          "sourceColumn": "[Value1]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "General KPIs Champs",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'General KPIs Commande'",
+          "sourceColumn": "[Value2]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "General KPIs Commande",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[Value3]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "General KPIs",
+          "queryType": "calculated",
+          "mode": "import",
+          "datasource": "Unknown",
+          "bqProject": "",
+          "bqDataset": "",
+          "bqTable": "",
+          "sqlQuery": "",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "{\n\t    (\"REVENUE\", NAMEOF('KPIs'[Revenue]), 0),\n\t    (\"PAYROLL\", NAMEOF('KPIs'[Payroll]), 1),\n\t    (\"MARGIN\", NAMEOF('KPIs'[Margin]), 2),\n\t    (\"PAYROLL / REVENUE %\", NAMEOF('KPIs'[Payroll / Revenue]), 3),\n\t    (\"INVOICE\", NAMEOF('KPIs'[Invoice Count]),4),\n\t    (\"AVERAGE INVOICE VALUE\", NAMEOF('KPIs'[Average Invoice Value (AIV)]), 5),\n\t    (\"RESOURCES\", NAMEOF('KPIs'[Active Resources]), 6),\n\t    (\"CLIENTS\", NAMEOF('KPIs'[Clients Count]), 7),\n\t    (\"PROJECTS\", NAMEOF('KPIs'[Projects Count (Interne)]), 8),\n\t    (\"INTERCONTRACT COST\", NAMEOF('KPIs'[Intercontract Cost]), 9),\n\t    (\"OCCUPATION RATE\", NAMEOF('KPIs'[Occupation Rate]), 10),\n\t    (\"TURNOVER\", NAMEOF('KPIs'[Turnover]), 11)\n\t}"
+        }
+      ]
+    },
+    {
+      "name": "Invoice KPIs",
+      "isHidden": true,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "Invoice KPIs",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'Invoice KPIs Commande'",
+          "sourceColumn": "[Value1]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Invoice KPIs Champs",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'Invoice KPIs Commande'",
+          "sourceColumn": "[Value2]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "Invoice KPIs Commande",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[Value3]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Invoice KPIs",
+          "queryType": "calculated",
+          "mode": "import",
+          "datasource": "Unknown",
+          "bqProject": "",
+          "bqDataset": "",
+          "bqTable": "",
+          "sqlQuery": "",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "{\n\t    (\"REVENUE\", NAMEOF('KPIs'[Revenue]), 1),\n\t    (\"CLIENTS\", NAMEOF('KPIs'[Clients Count]),2),\n\t    (\"PROJECTS\", NAMEOF('KPIs'[Projects Count (Client)]), 3),\n\t    (\"INVOICE\", NAMEOF('KPIs'[Invoice Count]), 4),\n\t    (\"ISSUED INVOICE\", NAMEOF('KPIs'[Issued Invoice Count]), 5),\n\t    (\"ISSUED INVOICE TURNOVER\", NAMEOF('KPIs'[Issued Invoice Turnover]), 6),\n\t    (\"PAID INVOICE\", NAMEOF('KPIs'[Paid Invoice Count]), 7),\n\t    (\"PAID INVOICE TURNOVER\", NAMEOF('KPIs'[Paid Invoice Turnover]), 8),\n\t    (\"INVOICE IN COLLECTION COUNT\", NAMEOF('KPIs'[Invoice in Collection Count]), 9),\n\t    (\"INVOICE IN COLLECTION TURNOVER\", NAMEOF('KPIs'[Invoice in Collection Turnover]), 10)\n\t}"
+        }
+      ]
+    },
+    {
+      "name": "KPIs HR",
+      "isHidden": true,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "KPIs HR",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'KPIs HR Commande'",
+          "sourceColumn": "[Value1]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "KPIs HR Champs",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": "'KPIs HR Commande'",
+          "sourceColumn": "[Value2]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "KPIs HR Commande",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[Value3]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "KPIs HR",
+          "queryType": "calculated",
+          "mode": "import",
+          "datasource": "Unknown",
+          "bqProject": "",
+          "bqDataset": "",
+          "bqTable": "",
+          "sqlQuery": "",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "{\n\t    (\"RESOURCES\", NAMEOF('KPIs'[Active Resources]), 0),\n\t    (\"OCCUPATION RATE %\", NAMEOF('KPIs'[Occupation Rate]), 1),\n\t    (\"TRANSFER RATE %\", NAMEOF('KPIs'[Transfer Rate %]), 2),\n\t    (\"SENIORITY\", NAMEOF('KPIs'[Seniority (in years)]), 3),\n\t    (\"TURNOVER %\", NAMEOF('KPIs'[Turnover]), 4)\n\t\n\t}"
+        }
+      ]
+    },
+    {
+      "name": "KPIs",
+      "isHidden": true,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "Name",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": true,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[Name]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [
+        {
+          "name": "Turnover",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Turnover",
+          "isHidden": false,
+          "expression": "VAR selected_start = MIN ( 'Dim Date'[Day] )\nVAR selected_end   = MAX ( 'Dim Date'[Day] )\nVAR departures =\n    CALCULATE (\n        COUNTROWS ( 'Dim Resource Flow' ),\n        KEEPFILTERS ( 'Dim Resource Flow'[flow_type] = \"Departure\" ),\n        FILTER (\n            'Dim Resource Flow',\n            'Dim Resource Flow'[event_date] >= selected_start\n                && 'Dim Resource Flow'[event_date] <= selected_end\n        )\n    )\nRETURN\nIF ( departures = 0, 0, departures )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Seniority (in months)",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Info",
+          "isHidden": false,
+          "expression": "```\n\nVAR selected_window_end = MAX ( 'Dim Date'[Day] )\nRETURN\nAVERAGEX (\n    FILTER (\n        CALCULATETABLE ( 'Fact Contracts', REMOVEFILTERS ( 'Dim Date' ) ),\n        'Fact Contracts'[contract_start_date] <= selected_window_end\n    ),\n    VAR end_count =  IF ( ISBLANK('Fact Contracts'[contract_end_date]) || 'Fact Contracts'[contract_end_date] >= selected_window_end, \n                        selected_window_end, \n                        'Fact Contracts'[contract_end_date] \n                     ...",
+          "missingFormatString": false
+        },
+        {
+          "name": "Revenue",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),\n  NOT ('Fact Invoices'[invoice_state_name] IN {\"Impayé\", \"Proforma\"})\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Revenue MTD",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "TOTALMTD([Revenue], 'Dim Date'[Day])",
+          "missingFormatString": true
+        },
+        {
+          "name": "Revenue QTD",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "TOTALQTD([Revenue], 'Dim Date'[Day])",
+          "missingFormatString": true
+        },
+        {
+          "name": "Revenue YTD",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "TOTALYTD([Revenue], 'Dim Date'[Day])",
+          "missingFormatString": true
+        },
+        {
+          "name": "Revenue LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "CALCULATE([Revenue], DATEADD('Dim Date'[Day], -1, MONTH))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Revenue LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "CALCULATE([Revenue], DATEADD('Dim Date'[Day], -1, QUARTER))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Revenue LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "CALCULATE([Revenue], DATEADD('Dim Date'[Day], -1, YEAR))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Revenue YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "DIVIDE([Revenue] - [Revenue LY], [Revenue LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Revenue QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "DIVIDE([Revenue] - [Revenue LQ], [Revenue LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Revenue MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Revenue",
+          "isHidden": false,
+          "expression": "DIVIDE([Revenue] - [Revenue LM], [Revenue LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice Count",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Invoice\\Count",
+          "isHidden": false,
+          "expression": "COALESCE(\nCALCULATE(\nDISTINCTCOUNT('Fact Invoices'[invoice_id]),\nFILTER( 'Fact Invoices', NOT ('Fact Invoices'[invoice_state_name] IN {\"Impayé\", \"Proforma\",\"Création\"}))\n),0)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Average Invoice Value (AIV)",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Invoice\\Average",
+          "isHidden": false,
+          "expression": "DIVIDE([Revenue], [Invoice Count])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Occupation Rate",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Occupation Rate",
+          "isHidden": false,
+          "expression": "```\n\nVAR SelectedStartDate =\n    MIN ( 'Dim Date'[day] )\n \nVAR SelectedEndDate =\n    MAX ( 'Dim Date'[day] )\n \n-- Active resources in the selected period,\nVAR ActiveResources =\n    CALCULATETABLE (\n        VALUES ( 'Dim Resources'[resource_id] ),\n        FILTER (\n            ALL ( 'Fact Staffing'[day] ),          \n            'Fact Staffing'[day] >= SelectedStartDate\n                && 'Fact Staffing'[day] <= SelectedEndDate\n        )\n    )\n \nVAR TotalWorkingDaysClient =\n    SUMX (\n        Activ...",
+          "missingFormatString": false
+        },
+        {
+          "name": "Occupation Rate LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Occupation Rate",
+          "isHidden": false,
+          "expression": "CALCULATE([Occupation Rate], DATEADD('Dim Date'[Day], -1, MONTH))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Occupation Rate LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Occupation Rate",
+          "isHidden": false,
+          "expression": "CALCULATE([Occupation Rate], DATEADD('Dim Date'[Day], -1, QUARTER))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Occupation Rate LY",
+          "dataType": "",
+          "formatString": "0.00",
+          "displayFolder": "Finance\\Occupation Rate",
+          "isHidden": false,
+          "expression": "CALCULATE([Occupation Rate], DATEADD('Dim Date'[Day], -1, YEAR))",
+          "missingFormatString": false
+        },
+        {
+          "name": "Occupation Rate YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Occupation Rate",
+          "isHidden": false,
+          "expression": "DIVIDE([Occupation Rate] - [Occupation Rate LY], [Occupation Rate LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Occupation Rate QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Occupation Rate",
+          "isHidden": false,
+          "expression": "DIVIDE([Occupation Rate] - [Occupation Rate LQ], [Occupation Rate LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Occupation Rate MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Occupation Rate",
+          "isHidden": false,
+          "expression": "DIVIDE([Occupation Rate] - [Occupation Rate LM], [Occupation Rate LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll Internal",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "```\n\n    SUMX(\n        'Fact Payroll (Internal)',\n        'Fact Payroll (Internal)'[CJM] *\n        'Fact Payroll (Internal)'[resource_working_days_per_month]\n    )\n```",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "CALCULATE([Payroll Internal],   DATEADD('Dim Date'[Day], -1, MONTH))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "CALCULATE([Payroll Internal],   DATEADD('Dim Date'[Day], -1, QUARTER))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "CALCULATE([Payroll Internal],   DATEADD('Dim Date'[Day], -1, YEAR))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "DIVIDE([Payroll Internal] - [Payroll LY], [Payroll LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "DIVIDE([Payroll Internal] - [Payroll LQ], [Payroll LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "DIVIDE([Payroll Internal] - [Payroll LM], [Payroll LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Margin",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "[Revenue] - [Payroll]",
+          "missingFormatString": false
+        },
+        {
+          "name": "Margin %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "```\nDIVIDE([Margin], [Revenue]) \n```",
+          "missingFormatString": false
+        },
+        {
+          "name": "Margin LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "CALCULATE([Margin], DATEADD('Dim Date'[Day], -1, MONTH))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Margin LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "CALCULATE([Margin], DATEADD('Dim Date'[Day], -1, QUARTER))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Margin LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "CALCULATE([Margin], DATEADD('Dim Date'[Day], -1, YEAR))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Margin % LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "CALCULATE([Margin %], DATEADD('Dim Date'[Day], -1, MONTH))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Margin % LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "CALCULATE([Margin %], DATEADD('Dim Date'[Day], -1, QUARTER))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Margin % LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Margin",
+          "isHidden": false,
+          "expression": "CALCULATE([Margin %], DATEADD('Dim Date'[Day], -1, YEAR))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Margin MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Growth Ratios",
+          "isHidden": false,
+          "expression": "DIVIDE( [Margin] - [Margin LM], [Margin LM] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Margin QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Growth Ratios",
+          "isHidden": false,
+          "expression": "DIVIDE( [Margin] - [Margin LQ], [Margin LQ] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Margin YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Growth Ratios",
+          "isHidden": false,
+          "expression": "DIVIDE( [Margin] - [Margin LY], [Margin LY] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll / Revenue",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Payroll / Revenue",
+          "isHidden": false,
+          "expression": "DIVIDE( [Payroll], [Revenue] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll / Revenue LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Payroll / Revenue",
+          "isHidden": false,
+          "expression": "CALCULATE( [Payroll / Revenue], DATEADD('Dim Date'[Day], -1, MONTH) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll / Revenue LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Payroll / Revenue",
+          "isHidden": false,
+          "expression": "CALCULATE( [Payroll / Revenue], DATEADD('Dim Date'[Day], -1, QUARTER) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll / Revenue LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Payroll / Revenue",
+          "isHidden": false,
+          "expression": "CALCULATE( [Payroll / Revenue], DATEADD('Dim Date'[Day], -1, YEAR) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll / Revenue MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Payroll / Revenue",
+          "isHidden": false,
+          "expression": "DIVIDE( [Payroll / Revenue] - [Payroll / Revenue LM], [Payroll / Revenue LM] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll / Revenue QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Payroll / Revenue",
+          "isHidden": false,
+          "expression": "DIVIDE( [Payroll / Revenue] - [Payroll / Revenue LQ], [Payroll / Revenue LQ] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll / Revenue YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Payroll / Revenue",
+          "isHidden": false,
+          "expression": "DIVIDE( [Payroll / Revenue] - [Payroll / Revenue LY], [Payroll / Revenue LY] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Working Days (Client)",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Activity",
+          "isHidden": false,
+          "expression": "COALESCE(\n    CALCULATE(\n        SUM( 'Fact Sales'[delivery_production_times] ),\n        FILTER( 'Dim Projects', NOT('Dim Projects'[project_typeof_name]) IN {\"Projet Interne\"})\n    ),\n    0\n)",
+          "missingFormatString": true
+        },
+        {
+          "name": "Working Days (Interne)",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Activity",
+          "isHidden": false,
+          "expression": "VAR ResourceSet =\n    VALUES ( 'Dim Resources'[resource_id] )\nRETURN\nSUMX (\n    ResourceSet,\n    VAR WD =\n        CALCULATE ( [Real Working Days] )\n    VAR WDClient =\n        CALCULATE ( [Working Days (Client)] )\n    VAR     WDIntternalProject =\n        CALCULATE ( [Working Days (Internal Proj.)] )\n    VAR Abs =\n        CALCULATE ( [Absences] )\n    VAR InterPerResource =\n        WD - WDClient - WDIntternalProject - Abs\n    RETURN\n        MAX ( 0, InterPerResource )\n)",
+          "missingFormatString": true
+        },
+        {
+          "name": "Intercontract Days %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Activity",
+          "isHidden": false,
+          "expression": "DIVIDE( [Working Days (Interne)], [Working Days])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Intercontract Resource",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Count",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    DISTINCTCOUNT('Dim Resources'[resource_id]),\n    FILTER(\n        'Dim Resources',\n        [Working Days (Interne)] > 0\n    )\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Absences",
+          "dataType": "",
+          "formatString": "0.00",
+          "displayFolder": "HR\\Activity",
+          "isHidden": false,
+          "expression": "VAR TotalAbsences =\n    SUM ( 'Fact Absences'[absence_duration_day] )\nRETURN\n    COALESCE ( TotalAbsences, 0 )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Transfers",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Transfers",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    COUNTROWS('Dim Agency Transfers'),\n    'Dim Agency Transfers'[transfer_date] >= MIN('Dim Date'[Day]),\n    'Dim Agency Transfers'[transfer_date] <= MAX('Dim Date'[Day])\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Transfer Rate %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Transfers",
+          "isHidden": false,
+          "expression": "DIVIDE( [Transfers], [Active Resources] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Seniority (in years)",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Info",
+          "isHidden": false,
+          "expression": "VAR selected_window_end = MAX ( 'Dim Date'[Day] )\nRETURN\nAVERAGEX (\n    FILTER (\n        CALCULATETABLE ( 'Fact Contracts', REMOVEFILTERS ( 'Dim Date' ) ),\n        'Fact Contracts'[contract_start_date] <= selected_window_end\n    ),\n    VAR end_count =\n        IF (\n            ISBLANK ( 'Fact Contracts'[contract_end_date] )\n                || 'Fact Contracts'[contract_end_date] >= selected_window_end,\n            selected_window_end,\n            'Fact Contracts'[contract_end_date]\n        )\n    V...",
+          "missingFormatString": true
+        },
+        {
+          "name": "Seniority levels",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Info",
+          "isHidden": false,
+          "expression": "VAR m = [Seniority (in months)]\nRETURN\nSWITCH(\n    TRUE(),\n    ISBLANK(m),        \"Unknown\",\n    m <= 6,            \"<6 mois\",\n    m <= 12,           \"6–12 mois\",\n    m <= 24,           \"1–2 ans\",\n    m <= 36,           \"2–3 ans\",\n    m <= 48,           \"3–4 ans\",\n                       \">4 ans\"\n)",
+          "missingFormatString": true
+        },
+        {
+          "name": "Number of Active Men",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "```\n\nCALCULATE ( [Active Resources], 'Dim Resources'[resource_civility_name] = \"Homme\" ) \n```",
+          "missingFormatString": false
+        },
+        {
+          "name": "Number of Active Women",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "```\n\nCALCULATE ( [Active Resources], 'Dim Resources'[resource_civility_name] = \"Femme\" ) \n```",
+          "missingFormatString": false
+        },
+        {
+          "name": "Men %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Number of Active Men], [Active Resources])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Women  %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Number of Active Women], [Active Resources])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Men % LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, MONTH) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Men % LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, QUARTER) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Men % LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, YEAR) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Women % LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, YEAR) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Women % LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, MONTH) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Women % LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "CALCULATE( [Men %], DATEADD('Dim Date'[Day], -1, QUARTER) )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Men MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Men %] - [Men % LM], [Men % LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Men QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Men %] - [Men % LQ], [Men % LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Men YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Men %] - [Men % LY], [Men % LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Women MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Women  %] - [Women % LM], [Women % LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Women QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Women  %] - [Women % LQ], [Women % LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Women YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Gender",
+          "isHidden": false,
+          "expression": "DIVIDE( [Women  %] - [Women % LY], [Women % LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Turnover LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Turnover",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Turnover],\n    DATEADD('Dim Date'[day],-1, MONTH)\n    )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Turnover LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Turnover",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Turnover],\n    DATEADD('Dim Date'[day],-1, QUARTER)\n    )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Turnover LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Turnover",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Turnover],\n    DATEADD('Dim Date'[day],-1, YEAR)\n    )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Turnover MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Turnover",
+          "isHidden": false,
+          "expression": "DIVIDE( [Turnover] - [Turnover LM], [Turnover LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Turnover QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Turnover",
+          "isHidden": false,
+          "expression": "DIVIDE( [Turnover] - [Turnover LQ], [Turnover LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Turnover YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "HR\\Turnover",
+          "isHidden": false,
+          "expression": "DIVIDE( [Turnover] - [Turnover LY], [Turnover LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice Count LY",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Invoice\\Count",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Invoice Count],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice Count LM",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Invoice\\Count",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Invoice Count],\n    DATEADD('Dim Date'[day],-1, MONTH)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice Count LQ",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Invoice\\Count",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Invoice Count],\n    DATEADD('Dim Date'[day],-1, QUARTER)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice Count MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Invoice\\Count",
+          "isHidden": false,
+          "expression": "DIVIDE( [Invoice Count] - [Invoice Count LM], [Invoice Count LM] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice Count QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Invoice\\Count",
+          "isHidden": false,
+          "expression": "DIVIDE( [Invoice Count] - [Invoice Count LQ], [Invoice Count LQ] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice Count YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Invoice\\Count",
+          "isHidden": false,
+          "expression": "DIVIDE( [Invoice Count] - [Invoice Count LY], [Invoice Count LY] )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Average Invoice Value LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Invoice\\Average",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Average Invoice Value (AIV)],\n    DATEADD('Dim Date'[day],-1, MONTH)\n     )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Average Invoice Value LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Invoice\\Average",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Average Invoice Value (AIV)],\n    DATEADD('Dim Date'[day],-1, QUARTER)\n     )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Average Invoice Value LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Invoice\\Average",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Average Invoice Value (AIV)],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Average Invoice Value MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Invoice\\Average",
+          "isHidden": false,
+          "expression": "DIVIDE( [Average Invoice Value (AIV)] - [Average Invoice Value LM], [Average Invoice Value LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Average Invoice Value QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Invoice\\Average",
+          "isHidden": false,
+          "expression": "DIVIDE( [Average Invoice Value (AIV)] - [Average Invoice Value LQ], [Average Invoice Value LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Average Invoice Value YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Invoice\\Average",
+          "isHidden": false,
+          "expression": "DIVIDE( [Average Invoice Value (AIV)] - [Average Invoice Value LY], [Average Invoice Value LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count (Interne)",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "COALESCE(\n    CALCULATE(\n    DISTINCTCOUNT( 'Fact Sales'[project_id]),\n    'Fact Sales'[project_typeof]=\"Projet Interne\")\n    ,0)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count LM",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Projects Count (Interne)],\n    DATEADD('Dim Date'[day],-1, MONTH)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count LQ",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Projects Count (Interne)],\n    DATEADD('Dim Date'[day],-1, QUARTER)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count (Interne) LY",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Projects Count (Interne)],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "DIVIDE( [Projects Count (Interne)] - [Projects Count LM],  [Projects Count LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "DIVIDE( [Projects Count (Interne)] - [Projects Count LQ],  [Projects Count LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count (Interne) YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "DIVIDE( [Projects Count (Interne)] - [Projects Count (Interne) LY],  [Projects Count (Interne) LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "COALESCE(\nDISTINCTCOUNT('Fact Invoices'[client_id]),0)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count LM",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Clients Count],\n    DATEADD('Dim Date'[day],-1, MONTH)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count LQ",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Clients Count],\n    DATEADD('Dim Date'[day],-1, QUARTER)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count LY",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Clients Count],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count MoM %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "DIVIDE( [Clients Count] - [Clients Count LM], [Clients Count LM])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count QoQ %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "DIVIDE( [Clients Count] - [Clients Count LQ], [Clients Count LQ])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "DIVIDE( [Clients Count] - [Clients Count LY], [Clients Count LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Payroll External",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    SUMX(\n        FILTER('Fact Costs', 'Fact Costs'[resource_type] = \"Consultant Externe\"),\n        'Fact Costs'[resource_cost]\n    )\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Selected General KPI LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": null,
+          "isHidden": false,
+          "expression": "VAR KPIName =\nSELECTEDVALUE ( 'General KPIs'[General KPIs Champs] )\nVAR SelectedMeasure =\nSWITCH (\nKPIName,\n\"'KPIs'[Revenue]\", [Revenue LY],\n\"'KPIs'[Payroll]\", [Payroll LY],\n\"'KPIs'[Margin %]\", [Margin % LY],\n\"'KPIs'[Payroll / Revenue]\", [Payroll / Revenue LY],\n\"'KPIs'[Number of HR]\", [Active Resources],\n\"'KPIs'[Occupation Rate]\", [Occupation Rate LY],\n\"'KPIs'[Intercontract Cost]\", [Intercontract Cost LY],\n\"'KPIs'[Turnover %]\", [Turnover LY],\n\"'KPIs'[Invoice Count]\", [Invoice Count LY],\n\"'KPIs'[...",
+          "missingFormatString": true
+        },
+        {
+          "name": "Average Payment Period (APP) Days",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "```\n\nAVERAGEX(\n    FILTER(\n        'Fact Invoices',\n        'Fact Invoices'[invoice_state_name] = \"Payée\"                                   \n            && NOT ISBLANK('Fact Invoices'[performed_payment_date])  -- date paiement connue\n            && NOT ISBLANK('Fact Invoices'[invoice_date])             -- date facture connue\n    ),\n    DATEDIFF('Fact Invoices'[invoice_date], 'Fact Invoices'[performed_payment_date], DAY)\n)\n```",
+          "missingFormatString": true
+        },
+        {
+          "name": "Issued Invoice Count",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(  DISTINCTCOUNT('Fact Invoices'[invoice_id]),\n  NOT ('Fact Invoices'[invoice_state_name] IN {\"Impayé\", \"Proforma\",\"Création\"})\n) -- IN {\"Transmis au client\", \"Relance 1\",\"Relance 2\", Email au client})",
+          "missingFormatString": false
+        },
+        {
+          "name": "Paid Invoice Count",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(  DISTINCTCOUNT('Fact Invoices'[invoice_id]),\n  'Fact Invoices'[invoice_state_name] = \"Payée\" )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Paid Invoice Turnover",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),\n  'Fact Invoices'[invoice_state_name] = \"Payée\" )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Issued Invoice Turnover",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),\n  NOT ('Fact Invoices'[invoice_state_name] IN {\"Impayé\", \"Proforma\",\"Création\"})\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Billing Gap Amount",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "[Issued Invoice Turnover] - [Paid Invoice Turnover]",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice in Collection Count",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(  DISTINCTCOUNT('Fact Invoices'[invoice_id]),\n('Fact Invoices'[invoice_state_name] IN {\"Relance 1\", \"Relance 2\",\"Email au client\"})\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Invoice in Collection Turnover",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(  SUM('Fact Invoices'[turnover_invoiced_TE]),\n('Fact Invoices'[invoice_state_name] IN {\"Relance 1\", \"Relance 2\",\"Email au client\"})\n)",
+          "missingFormatString": true
+        },
+        {
+          "name": "Payroll",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Payroll",
+          "isHidden": false,
+          "expression": "[Payroll Internal] + [Payroll External]",
+          "missingFormatString": false
+        },
+        {
+          "name": "Working Days",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Activity",
+          "isHidden": false,
+          "expression": "VAR Region_ = SELECTEDVALUE('Fact Staffing'[agency_id])   -- TN = 1, FR = 2, UAE = 3\nVAR WorkDays =\n    SWITCH (\n        TRUE(),\n        Region_ = 1,\n            CALCULATE (\n                COUNTROWS ( 'Dim Date' ),\n                KEEPFILTERS ( 'Dim Date'[is_weekend] = FALSE() )\n            --    KEEPFILTERS ( 'Dim Date'[is_holiday_TN] = FALSE() )\n            ),\n            Region_ = 2,\n            CALCULATE (\n                COUNTROWS ( 'Dim Date' ),\n                KEEPFILTERS ( 'Dim Date'[is...",
+          "missingFormatString": false
+        },
+        {
+          "name": "Intercontract Cost",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.00;-\"€\"\\ #,0.00;\"€\"\\ #,0.00",
+          "displayFolder": "Finance\\Cost",
+          "isHidden": false,
+          "expression": "```\n\nVAR SelectedStartDate =\n    MIN ( 'Dim Date'[day] )\n \nVAR SelectedEndDate =\n    MAX ( 'Dim Date'[day] )\n \n-- Active resources in the selected period (from Staffing)\nVAR ActiveResources =\n    CALCULATETABLE (\n        DISTINCT ( 'Dim Resources'[resource_id] ),\n        FILTER (\n            ALL ( 'Fact Staffing' ),\n            'Fact Staffing'[day] >= SelectedStartDate\n                && 'Fact Staffing'[day] <= SelectedEndDate\n        )\n    )\n \n-- Sum cost per resource, then aggregate\nVAR Interc...",
+          "missingFormatString": false
+        },
+        {
+          "name": "Revenue from Sales",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.00;-\"€\"\\ #,0.00;\"€\"\\ #,0.00",
+          "displayFolder": "Finance\\Sales",
+          "isHidden": false,
+          "expression": "COALESCE(\n    CALCULATE(\n        SUM ( 'Fact Sales'[resource_sale] )\n    ),\n    0\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Cost from Sales",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.00;-\"€\"\\ #,0.00;\"€\"\\ #,0.00",
+          "displayFolder": "Finance\\Resource",
+          "isHidden": false,
+          "expression": "VAR is_internal_consultant =\n    NOT (SELECTEDVALUE ( 'Fact Costs'[resource_type] ) IN {\"Consultant Externe\",\"Consultant Interne P\",\"Conseil Assistance\"})\n\nVAR cost_internal_consultant =\n   COALESCE (\n    SUMX (\n        VALUES ( 'Fact Costs'[times_reports_term] ),\n        CALCULATE (\n            AVERAGE ( 'Fact Costs'[resource_cost] ),\n            FILTER (\n                'Dim Projects',\n                NOT ( 'Dim Projects'[project_typeof_name] IN { \"Projet Interne\" } )\n            )\n        )\n ...",
+          "missingFormatString": false
+        },
+        {
+          "name": "Margin from Sales",
+          "dataType": "",
+          "formatString": "\"€\"\\ #,0.000;-\"€\"\\ #,0.000;\"€\"\\ #,0.000",
+          "displayFolder": "Finance\\Resource",
+          "isHidden": false,
+          "expression": "[Revenue from Sales] - [Total Resource Cost]",
+          "missingFormatString": false
+        },
+        {
+          "name": "AVG Revenue per Resource",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Resource",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Revenue from Sales],\n    REMOVEFILTERS('Dim Resources')\n)",
+          "missingFormatString": true
+        },
+        {
+          "name": "AVG Margin from Sales",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Resource",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Margin from Sales],\n    REMOVEFILTERS('Dim Resources')\n)",
+          "missingFormatString": true
+        },
+        {
+          "name": "Contract Start date",
+          "dataType": "",
+          "formatString": "Short Date",
+          "displayFolder": "HR\\Contract",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    MIN( 'Fact Staffing'[tech_start]),\n    REMOVEFILTERS('Dim Date'[day])\n)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Intercontract Cost LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Cost",
+          "isHidden": false,
+          "expression": "CALCULATE([Intercontract Cost], DATEADD('Dim Date'[Day], -1, YEAR))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Intercontract Cost YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Cost",
+          "isHidden": false,
+          "expression": "DIVIDE([Intercontract Cost] - [Intercontract Cost LY], [Intercontract Cost LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Billing Gap YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Growth Ratios",
+          "isHidden": false,
+          "expression": "DIVIDE( [Billing Gap Amount] - [Billing Gap Amount LY] , [Billing Gap Amount LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Average Payment Period LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Average Payment Period (APP) Days],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Billing Gap Amount LY",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Invoice",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Billing Gap Amount],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": true
+        },
+        {
+          "name": "Average Payment Period YoY %",
+          "dataType": "",
+          "formatString": "0.000\\ %;-0.000\\ %;0.000\\ %",
+          "displayFolder": "Finance\\Growth Ratios",
+          "isHidden": false,
+          "expression": "DIVIDE( [Average Payment Period (APP) Days] - [Average Payment Period LY] , [Average Invoice Value LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Active Resources",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Count",
+          "isHidden": false,
+          "expression": "```\n\nVAR end_date = MAX('Dim Date'[day])\nVAR active_resource = \nCALCULATE(\nDISTINCTCOUNT('Fact Staffing'[resource_id]),\n'Fact Staffing'[day] = end_date\n)\nRETURN\nactive_resource\n```",
+          "missingFormatString": false
+        },
+        {
+          "name": "Intercontract Cost LM",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Cost",
+          "isHidden": false,
+          "expression": "CALCULATE([Intercontract Cost], DATEADD('Dim Date'[Day], -1, MONTH))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Intercontract Cost LQ",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Cost",
+          "isHidden": false,
+          "expression": "CALCULATE([Intercontract Cost], DATEADD('Dim Date'[Day], -1, QUARTER))",
+          "missingFormatString": true
+        },
+        {
+          "name": "Intercontract Cost MoM %",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Cost",
+          "isHidden": false,
+          "expression": "DIVIDE([Intercontract Cost] - [Intercontract Cost LM], [Intercontract Cost LM])",
+          "missingFormatString": true
+        },
+        {
+          "name": "Intercontract Cost QoQ %",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Cost",
+          "isHidden": false,
+          "expression": "DIVIDE([Intercontract Cost] - [Intercontract Cost LQ], [Intercontract Cost LQ])",
+          "missingFormatString": true
+        },
+        {
+          "name": "Client Resource",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": null,
+          "isHidden": false,
+          "expression": "DISTINCTCOUNT('Dim Resources'[resource_id])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Revenue from Client",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Sales",
+          "isHidden": false,
+          "expression": "```\n\n        SUM ( 'Fact Sales'[resource_sale] )\n```",
+          "missingFormatString": true
+        },
+        {
+          "name": "Cost from Client",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Sales",
+          "isHidden": false,
+          "expression": "```\n\n        SUM ( 'Fact Costs'[client_ppd_cost] )\n```",
+          "missingFormatString": true
+        },
+        {
+          "name": "Margin from Client",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Sales",
+          "isHidden": false,
+          "expression": "```\n\n       [Revenue from Client] - [Cost from Client]\n```",
+          "missingFormatString": true
+        },
+        {
+          "name": "Total Resource Cost",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "Finance\\Resource",
+          "isHidden": false,
+          "expression": "VAR is_internal_consultant =\n    NOT ( SELECTEDVALUE( 'Fact Costs'[resource_type] ) IN {\"Consultant Externe\", \"Consultant Interne P\", \"Conseil Assistance\"})\n\nVAR cost_internal_consultant =\n   COALESCE (\n    SUMX (\n        VALUES ( 'Fact Costs'[times_reports_term] ),\n        CALCULATE (\n            AVERAGE ( 'Fact Costs'[resource_cost] ) /*,\n            FILTER (\n                'Dim Projects',\n                NOT ( 'Dim Projects'[project_typeof_name] IN { \"Projet Interne\" } )\n            )*/\n    ...",
+          "missingFormatString": true
+        },
+        {
+          "name": "Project count (sales)",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "DISTINCTCOUNT('Fact Sales'[project_id])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Clients Count (sales)",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Clients",
+          "isHidden": false,
+          "expression": "COALESCE(\n    CALCULATE(\n            DISTINCTCOUNT('Fact Sales'[client_id]),\n            FILTER('Dim Projects', NOT('Dim Projects'[project_typeof_name]) IN {\"Projet Interne\"})\n    ),0)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Working Days (Internal Proj.)",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Activity",
+          "isHidden": false,
+          "expression": "COALESCE(\n    CALCULATE(\n        SUM( 'Fact Sales'[delivery_production_times] ),\n        FILTER( 'Dim Projects', 'Dim Projects'[project_typeof_name] IN {\"Projet Interne\"})\n    ),\n    0\n)",
+          "missingFormatString": true
+        },
+        {
+          "name": "Contract Type Count",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Contract",
+          "isHidden": false,
+          "expression": "VAR SelectedStartDate =\n    MIN ( 'Dim Date'[day] )\n\nVAR SelectedEndDate =\n    MAX ( 'Dim Date'[day] )\n\nVAR ActiveResources =\n    CALCULATETABLE (\n        VALUES ( 'Dim Resources'[resource_id] ),\n        FILTER (\n            ALL ( 'Fact Staffing'[day] ),\n            'Fact Staffing'[day] >= SelectedStartDate\n                && 'Fact Staffing'[day] <= SelectedEndDate\n        )\n    )\n\nRETURN\n    CALCULATE (\n        COUNTROWS ( 'Fact Contracts' ),\n        'Fact Contracts'[is_active_contract] = TRUE(...",
+          "missingFormatString": false
+        },
+        {
+          "name": "Contract End Date",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Contract",
+          "isHidden": false,
+          "expression": "COALESCE (\n    VAR SelectedStartDate =\n        MIN ( 'Dim Date'[day] )\n\n    VAR SelectedEndDate =\n        MAX ( 'Dim Date'[day] )\n\n    -- Active resources\n    VAR ActiveResources =\n        CALCULATETABLE (\n            VALUES ( 'Dim Resources'[resource_id] ),\n            FILTER (\n                ALL ( 'Fact Staffing'[day] ),\n                'Fact Staffing'[day] >= SelectedStartDate\n                    && 'Fact Staffing'[day] <= SelectedEndDate\n            )\n        )\n\n    VAR CurrentResource =\n  ...",
+          "missingFormatString": true
+        },
+        {
+          "name": "Resource Client Count",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": null,
+          "isHidden": false,
+          "expression": "VAR SelectedStartDate =\n    MIN ( 'Dim Date'[day] )\n\nVAR SelectedEndDate =\n    MAX ( 'Dim Date'[day] )\n\nVAR ActiveResources =\n    CALCULATETABLE (\n        VALUES ( 'Dim Resources'[resource_id] ),\n        FILTER (\n            ALL ( 'Fact Staffing'[day] ),\n            'Fact Staffing'[day] >= SelectedStartDate\n                && 'Fact Staffing'[day] <= SelectedEndDate\n        )\n    )\n\nRETURN\n    CALCULATE (\n        COUNTROWS ( 'Fact Sales' ),\n        TREATAS ( ActiveResources, 'Dim Resources'[resou...",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count (Client)",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "COALESCE(\n    CALCULATE(\n    DISTINCTCOUNT( 'Fact Invoices'[project_id]),\n    FILTER('Dim Projects', NOT('Dim Projects'[project_type] IN {\"Projet Interne\"})))\n    ,0)",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count (Client) LY",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Projects Count (Client)],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Projects Count (Client) YoY %",
+          "dataType": "",
+          "formatString": "0.00\\ %;-0.00\\ %;0.00\\ %",
+          "displayFolder": "Finance\\Projects",
+          "isHidden": false,
+          "expression": "DIVIDE( [Projects Count (Client)] - [Projects Count (Client) LY],  [Projects Count (Client) LY])",
+          "missingFormatString": false
+        },
+        {
+          "name": "Active Resources LY",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Count",
+          "isHidden": false,
+          "expression": "CALCULATE(\n    [Active Resources],\n    DATEADD('Dim Date'[day],-1, YEAR)\n     )",
+          "missingFormatString": false
+        },
+        {
+          "name": "Real Working Days",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Activity",
+          "isHidden": false,
+          "expression": "```\n\nVAR internal_days = SUM( 'Fact Payroll (Internal)'[resource_working_days_per_month])\nVAR external_days = SUM( 'Fact Sales'[delivery_production_times])\nVAR is_internal = NOT (SELECTEDVALUE ( 'Dim Resources'[resource_typeof_name] ) IN {\"Consultant Externe\",\"Consultant Interne P\",\"Conseil Assistance\"})\nRETURN \nIF ( is_internal , internal_days, external_days)\n```",
+          "missingFormatString": false
+        },
+        {
+          "name": "New Active Resources",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": "HR\\Count",
+          "isHidden": false,
+          "expression": "```\n\nVAR end_date = MAX('Dim Date'[day])\nVAR active_resource = \nCALCULATE(\nDISTINCTCOUNT('Fact Staffing'[resource_id]),\n'Fact Staffing'[day] <= end_date\n)\nRETURN\nactive_resource\n```",
+          "missingFormatString": false
+        },
+        {
+          "name": "Activity Filter",
+          "dataType": "",
+          "formatString": null,
+          "displayFolder": "HR\\Contract",
+          "isHidden": false,
+          "expression": "VAR segment_start_date =\n    MIN ( 'Dim Date'[day] )\nVAR segment_end_date =\n    MAX ( 'Dim Date'[day] )\nVAR contract_start_date =\n    DATEVALUE ( [Contract Start date] )\nVAR contract_end_date_raw = [Contract End Date]\nVAR contract_end_date =\n    IF (\n        contract_end_date_raw = \"undefined\",\n        DATE ( 2099, 12, 31 ),\n        DATE ( VALUE ( RIGHT ( contract_end_date_raw, 4 ) ), VALUE ( MID ( contract_end_date_raw, 4, 2 ) ), VALUE ( LEFT ( contract_end_date_raw, 2 ) ) )\n    )\nVAR activity_...",
+          "missingFormatString": true
+        },
+        {
+          "name": "flag from client",
+          "dataType": "",
+          "formatString": "0",
+          "displayFolder": null,
+          "isHidden": true,
+          "expression": "IF ( NOT ([Revenue from Client] = 0 && [Cost from Client] = 0) , 1, 0 )",
+          "missingFormatString": false
+        }
+      ],
+      "partitions": [
+        {
+          "partitionName": "KPIs",
+          "queryType": "calculated",
+          "mode": "import",
+          "datasource": "Unknown",
+          "bqProject": "",
+          "bqDataset": "",
+          "bqTable": "",
+          "sqlQuery": "",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": ""
+        }
+      ]
+    },
+    {
+      "name": "Users Mapping",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "userprincipal",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "userprincipal",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "agency_id",
+          "dataType": "int64",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "agency_id",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Users Mapping",
+          "queryType": "m",
+          "mode": "import",
+          "datasource": "Google BigQuery",
+          "bqProject": "BQ_Proj",
+          "bqDataset": "technical",
+          "bqTable": "users_mapping",
+          "sqlQuery": "SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".technical.users_mapping`",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": "let\n\t    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],\n\t\"SELECT#(lf)  *#(lf)FROM `\"&BQ_Proj&\".technical.users_mapping`\",\n\t    null,\n\t    [EnableFolding = true]\n\t)\n\tin\n\t    Source"
+        }
+      ]
+    },
+    {
+      "name": "Working Days",
+      "isHidden": false,
+      "mode": "import",
+      "columns": [
+        {
+          "name": "year",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "Dim Date[year]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_no",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "Dim Date[month_no]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "year_month",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Dim Date[year_month]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "month_name",
+          "dataType": "string",
+          "formatString": null,
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "none",
+          "sortByColumn": null,
+          "sourceColumn": "Dim Date[month_name]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "WD_TN",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[WD_TN]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "WD_FR",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[WD_FR]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        },
+        {
+          "name": "WD_UAE",
+          "dataType": "string",
+          "formatString": "0",
+          "isHidden": false,
+          "displayFolder": null,
+          "summarizeBy": "sum",
+          "sortByColumn": null,
+          "sourceColumn": "[WD_UAE]",
+          "isCalculated": false,
+          "missingFormatString": false,
+          "isFloat": false
+        }
+      ],
+      "measures": [],
+      "partitions": [
+        {
+          "partitionName": "Working Days",
+          "queryType": "calculated",
+          "mode": "import",
+          "datasource": "Unknown",
+          "bqProject": "",
+          "bqDataset": "",
+          "bqTable": "",
+          "sqlQuery": "",
+          "transformations": [],
+          "stepCount": 0,
+          "mQuery": ""
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "fromTable": "Dim Resources",
+      "fromColumn": "agency_id",
+      "toTable": "Dim Agencies",
+      "toColumn": "agency_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Staffing",
+      "fromColumn": "day",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Sales",
+      "fromColumn": "times_report_term",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Costs",
+      "fromColumn": "times_reports_term",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Invoices",
+      "fromColumn": "invoice_date",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Absences",
+      "fromColumn": "date",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Staffing",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Sales",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Contracts",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Absences",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Payroll (Internal)",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Costs",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Sales",
+      "fromColumn": "project_id",
+      "toTable": "Dim Projects",
+      "toColumn": "project_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Costs",
+      "fromColumn": "project_id",
+      "toTable": "Dim Projects",
+      "toColumn": "project_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Invoices",
+      "fromColumn": "project_id",
+      "toTable": "Dim Projects",
+      "toColumn": "project_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Dim Resource Flow",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Dim Resource Flow",
+      "fromColumn": "event_date",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Dim Agency Transfers",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resources",
+      "toColumn": "resource_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Dim Agency Transfers",
+      "fromColumn": "transfer_date",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Dim Resources",
+      "fromColumn": "resource_id",
+      "toTable": "Dim Resource Image",
+      "toColumn": "resource_id",
+      "crossFilter": "bothDirections",
+      "fromCardinality": "one",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Users Mapping",
+      "fromColumn": "agency_id",
+      "toTable": "Dim Agencies",
+      "toColumn": "agency_id",
+      "crossFilter": "bothDirections",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Payroll (Internal)",
+      "fromColumn": "payroll_date",
+      "toTable": "Dim Date",
+      "toColumn": "day",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Fact Invoices",
+      "fromColumn": "agency_id",
+      "toTable": "Dim Agencies",
+      "toColumn": "agency_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    },
+    {
+      "fromTable": "Dim Projects",
+      "fromColumn": "client_id",
+      "toTable": "Dim Clients",
+      "toColumn": "client_id",
+      "crossFilter": "singleDirection",
+      "fromCardinality": "many",
+      "toCardinality": "one",
+      "isActive": true
+    }
+  ],
+  "roles": [
+    {
+      "name": "REGION",
+      "filters": []
+    }
+  ]
+}

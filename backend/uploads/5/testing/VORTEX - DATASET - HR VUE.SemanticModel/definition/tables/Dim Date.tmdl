@@ -1,0 +1,265 @@
+table 'Dim Date'
+	lineageTag: 8ca39fe7-3c70-4688-9542-2e59ec726216
+
+	column day
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 594cad2c-6fa9-41df-b1df-34945799dfbe
+		summarizeBy: none
+		sourceColumn: day
+
+		variation Variation
+			isDefault
+			relationship: 105f7a68-7b27-423c-b8c9-b127495850a6
+			defaultHierarchy: LocalDateTable_bde56bc2-a9bd-4a1b-970b-289561876ed9.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: ab6ecff6-45cf-4606-9155-8896c41c6b78
+		summarizeBy: sum
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter_no
+		dataType: int64
+		formatString: 0
+		lineageTag: a9fb6793-6a3a-49f8-bfb1-c5bfa81746ce
+		summarizeBy: sum
+		sourceColumn: quarter_no
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_no
+		dataType: int64
+		formatString: 0
+		lineageTag: 3e3bb5e0-3013-4b52-a793-079347301969
+		summarizeBy: sum
+		sourceColumn: month_no
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_of_month
+		dataType: int64
+		formatString: 0
+		lineageTag: bfbd19e9-57cb-4ff1-b240-41c04d0b0560
+		summarizeBy: sum
+		sourceColumn: day_of_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_of_week_iso
+		dataType: int64
+		formatString: 0
+		lineageTag: dbf62b98-f2ca-467c-9d25-5bca787915d5
+		summarizeBy: sum
+		sourceColumn: day_of_week_iso
+
+		annotation SummarizationSetBy = Automatic
+
+	column week_no_iso
+		dataType: int64
+		formatString: 0
+		lineageTag: bda852a9-2c13-4592-b75f-984eaffd4903
+		summarizeBy: sum
+		sourceColumn: week_no_iso
+
+		annotation SummarizationSetBy = Automatic
+
+	column iso_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 961b9910-1007-4c9f-b1d8-c97a6230e633
+		summarizeBy: sum
+		sourceColumn: iso_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column year_month_key
+		dataType: string
+		lineageTag: 99cb7200-88fd-4949-b10a-d1f159b4bb7a
+		summarizeBy: none
+		sourceColumn: year_month_key
+		sortByColumn: year_month
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column year_quarter_key
+		dataType: string
+		lineageTag: 6534d80a-c176-4233-819f-ebed906d01e1
+		summarizeBy: none
+		sourceColumn: year_quarter_key
+		sortByColumn: quarter_year_key
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_name
+		dataType: string
+		lineageTag: 5b47b727-eea8-4ab9-a1ea-ee0752b0bc62
+		summarizeBy: none
+		sourceColumn: month_name
+		sortByColumn: month_no
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_short
+		dataType: string
+		lineageTag: c3b0a3d6-43b4-47d9-8f24-3d03e2075f69
+		summarizeBy: none
+		sourceColumn: month_short
+
+		annotation SummarizationSetBy = Automatic
+
+	column year_month
+		dataType: string
+		lineageTag: bd64e82b-b744-46af-a693-4cc3e0970835
+		summarizeBy: none
+		sourceColumn: year_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter_cod
+		dataType: string
+		lineageTag: 027237cf-7dcd-479e-919b-845c143d4420
+		summarizeBy: none
+		sourceColumn: quarter_cod
+
+		annotation SummarizationSetBy = Automatic
+
+	column week_cod
+		dataType: string
+		lineageTag: e759a681-22ee-49b5-96d2-ceb9c9ac57c9
+		summarizeBy: none
+		sourceColumn: week_cod
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_weekend
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: fe0eb6bf-fe03-4e80-8a2b-c2efd4301c1c
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current_month
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 97043c51-8132-42b7-8394-d15c1c3c5843
+		summarizeBy: none
+		sourceColumn: is_current_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_complete_month
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: d1417bb1-0b86-4f48-988c-ce8766d831a8
+		summarizeBy: none
+		sourceColumn: is_complete_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_today
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: c90b7e64-876e-475c-b168-a6047012ef67
+		summarizeBy: none
+		sourceColumn: is_today
+
+		annotation SummarizationSetBy = Automatic
+
+	column relative_month_offset
+		dataType: int64
+		formatString: 0
+		lineageTag: cb7f2f7c-c737-4d4f-b861-3c89baaf80e5
+		summarizeBy: sum
+		sourceColumn: relative_month_offset
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_holiday_TN
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 405ad906-e494-440e-9b01-5903035dd1bb
+		summarizeBy: none
+		sourceColumn: is_holiday_TN
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_holiday_FR
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 25376bde-2b9d-476d-b6c5-e1aef5acf93c
+		summarizeBy: none
+		sourceColumn: is_holiday_FR
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_holiday_UAE
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 51605266-b3a3-4691-ad60-7a9f3f2ccb0f
+		summarizeBy: none
+		sourceColumn: is_holiday_UAE
+
+		annotation SummarizationSetBy = Automatic
+
+	column working_days_per_month
+		dataType: int64
+		formatString: 0
+		lineageTag: 7af62a87-6f3f-4a19-854d-322f7663a5e9
+		summarizeBy: sum
+		sourceColumn: working_days_per_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_year_key
+		dataType: string
+		lineageTag: 6f5f0a3b-b9c4-442e-b868-968111309c90
+		summarizeBy: none
+		sourceColumn: month_year_key
+		sortByColumn: year_month_key
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter_year_key
+		dataType: string
+		lineageTag: 929be9d8-75f0-4bb9-87a8-7898beaca5e3
+		summarizeBy: none
+		sourceColumn: quarter_year_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Date' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_date`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Personnalisée ajoutée" = Table.AddColumn(Source, "month_year_key", each [month_short] & " - " & Text.From([year])),
+				    #"Personnalisée ajoutée1" = Table.AddColumn(#"Personnalisée ajoutée", "quarter_year_key", each [quarter_cod] & " - " & Text.From([year]))
+				in
+				    #"Personnalisée ajoutée1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

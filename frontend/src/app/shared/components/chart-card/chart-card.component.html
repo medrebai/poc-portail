@@ -1,0 +1,12 @@
+<mat-card class="chart-card">
+	<h3>{{ title }}</h3>
+	@for (item of items; track item.label) {
+		<div class="row" [attr.title]="item.tooltip || null">
+			<div class="label" [class.has-tooltip]="item.tooltip">{{ item.label }}</div>
+			<div class="bar-wrap">
+				<div class="bar" [ngStyle]="{ width: (item.value / maxValue) * 100 + '%' }"></div>
+			</div>
+			<div class="value">{{ item.value }}</div>
+		</div>
+	}
+</mat-card>

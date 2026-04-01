@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "424664c5a7ae55ebb77c",
+  "position": {
+    "x": 353,
+    "y": 0,
+    "z": 1002,
+    "height": 280,
+    "width": 333,
+    "tabOrder": 1002
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Projects"
+                    }
+                  },
+                  "Property": "client_name"
+                }
+              },
+              "queryRef": "Dim Projects.client_name",
+              "nativeQueryRef": "client_name",
+              "active": true
+            }
+          ]
+        },
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Projects"
+                    }
+                  },
+                  "Property": "client_id"
+                }
+              },
+              "queryRef": "Dim Projects.client_id",
+              "nativeQueryRef": "client_id"
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Projects"
+                    }
+                  },
+                  "Property": "project_type"
+                }
+              },
+              "queryRef": "Dim Projects.project_type",
+              "nativeQueryRef": "project_type"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

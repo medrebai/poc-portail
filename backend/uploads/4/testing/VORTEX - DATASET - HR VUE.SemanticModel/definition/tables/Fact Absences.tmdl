@@ -1,0 +1,125 @@
+table 'Fact Absences'
+	lineageTag: 6a461d84-b4f3-46b5-9849-42fdd1d00479
+
+	column absence_id
+		dataType: int64
+		formatString: 0
+		lineageTag: c8ac512d-62d7-4381-b09e-72393417f3d0
+		summarizeBy: sum
+		sourceColumn: absence_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column absence_title
+		dataType: string
+		lineageTag: c3208270-363a-4c8d-b378-c8838e6e4320
+		summarizeBy: none
+		sourceColumn: absence_title
+
+		annotation SummarizationSetBy = Automatic
+
+	column absence_duration_day
+		dataType: double
+		formatString: 0
+		lineageTag: 5f8c1a33-30ae-42db-a85a-c7c3646f3f48
+		summarizeBy: sum
+		sourceColumn: absence_duration_day
+
+		annotation SummarizationSetBy = Automatic
+
+	column work_unit_type_reference
+		dataType: int64
+		formatString: 0
+		lineageTag: 374682f9-bcb6-4343-adbd-6e5ec61dc092
+		summarizeBy: sum
+		sourceColumn: work_unit_type_reference
+
+		annotation SummarizationSetBy = Automatic
+
+	column work_unit_type_name
+		dataType: string
+		lineageTag: f1c58fcd-ce61-4c76-967a-d65c4d6bdb58
+		summarizeBy: none
+		sourceColumn: work_unit_type_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column absence_report_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 5be05cb8-a4e1-4cee-aacc-c7d9adf25a97
+		summarizeBy: sum
+		sourceColumn: absence_report_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 5824a533-db36-4299-8cb4-74bae1b23d87
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 25a0b935-0388-4347-93d2-d6150742f296
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 60cceb9d-ea9e-4a8c-bce8-436fb7bd7a4b
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column id_daily
+		dataType: int64
+		formatString: 0
+		lineageTag: 2b2475c1-fa1c-42b9-af02-b0658de0a7fe
+		summarizeBy: sum
+		sourceColumn: id_daily
+
+		annotation SummarizationSetBy = Automatic
+
+	column absence_start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ed7278f6-6e96-4916-9eae-223dbaa6d276
+		summarizeBy: none
+		sourceColumn: absence_start_date
+
+		variation Variation
+			isDefault
+			relationship: bfa0114c-4d03-4dd9-876e-cb4382b0bec5
+			defaultHierarchy: LocalDateTable_75ddfa64-ca5f-42b6-8cac-47a0ecbce335.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Fact Absences' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.fact_absences`",
+				    null,
+				    [EnableFolding = true]
+				)
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

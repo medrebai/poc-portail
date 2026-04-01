@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "name": "c324cb8065b7c080a406",
+  "position": {
+    "x": 49.6322878314769,
+    "y": 404.69403924127323,
+    "z": 28000,
+    "height": 90,
+    "width": 65,
+    "tabOrder": 3000
+  },
+  "visualGroup": {
+    "displayName": "Groupe 1",
+    "groupMode": "ScaleMode"
+  }
+}

@@ -1,0 +1,7 @@
+role REGION
+	modelPermission: read
+
+	tablePermission 'Users Mapping' = 'Users Mapping'[userprincipal] = USERPRINCIPALNAME()
+
+	annotation PBI_Id = 3a0d2b04f287415aa5fac5cea2c4b0dc
+

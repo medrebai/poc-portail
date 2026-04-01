@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "VORTEX - DATASET - HR VUE"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ea05d330-99c9-41ee-86ab-52de4d12b4ff"
+  }
+}

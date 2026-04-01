@@ -1,0 +1,57 @@
+table 'Dim Agency Transfers'
+	lineageTag: 543ab58b-abdf-4be0-9950-819500a01115
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ed5323f-41f9-46cb-9c57-e67442341106
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column current_agency
+		dataType: int64
+		formatString: 0
+		lineageTag: 130d004a-ea20-4fe3-b490-67973dbf9ac5
+		summarizeBy: sum
+		sourceColumn: current_agency
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_agency
+		dataType: int64
+		formatString: 0
+		lineageTag: d03f5697-8fbd-4c83-bc31-cb8982ef1959
+		summarizeBy: sum
+		sourceColumn: last_agency
+
+		annotation SummarizationSetBy = Automatic
+
+	column transfer_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: dfe3e053-e1e5-4ccc-8998-ab73fa537979
+		summarizeBy: none
+		sourceColumn: transfer_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Dim Agency Transfers' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_agency_transfers`",
+				    null,
+				    [EnableFolding = true]
+				)
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

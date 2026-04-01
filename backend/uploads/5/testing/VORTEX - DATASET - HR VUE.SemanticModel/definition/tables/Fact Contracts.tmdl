@@ -1,0 +1,179 @@
+table 'Fact Contracts'
+	lineageTag: 75cc3481-94b9-431e-958f-00814afe3d5e
+
+	column contract_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ca667e1-e5d1-4b63-993e-d35ab016f07e
+		summarizeBy: sum
+		sourceColumn: contract_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d0c92037-258b-4b7e-94dd-b62929795689
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_typeOf
+		dataType: string
+		lineageTag: 85c54801-3e5c-4a03-97ad-bccd190aeabd
+		summarizeBy: none
+		sourceColumn: contract_typeOf
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 185c76ee-d7f3-4772-9c89-949eec40a0cd
+		summarizeBy: none
+		sourceColumn: contract_start_date
+
+		variation Variation
+			isDefault
+			relationship: 20327702-cc77-467d-ba4c-632434d07317
+			defaultHierarchy: LocalDateTable_496c376b-72c6-46e2-a81a-88723cf1f83f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column contract_end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 776e5d6d-d5af-411d-8ec6-a56269685b8c
+		summarizeBy: none
+		sourceColumn: contract_end_date
+
+		variation Variation
+			isDefault
+			relationship: 98c0fa0e-f9d2-4d39-aab1-2dfb32b5f9fa
+			defaultHierarchy: LocalDateTable_23858a4b-e72f-427a-9e5d-7dfb934a5240.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column contract_monthly_salary
+		dataType: double
+		lineageTag: 2b9d9ff2-0a4a-41eb-ab76-5d5d64fcf4bd
+		summarizeBy: sum
+		sourceColumn: contract_monthly_salary
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column contract_avg_daily_cost
+		dataType: double
+		lineageTag: d9994356-afb7-46ac-a42c-f39e39ef52c2
+		summarizeBy: sum
+		sourceColumn: contract_avg_daily_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column contract_currency
+		dataType: string
+		lineageTag: 56b03365-72fb-456d-ac82-adb9ad744d38
+		summarizeBy: none
+		sourceColumn: contract_currency
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_exchange_rate
+		dataType: double
+		lineageTag: 96ba790c-32ce-4ffb-a44d-b6103fe23560
+		summarizeBy: sum
+		sourceColumn: contract_exchange_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: cd892dce-8946-4b9e-8c74-2ffdde7eee77
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_typeof_name
+		dataType: string
+		lineageTag: 7a826859-de21-41f1-b721-53471ae7e5c8
+		summarizeBy: none
+		sourceColumn: resource_typeof_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_civility_name
+		dataType: string
+		lineageTag: b4f45a5e-c166-4229-a8d8-8aee11e595b1
+		summarizeBy: none
+		sourceColumn: resource_civility_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_full_name
+		dataType: string
+		lineageTag: 3101216b-2452-4492-a531-746545b40f7f
+		summarizeBy: none
+		sourceColumn: resource_full_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 12882b34-8516-4f26-8714-0da498bc199d
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_active_contract
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: daaea6dd-c155-429c-89af-91a978eb03b6
+		summarizeBy: none
+		sourceColumn: is_active_contract
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_contract_alerte
+		dataType: string
+		lineageTag: 6c56c4e6-f20e-4765-95d9-e2db6bbb4197
+		summarizeBy: none
+		sourceColumn: end_contract_alerte
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Fact Contracts' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.fact_contract`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Requêtes fusionnées" = Table.NestedJoin(Source, {"resource_id"}, #"Dim Resources", {"resource_id"}, "Dim Resources", JoinKind.LeftOuter),
+				    #"Dim Resources développé" = Table.ExpandTableColumn(#"Requêtes fusionnées", "Dim Resources", {"resource_civility_name", "resource_typeof_name"}, {"resource_civility_name", "resource_typeof_name"}),
+				    #"Requêtes fusionnées1" = Table.NestedJoin(#"Dim Resources développé", {"resource_id"}, #"Dim Resources", {"resource_id"}, "Dim Resources", JoinKind.LeftOuter),
+				    #"Dim Resources développé1" = Table.ExpandTableColumn(#"Requêtes fusionnées1", "Dim Resources", {"resource_full_name"}, {"resource_full_name"}),
+				    #"Requêtes fusionnées2" = Table.NestedJoin(#"Dim Resources développé1", {"agency_id"}, #"Dim Agencies", {"agency_id"}, "Dim Agencies", JoinKind.LeftOuter),
+				    #"Dim Agencies développé" = Table.ExpandTableColumn(#"Requêtes fusionnées2", "Dim Agencies", {"Region"}, {"Region"})
+				in
+				    #"Dim Agencies développé"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

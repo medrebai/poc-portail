@@ -1,0 +1,231 @@
+<section class="model-shell">
+	@if (project) {
+		<mat-card class="project-header-card">
+			<div class="project-header-main">
+				<div class="project-thumb" aria-hidden="true">
+					<mat-icon>analytics</mat-icon>
+				</div>
+				<div class="project-meta">
+					<div class="project-title-row">
+						<h1>{{ project.name }}</h1>
+						<span class="env-chip">dev</span>
+					</div>
+					<p>Last updated {{ project.updated_at ? (project.updated_at | date:'medium') : 'n/a' }}</p>
+					<p>Created {{ project.created_at ? (project.created_at | date:'medium') : 'n/a' }}</p>
+				</div>
+			</div>
+			<div class="project-header-actions">
+				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
+				<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']">View documentation</a>
+			</div>
+		</mat-card>
+	}
+
+	<div class="page-head">
+		<div>
+			<h1 class="page-title">Model Quality Explorer</h1>
+			<p class="page-subtitle">Semantic model review with structure KPIs, model overview, and BPA violations explorer.</p>
+		</div>
+		<button mat-flat-button color="primary" (click)="export()">
+			<mat-icon>download</mat-icon>
+			Export BPA
+		</button>
+	</div>
+
+	<div class="nav-tabs">
+		<a class="tab" [routerLink]="['/projects', projectId]">Overview</a>
+		<a class="tab active" [routerLink]="['/projects', projectId, 'bpa']">Model</a>
+		<a class="tab" [routerLink]="['/projects', projectId, 'inspector']">Visual</a>
+		<a class="tab" [routerLink]="['/projects', projectId, 'catalog']">Documentation</a>
+	</div>
+
+	<div class="top-cards-grid">
+		@for (card of modelCards; track card.label) {
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ card.value }}</div>
+				<div class="top-card-label">{{ card.label }}</div>
+			</mat-card>
+		}
+	</div>
+
+	<div class="model-layout">
+		<aside class="left-nav">
+			<button type="button" (click)="scrollTo('model-overview')">Model Overview</button>
+			<button type="button" (click)="scrollTo('quality-report')">Quality Report</button>
+			<button type="button" (click)="scrollTo('violations-list')">Violations List</button>
+		</aside>
+
+		<div class="model-content">
+			<section id="model-overview" class="section-card">
+				<h2>Model Overview</h2>
+				<div class="overview-info-cards">
+					<mat-card class="info-card">
+						<div class="label">Model Quality Score</div>
+						<div class="value">{{ modelQualityScore }}/100</div>
+					</mat-card>
+					<mat-card class="info-card">
+						<div class="label">Dataset Size</div>
+						<div class="value">NaN</div>
+					</mat-card>
+					<mat-card class="info-card">
+						<div class="label">Auto Date/Time</div>
+						<div class="value">On</div>
+					</mat-card>
+				</div>
+
+				<div class="overview-split">
+					<mat-card class="split-card">
+						<h3>Model Stats</h3>
+						<ul>
+							@for (item of modelStats; track item.label) {
+								<li><span>{{ item.label }}</span><strong>{{ item.value }}</strong></li>
+							}
+						</ul>
+					</mat-card>
+
+					<mat-card class="split-card">
+						<h3>BPA Score Breakdown</h3>
+						@for (score of scoreBreakdown; track score.label) {
+							<div class="score-row">
+								<div class="score-meta">
+									<span>{{ score.label }}</span>
+									<strong>{{ score.percent }}%</strong>
+								</div>
+								<div class="score-track">
+									<div class="score-fill" [ngClass]="score.tone" [style.width.%]="score.percent"></div>
+								</div>
+							</div>
+						}
+					</mat-card>
+				</div>
+			</section>
+
+			<section id="quality-report" class="section-card">
+				<h2>Quality Report</h2>
+				<div class="stats-grid">
+					<div class="stat-card"><div class="stat-value">{{ totalCount }}</div><div class="stat-label">Total</div></div>
+					<div class="stat-card error"><div class="stat-value">{{ errorCount }}</div><div class="stat-label">Errors</div></div>
+					<div class="stat-card warning"><div class="stat-value">{{ warningCount }}</div><div class="stat-label">Warnings</div></div>
+					<div class="stat-card info"><div class="stat-value">{{ infoCount }}</div><div class="stat-label">Info</div></div>
+				</div>
+
+				<div class="charts-grid">
+					<app-chart-card [title]="'By Category'" [items]="byCategory"></app-chart-card>
+					<app-chart-card [title]="'By Severity'" [items]="bySeverity"></app-chart-card>
+					<app-chart-card [title]="'Top Rules'" [items]="topRules"></app-chart-card>
+				</div>
+			</section>
+
+			<section id="violations-list" class="section-card">
+				<h2>BPA Violations</h2>
+				<div class="toolbar-grid top-space">
+					<mat-form-field appearance="outline">
+						<mat-label>Severity</mat-label>
+						<mat-select [formControl]="severityFilter">
+							<mat-option value="all">All</mat-option>
+							<mat-option value="3">Error</mat-option>
+							<mat-option value="2">Warning</mat-option>
+							<mat-option value="1">Info</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field appearance="outline">
+						<mat-label>Category</mat-label>
+						<mat-select [formControl]="categoryFilter">
+							<mat-option value="all">All</mat-option>
+							@for (cat of categoryOptions; track cat) {
+								<mat-option [value]="cat">{{ cat }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Object</mat-label>
+						<input matInput [formControl]="objectFilter" [matAutocomplete]="auto" />
+						<mat-autocomplete #auto="matAutocomplete">
+							@for (obj of filteredObjectOptions; track obj) {
+								<mat-option [value]="obj">{{ obj }}</mat-option>
+							}
+						</mat-autocomplete>
+					</mat-form-field>
+					<mat-form-field appearance="outline"><mat-label>Rule ID</mat-label><input matInput [formControl]="ruleFilter" /></mat-form-field>
+					<mat-form-field appearance="outline">
+						<mat-label>Object type</mat-label>
+						<mat-select [formControl]="objectTypeFilter">
+							<mat-option value="all">All</mat-option>
+							<mat-option value="Measure">Measure</mat-option>
+							<mat-option value="Column">Column</mat-option>
+							<mat-option value="Table">Table</mat-option>
+						</mat-select>
+					</mat-form-field>
+				</div>
+
+				<div class="violations-header">
+					<span class="violations-count">{{ filteredViolations.length }} violations · Page {{ currentPage }} of {{ totalPages || 1 }}</span>
+				</div>
+
+				<mat-accordion>
+					@for (item of paginatedViolations; track item.id) {
+						<mat-expansion-panel>
+							<mat-expansion-panel-header>
+								<div class="panel-header-wrap">
+									<div class="panel-title-line">
+										<app-severity-badge [label]="item.severity_label" [tone]="tone(item.severity)"></app-severity-badge>
+										<span class="ml">{{ item.rule_name }}</span>
+									</div>
+									<div class="panel-desc-line">Object: {{ item.table_name }}[{{ item.object_name }}]</div>
+								</div>
+							</mat-expansion-panel-header>
+
+							<div class="fix-box">
+								<div class="fix-meta">
+									<span class="fix-tag">{{ item.object_type }}</span>
+									<span class="fix-tag category">{{ item.category }}</span>
+									<span class="fix-label-inline">Object:</span>
+									<span class="fix-object">{{ item.table_name }}[{{ item.object_name }}]</span>
+								</div>
+
+								<div class="fix-section">
+									<div class="fix-label">Description</div>
+									<p>{{ item.description }}</p>
+								</div>
+
+								<div class="fix-section">
+									<div class="fix-label">Suggested Fix</div>
+									<p>{{ item.fix_steps?.action || item.fix_template || 'Manual review required' }}</p>
+									@if (item.fix_steps?.steps?.length) {
+										<ol>
+											@for (step of item.fix_steps?.steps || []; track step) {
+												<li>{{ step }}</li>
+											}
+										</ol>
+									}
+								</div>
+							</div>
+						</mat-expansion-panel>
+					}
+				</mat-accordion>
+
+				@if (filteredViolations.length) {
+					<nav class="pagination">
+						<button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+							<mat-icon>chevron_left</mat-icon>
+						</button>
+						@for (p of pageNumbers; track p) {
+							<button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+						}
+						<button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+							<mat-icon>chevron_right</mat-icon>
+						</button>
+					</nav>
+				}
+
+				@if (!violations.length) {
+					<div class="fix-box top-space">
+						<strong>No BPA violations found.</strong>
+						<p>This can mean either no violations were returned, or BPA analysis did not complete for this project. Re-run Analyze from the project creation flow if needed.</p>
+					</div>
+				}
+			</section>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,175 @@
+relationship 105f7a68-7b27-423c-b8c9-b127495850a6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Dim Date'.day
+	toColumn: LocalDateTable_bde56bc2-a9bd-4a1b-970b-289561876ed9.Date
+
+relationship e64d3ca9-62d3-40a8-89a1-eb4b5f98a76b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Dim Projects'.project_start_day
+	toColumn: LocalDateTable_73c5209c-ead4-42fd-babf-5bc5abfb1597.Date
+
+relationship 71097c65-57a6-4588-bdb4-269ba17a7a8f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Dim Projects'.project_end_day
+	toColumn: LocalDateTable_0836d3f0-1db9-4092-afa3-e9bc6f39474c.Date
+
+relationship 98c0fa0e-f9d2-4d39-aab1-2dfb32b5f9fa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Contracts'.contract_end_date
+	toColumn: LocalDateTable_23858a4b-e72f-427a-9e5d-7dfb934a5240.Date
+
+relationship 4f772da2-8d21-41bc-9d99-3eec385d1cd2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Invoices'.invoice_start_date
+	toColumn: LocalDateTable_3b6694be-6513-4772-8d8c-8c58b39a35c3.Date
+
+relationship 5521191a-a27e-4417-ad96-d633437e8f76
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Invoices'.invoice_end_date
+	toColumn: LocalDateTable_f2b87ed4-8624-43b5-8411-ae1ce44d982f.Date
+
+relationship 47630046-9aa0-4034-9144-b584843bed64
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Invoices'.expected_payment_date
+	toColumn: LocalDateTable_3b3bf5e2-3558-4973-b651-575d8f2db2fc.Date
+
+relationship 3e828e4e-94b5-4c9b-a0fb-fb19b929aded
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Invoices'.performed_payment_date
+	toColumn: LocalDateTable_4fcf911b-3009-431a-b209-9b456bfdec63.Date
+
+relationship 39c4d55d-54a2-4301-bdb5-46f232dbf0ca
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Dim Clients'.client_creation_date
+	toColumn: LocalDateTable_f13ab90a-94c8-4074-86f2-2d4546e5b018.Date
+
+relationship b8edd5b8-f7ff-4d36-b38e-bc5f8f96affa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Payroll (Internal)'.contract_start_date
+	toColumn: LocalDateTable_52d5e91e-5b6d-43ee-8db5-8777a23d4ff6.Date
+
+relationship 04160449-34bd-4dd6-845f-e45dd7678b73
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Payroll (Internal)'.contract_end_date
+	toColumn: LocalDateTable_24f99b51-d6ce-4daf-8fce-e47e9cea1a0c.Date
+
+relationship bfa0114c-4d03-4dd9-876e-cb4382b0bec5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Absences'.absence_start_date
+	toColumn: LocalDateTable_75ddfa64-ca5f-42b6-8cac-47a0ecbce335.Date
+
+relationship abb8a676-fe40-4456-82eb-7024208dd211
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Staffing'.tech_start
+	toColumn: LocalDateTable_76d39721-9c57-4d31-a8ad-309b7246526e.Date
+
+relationship 4d6dc034-066e-4529-80f8-032e31c6787e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Staffing'.tech_end
+	toColumn: LocalDateTable_8a805ecc-0e9d-4481-af6f-e18723a9d6a9.Date
+
+relationship 20327702-cc77-467d-ba4c-632434d07317
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Fact Contracts'.contract_start_date
+	toColumn: LocalDateTable_496c376b-72c6-46e2-a81a-88723cf1f83f.Date
+
+relationship 7a2fb984-4714-44d4-4b2f-f93b7a0a2fa7
+	fromColumn: 'Dim Resources'.agency_id
+	toColumn: 'Dim Agencies'.agency_id
+
+relationship d3965a81-e964-ddaa-8e26-1b65d5f5eeaf
+	fromColumn: 'Fact Staffing'.day
+	toColumn: 'Dim Date'.day
+
+relationship 784769da-d739-454c-9142-74db100b67ec
+	fromColumn: 'Fact Sales'.times_report_term
+	toColumn: 'Dim Date'.day
+
+relationship a578bbcb-70b7-c7c9-bb79-790396e1f25e
+	fromColumn: 'Fact Costs'.times_reports_term
+	toColumn: 'Dim Date'.day
+
+relationship fa30075a-d852-f28f-82d2-1a625b91a47e
+	fromColumn: 'Fact Invoices'.invoice_date
+	toColumn: 'Dim Date'.day
+
+relationship 9e0a0f35-b4e3-9d50-692f-eb0eae9ad0f7
+	fromColumn: 'Fact Absences'.date
+	toColumn: 'Dim Date'.day
+
+relationship 4b8b7569-dd3d-e8e3-9579-98b4ea12403b
+	fromColumn: 'Fact Staffing'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship d4f76b51-e885-5e25-55d4-99421252f14c
+	fromColumn: 'Fact Sales'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship 0fa27ae5-deff-fe5b-c0b5-d0f49b50ab00
+	fromColumn: 'Fact Contracts'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship b1f1534a-f3fd-03e3-c908-19f8397b0cfa
+	fromColumn: 'Fact Absences'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship 32a12c35-ceb7-94bf-7c04-be1682c4ebda
+	fromColumn: 'Fact Payroll (Internal)'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship 0ced4472-1e02-48ba-809c-b88d3d810677
+	fromColumn: 'Fact Costs'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship 10e8319f-485b-c38f-96f5-fe458fd6ccdf
+	fromColumn: 'Fact Sales'.project_id
+	toColumn: 'Dim Projects'.project_id
+
+relationship 60a41e00-7895-e409-09d9-8a5d6f7e6c33
+	fromColumn: 'Fact Costs'.project_id
+	toColumn: 'Dim Projects'.project_id
+
+relationship 67431f0a-42ca-0788-5b83-10846ff4092f
+	fromColumn: 'Fact Invoices'.project_id
+	toColumn: 'Dim Projects'.project_id
+
+relationship bb535146-cbe5-0c65-7303-26050b7288b6
+	fromColumn: 'Dim Resource Flow'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship f0d2be1d-8c10-ba44-61ee-670a633ba10d
+	fromColumn: 'Dim Resource Flow'.event_date
+	toColumn: 'Dim Date'.day
+
+relationship 3d9043f3-d765-d822-e44f-782877d5762b
+	fromColumn: 'Dim Agency Transfers'.resource_id
+	toColumn: 'Dim Resources'.resource_id
+
+relationship 4c469bbe-1ace-e7b8-04a8-56f792a1d75c
+	fromColumn: 'Dim Agency Transfers'.transfer_date
+	toColumn: 'Dim Date'.day
+
+relationship 3ac13e34-bb1c-68a0-513c-8edb2ce229a6
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Dim Resources'.resource_id
+	toColumn: 'Dim Resource Image'.resource_id
+
+relationship b5f8f86d-ce2d-4e86-4409-7496a5a87a73
+	crossFilteringBehavior: bothDirections
+	securityFilteringBehavior: bothDirections
+	fromColumn: 'Users Mapping'.agency_id
+	toColumn: 'Dim Agencies'.agency_id
+
+relationship 0f4cd2c2-ba2c-d66a-28ae-abc5dd77f689
+	fromColumn: 'Fact Payroll (Internal)'.payroll_date
+	toColumn: 'Dim Date'.day
+
+relationship b5395044-9df9-8575-6306-0b4b72a1b9b0
+	fromColumn: 'Fact Invoices'.agency_id
+	toColumn: 'Dim Agencies'.agency_id
+
+relationship 745dcac5-3192-8e6c-ae1c-3fe734761682
+	fromColumn: 'Dim Projects'.client_id
+	toColumn: 'Dim Clients'.client_id
+

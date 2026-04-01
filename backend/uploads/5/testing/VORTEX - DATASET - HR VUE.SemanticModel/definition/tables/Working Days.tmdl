@@ -1,0 +1,102 @@
+table 'Working Days'
+	lineageTag: 27a7a736-43cf-4ff3-94f3-9967cdd95612
+
+	column year
+		formatString: 0
+		lineageTag: 17ed792c-ad09-48c4-be37-e8a6df3e4ebd
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: Dim Date[year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_no
+		formatString: 0
+		lineageTag: b5a20021-6041-4dd7-9c4b-97dd4970b3d7
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: Dim Date[month_no]
+
+		annotation SummarizationSetBy = Automatic
+
+	column year_month
+		lineageTag: 0bbf1d65-f604-4452-a92a-bca184191356
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Dim Date[year_month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_name
+		lineageTag: b4c68cd0-8e62-4706-9c74-b6de94ece265
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Dim Date[month_name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column WD_TN
+		formatString: 0
+		lineageTag: 6d3cd318-8df1-4b6d-974b-459e47a858a7
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [WD_TN]
+
+		annotation SummarizationSetBy = Automatic
+
+	column WD_FR
+		formatString: 0
+		lineageTag: fbff3b74-0e82-4ceb-b6b6-1063a530bb85
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [WD_FR]
+
+		annotation SummarizationSetBy = Automatic
+
+	column WD_UAE
+		formatString: 0
+		lineageTag: 54f80e10-f342-4329-9594-bc3b6afec6c7
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [WD_UAE]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Working Days' = calculated
+		mode: import
+		source = ```
+				
+				VAR Months =
+				    SUMMARIZE (
+				        'Dim Date',
+				        'Dim Date'[year],
+				        'Dim Date'[month_no],
+				        'Dim Date'[year_month], 
+				        'Dim Date'[month_name]
+				    )
+				RETURN
+				ADDCOLUMNS (
+				    Months,
+				    "WD_TN",
+				        CALCULATE (
+				            COUNTROWS ( 'Dim Date' ),
+				            'Dim Date'[is_weekend] = FALSE (),
+				            'Dim Date'[is_holiday_TN] = FALSE ()
+				        ),
+				    "WD_FR",
+				        CALCULATE (
+				            COUNTROWS ( 'Dim Date' ),
+				            'Dim Date'[is_weekend] = FALSE (),
+				            'Dim Date'[is_holiday_FR] = FALSE ()
+				        ),
+				    "WD_UAE",
+				        CALCULATE (
+				            COUNTROWS ( 'Dim Date' ),
+				            'Dim Date'[is_weekend] = FALSE (),
+				            'Dim Date'[is_holiday_UAE] = FALSE ()
+				        )
+				)
+				```
+
+	annotation PBI_Id = 976d431b20964cb7b4a2861db75e0a92
+

@@ -1,0 +1,91 @@
+table 'Dim Agencies'
+	lineageTag: 535b1298-6d00-4297-8d4a-242f3206b0c5
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3882c847-efc3-4f87-b63f-3ecd9f37e585
+		summarizeBy: none
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_name
+		dataType: string
+		lineageTag: 7019daa6-6380-47af-86bf-1f64f13071dc
+		summarizeBy: none
+		sourceColumn: agency_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_work_unit_rate
+		dataType: int64
+		formatString: 0
+		lineageTag: b3edd321-2d04-4454-a41c-22b37c917647
+		summarizeBy: sum
+		sourceColumn: agency_work_unit_rate
+
+		annotation SummarizationSetBy = Automatic
+
+	column number_of_working_days_per_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 069c4f5a-9072-426e-b66a-ecfa4eec9abb
+		summarizeBy: sum
+		sourceColumn: number_of_working_days_per_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_vat_number
+		dataType: string
+		lineageTag: 24c384e4-c582-47ea-84ee-47eb0ccbc956
+		summarizeBy: none
+		sourceColumn: agency_vat_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_currency
+		dataType: string
+		lineageTag: de32c1da-f42c-44e3-bb6f-92e1f4928271
+		summarizeBy: none
+		sourceColumn: agency_currency
+
+		annotation SummarizationSetBy = Automatic
+
+	column staff_per_agency
+		dataType: int64
+		formatString: 0
+		lineageTag: bf27b7fb-3178-4699-94f6-c68ad2e0fbd2
+		summarizeBy: sum
+		sourceColumn: staff_per_agency
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 058ad163-cd41-4130-be75-9c1a8c0352cd
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Agencies' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_agency`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Personnalisée ajoutée" = Table.AddColumn(Source, "Region", each if [agency_id]  = 1 then "FR"
+				else if [agency_id] =  2 then "TN"
+				else if [agency_id] =  3 then "UE"
+				else null)
+				in
+				    #"Personnalisée ajoutée"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

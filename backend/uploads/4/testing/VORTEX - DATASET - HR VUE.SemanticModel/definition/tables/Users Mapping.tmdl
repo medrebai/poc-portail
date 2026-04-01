@@ -1,0 +1,36 @@
+table 'Users Mapping'
+	lineageTag: 11aec6a3-3b49-45a7-9fe0-974356720675
+
+	column userprincipal
+		dataType: string
+		lineageTag: b0b0d40d-ab9a-4cd2-be1a-8b9e88beadcc
+		summarizeBy: none
+		sourceColumn: userprincipal
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b655ed90-5b58-45cf-b512-b006525893ac
+		summarizeBy: none
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Users Mapping' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".technical.users_mapping`",
+				    null,
+				    [EnableFolding = true]
+				)
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

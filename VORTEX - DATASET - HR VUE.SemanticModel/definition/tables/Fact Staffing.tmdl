@@ -1,0 +1,129 @@
+table 'Fact Staffing'
+	lineageTag: dc3be5d3-2f5d-41f1-8d22-5967729adb80
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 083c4cae-c4d1-4e5d-8d49-0d403693038f
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column day
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4ba9ac4b-c29a-4b57-afda-039f625a8080
+		summarizeBy: none
+		sourceColumn: day
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column tech_start
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: fe55dd63-b425-4560-b27a-3e12e77a650a
+		summarizeBy: none
+		sourceColumn: tech_start
+
+		variation Variation
+			isDefault
+			relationship: abb8a676-fe40-4456-82eb-7024208dd211
+			defaultHierarchy: LocalDateTable_76d39721-9c57-4d31-a8ad-309b7246526e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column tech_end
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c4c19107-466f-4171-b958-074a7afde3d4
+		summarizeBy: none
+		sourceColumn: tech_end
+
+		variation Variation
+			isDefault
+			relationship: 4d6dc034-066e-4529-80f8-032e31c6787e
+			defaultHierarchy: LocalDateTable_8a805ecc-0e9d-4481-af6f-e18723a9d6a9.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column contract_id
+		dataType: int64
+		formatString: 0
+		lineageTag: e9c498b3-71f7-4408-92fb-6f7b246e68ca
+		summarizeBy: sum
+		sourceColumn: contract_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: fd0e1c16-1b5f-4b24-8e25-f1d5f9de374b
+		summarizeBy: sum
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_typeOf
+		dataType: string
+		lineageTag: fad14985-908c-4243-9173-07a66d22d1b6
+		summarizeBy: none
+		sourceColumn: contract_typeOf
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_full_name
+		dataType: string
+		lineageTag: 5e0970a1-7a8a-4cb7-9590-a2f46655f212
+		summarizeBy: none
+		sourceColumn: resource_full_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_civility
+		dataType: string
+		lineageTag: 905f89dd-a4d8-4f42-966d-6dfb56215d07
+		summarizeBy: none
+		sourceColumn: resource_civility
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_typeOf
+		dataType: string
+		lineageTag: 90ad556c-0c86-494d-9e06-a52111810ced
+		summarizeBy: none
+		sourceColumn: resource_typeOf
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_title
+		dataType: string
+		lineageTag: 834cd495-73cd-4599-867c-b3a311373940
+		summarizeBy: none
+		sourceColumn: resource_title
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Fact Staffing' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.fact_active_staffing`",
+				    null,
+				    [EnableFolding = true]
+				)
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

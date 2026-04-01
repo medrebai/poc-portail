@@ -1,0 +1,71 @@
+<section>
+	<div class="page-head">
+		<div>
+			<h1 class="page-title">Create And Analyze Project</h1>
+			<p class="page-subtitle">Upload a PBIP ZIP and run TMDL + BPA + PBI Inspector in one guided flow.</p>
+		</div>
+	</div>
+
+	<mat-card class="create-card">
+		<form [formGroup]="form" class="form-grid">
+			<mat-form-field appearance="outline">
+				<mat-label>Project name</mat-label>
+				<input matInput formControlName="name" placeholder="HR Model Quality Review" />
+			</mat-form-field>
+
+			<mat-form-field appearance="outline">
+				<mat-label>Description</mat-label>
+				<textarea matInput rows="3" formControlName="description" placeholder="Optional context"></textarea>
+			</mat-form-field>
+		</form>
+
+		<div class="upload-zone">
+			<mat-icon>upload_file</mat-icon>
+			<div>
+				<div class="strong">Upload PBIP Source</div>
+				<div class="hint">Choose either a ZIP file or a folder containing SemanticModel/definition and Report.</div>
+			</div>
+
+			<mat-button-toggle-group [value]="uploadMode" aria-label="Upload mode">
+				<mat-button-toggle value="zip">ZIP</mat-button-toggle>
+				<mat-button-toggle value="folder">Folder</mat-button-toggle>
+			</mat-button-toggle-group>
+
+			<div class="pickers">
+				<label class="picker">
+					<span>Pick ZIP</span>
+					<input type="file" accept=".zip" (change)="onFileSelected($event)" />
+				</label>
+
+				<label class="picker">
+					<span>Pick Folder</span>
+					<input type="file" multiple webkitdirectory directory (change)="onFolderSelected($event)" />
+				</label>
+			</div>
+
+			<div class="file-name">
+				@if (uploadMode === 'zip') {
+					{{ selectedFile?.name || 'No ZIP selected' }}
+				} @else {
+					{{ selectedFolderFiles.length ? (selectedFolderFiles.length + ' files selected from folder') : 'No folder selected' }}
+				}
+			</div>
+		</div>
+
+		@if (busy) {
+			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+			<p class="step">{{ stepLabel }}</p>
+		}
+
+		@if (error) {
+			<p class="error">{{ error }}</p>
+		}
+
+		<div class="actions">
+			<button mat-flat-button color="primary" [disabled]="!canSubmit()" (click)="createAndAnalyze()">
+				<mat-icon>play_arrow</mat-icon>
+				Analyze
+			</button>
+		</div>
+	</mat-card>
+</section>

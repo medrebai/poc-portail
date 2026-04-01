@@ -1,0 +1,190 @@
+<section>
+	<div class="hero-panel">
+		<div>
+			<h1 class="page-title">BI Quality Command Center</h1>
+			<p class="page-subtitle">Track semantic quality and visual quality across your Power BI projects with instant drill-down.</p>
+			<div class="hero-meta">
+				<span>Last update: {{ latestUpdatedAt ? (latestUpdatedAt | date:'medium') : 'n/a' }}</span>
+			</div>
+		</div>
+		<div class="hero-actions">
+			<a mat-flat-button color="primary" routerLink="/projects/new">
+				<mat-icon>add</mat-icon>
+				New Analysis
+			</a>
+			<button mat-stroked-button class="refresh-btn" (click)="loadProjects()">
+				<mat-icon>refresh</mat-icon>
+				Refresh
+			</button>
+		</div>
+	</div>
+
+	<div class="kpi-grid">
+		<mat-card class="kpi-card kpi-core">
+			<div class="kpi-value">{{ totalProjects }}</div>
+			<div class="kpi-label">Projects</div>
+		</mat-card>
+		<mat-card class="kpi-card kpi-good">
+			<div class="kpi-value">{{ readyProjects }}</div>
+			<div class="kpi-label">Ready Projects</div>
+		</mat-card>
+		<mat-card class="kpi-card kpi-alert">
+			<div class="kpi-value">{{ totalBpaViolations }}</div>
+			<div class="kpi-label">Total BPA Violations</div>
+		</mat-card>
+		<mat-card class="kpi-card kpi-warning">
+			<div class="kpi-value">{{ totalInspectorFails }}</div>
+			<div class="kpi-label">Inspector Fails</div>
+		</mat-card>
+		<mat-card class="kpi-card kpi-risk">
+			<div class="kpi-value">{{ highRiskProjects }}</div>
+			<div class="kpi-label">High-Risk Projects</div>
+		</mat-card>
+	</div>
+
+	<div class="section-head">
+		<h2>Latest 3 Projects</h2>
+		<p>Most recent analyses with quick quality signals and direct actions.</p>
+	</div>
+
+	@if (latestFiveProjects.length) {
+		<div class="spotlight-grid">
+			@for (project of latestFiveProjects; track project.id) {
+				<mat-card class="spot-card">
+					<div class="spot-head">
+						<div class="spot-title-wrap">
+							<div class="strong">{{ project.name }}</div>
+							<div class="muted">{{ project.description || 'No description' }}</div>
+						</div>
+						<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
+					</div>
+
+					<mat-chip-set class="tag-set">
+						@for (tag of projectTags(project); track tag) {
+							<mat-chip [ngClass]="tagClass(tag)">{{ tag }}</mat-chip>
+						}
+					</mat-chip-set>
+
+					<div class="metric-row">
+						<div class="metric-pill" [ngClass]="bpaMetricClass(project)">
+							<span class="metric-label">BPA</span>
+							<strong>{{ project.bpa_violation_count || 0 }} violations</strong>
+						</div>
+						<div class="metric-pill" [ngClass]="inspectorMetricClass(project)">
+							<span class="metric-label">Inspector</span>
+							<strong>{{ project.inspector_failed_count || 0 }} fails</strong>
+						</div>
+					</div>
+
+					<div class="card-actions">
+						<a mat-flat-button color="primary" [routerLink]="['/projects', project.id]">Open details</a>
+						<a mat-stroked-button [routerLink]="['/projects', project.id, 'bpa']">BPA</a>
+					</div>
+				</mat-card>
+			}
+		</div>
+	}
+
+	<div class="filters-panel">
+		<div class="filters-head">
+			<mat-icon>tune</mat-icon>
+			<span>Filter Archive</span>
+		</div>
+		<div class="toolbar-grid">
+			<mat-form-field appearance="outline">
+				<mat-label>Search project</mat-label>
+				<input matInput [formControl]="searchControl" placeholder="Name or description" />
+			</mat-form-field>
+
+			<mat-form-field appearance="outline">
+				<mat-label>Status</mat-label>
+				<mat-select [formControl]="statusControl">
+					<mat-option value="all">All</mat-option>
+					<mat-option value="pending">Pending</mat-option>
+					<mat-option value="analyzing">Analyzing</mat-option>
+					<mat-option value="ready">Ready</mat-option>
+					<mat-option value="error">Error</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+	</div>
+
+	@if (loading) {
+		<div class="loading-state">
+			<mat-spinner diameter="34"></mat-spinner>
+		</div>
+	} @else {
+		<h2 class="table-title">Projects Archive</h2>
+		<div class="data-table-wrap">
+			<table mat-table [dataSource]="pagedOlderProjects" class="project-table">
+				<ng-container matColumnDef="name">
+					<th mat-header-cell *matHeaderCellDef>Project</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="strong">{{ row.name }}</div>
+						<div class="muted">{{ row.description || 'No description' }}</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="status">
+					<th mat-header-cell *matHeaderCellDef>Status</th>
+					<td mat-cell *matCellDef="let row">
+						<app-severity-badge [label]="row.status" [tone]="statusTone(row.status)"></app-severity-badge>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="model">
+					<th mat-header-cell *matHeaderCellDef>Model</th>
+					<td mat-cell *matCellDef="let row">
+						{{ row.table_count || 0 }} tables · {{ row.measure_count || 0 }} measures
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="quality">
+					<th mat-header-cell *matHeaderCellDef>Quality</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="quality-pills">
+							<span class="quality-pill" [ngClass]="bpaMetricClass(row)">BPA {{ row.bpa_violation_count || 0 }}</span>
+							<span class="quality-pill" [ngClass]="inspectorMetricClass(row)">Inspector {{ row.inspector_failed_count || 0 }} fails</span>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="created">
+					<th mat-header-cell *matHeaderCellDef>Created</th>
+					<td mat-cell *matCellDef="let row">
+						{{ row.created_at ? (row.created_at | date:'medium') : '-' }}
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<th mat-header-cell *matHeaderCellDef>Actions</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="table-actions">
+							<a mat-stroked-button class="open-btn" [routerLink]="['/projects', row.id]">Open</a>
+							<button mat-icon-button class="delete-btn" color="warn" (click)="deleteProject(row)" aria-label="Delete project">
+								<mat-icon>delete</mat-icon>
+							</button>
+						</div>
+					</td>
+				</ng-container>
+
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+			</table>
+		</div>
+
+		@if (olderProjects.length) {
+			<div class="pager">
+				<button mat-stroked-button (click)="prevPage()" [disabled]="pageIndex === 0">
+					<mat-icon>chevron_left</mat-icon>
+					Prev
+				</button>
+				<span>Page {{ pageIndex + 1 }} / {{ totalOlderPages }}</span>
+				<button mat-stroked-button (click)="nextPage()" [disabled]="pageIndex >= totalOlderPages - 1">
+					Next
+					<mat-icon>chevron_right</mat-icon>
+				</button>
+			</div>
+		}
+	}
+</section>

@@ -1,0 +1,20 @@
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Dim Resources'[resource_full_name],
+			'Dim Resources'[resource_typeof_name],
+			'Dim Resources'[resource_civility_name],
+			'Dim Resources'[resource_title],
+			'Dim Resources'[current_year_remaining_leave],
+			'Dim Date'[day],
+			"Revenue_per_Resource", 'KPIs'[Revenue per Resource],
+			"Cost_per_Resource", 'KPIs'[Cost per Resource],
+			"Margin_per_Resource", 'KPIs'[Margin per Resource],
+			"Working_Days__Client_", 'KPIs'[Working Days (Client)],
+			"Working_Days__Intercontract_", 'KPIs'[Working Days (Intercontract)],
+			"Occupation_Rate", 'KPIs'[Occupation Rate]
+		)
+
+
+EVALUATE
+	__DS0Core

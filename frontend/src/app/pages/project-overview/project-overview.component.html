@@ -1,0 +1,191 @@
+@if (project) {
+	<section class="model-shell">
+		<mat-card class="project-header-card">
+			<div class="project-header-main">
+				<div class="project-thumb" aria-hidden="true">
+					<mat-icon>analytics</mat-icon>
+				</div>
+				<div class="project-meta">
+					<div class="project-title-row">
+						<h1>{{ project.name }}</h1>
+						<span class="env-chip">dev</span>
+					</div>
+					<p>Last updated {{ project.updated_at ? (project.updated_at | date:'medium') : 'n/a' }}</p>
+					<p>Created {{ project.created_at ? (project.created_at | date:'medium') : 'n/a' }}</p>
+				</div>
+			</div>
+			<div class="project-header-actions">
+				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
+				<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']">View documentation</a>
+			</div>
+		</mat-card>
+
+		<div class="page-head">
+			<div>
+				<h1 class="page-title">Project Overview</h1>
+				<p class="page-subtitle">Analyze model quality, visual compliance, and documentation completeness.</p>
+			</div>
+		</div>
+
+		<div class="nav-tabs">
+			<a class="tab active" [routerLink]="['/projects', projectId]">Overview</a>
+			<a class="tab" [routerLink]="['/projects', projectId, 'bpa']">Model</a>
+			<a class="tab" [routerLink]="['/projects', projectId, 'inspector']">Visual</a>
+			<a class="tab" [routerLink]="['/projects', projectId, 'catalog']">Documentation</a>
+		</div>
+
+		<div class="top-cards-grid">
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ project.table_count || 0 }}</div>
+				<div class="top-card-label">Tables</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ project.column_count || 0 }}</div>
+				<div class="top-card-label">Columns</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ project.measure_count || 0 }}</div>
+				<div class="top-card-label">Measures</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ project.relationship_count || 0 }}</div>
+				<div class="top-card-label">Relationships</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ project.visual_count || getPageCount() }}</div>
+				<div class="top-card-label">Pages</div>
+			</mat-card>
+			<mat-card class="top-card">
+				<div class="top-card-value">{{ project.data_source_count || 0 }}</div>
+				<div class="top-card-label">Data Sources</div>
+			</mat-card>
+		</div>
+
+		<div class="model-layout">
+			<aside class="left-nav">
+				<button type="button" (click)="scrollTo('project-info')">Project Info</button>
+				<button type="button" (click)="scrollTo('model-health')">Model Health</button>
+				<button type="button" (click)="scrollTo('quality-metrics')">Quality Metrics</button>
+			</aside>
+
+			<div class="model-content">
+				<section id="project-info" class="section-card">
+					<h2>Project Information</h2>
+					<div class="overview-split">
+						<mat-card class="split-card">
+							<h3>{{ project.name }}</h3>
+							<ul>
+								<li><span>Status</span><strong><app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge></strong></li>
+								<li><span>Created</span><strong>{{ project.created_at ? (project.created_at | date:'short') : 'N/A' }}</strong></li>
+								<li><span>Updated</span><strong>{{ project.updated_at ? (project.updated_at | date:'short') : 'N/A' }}</strong></li>
+								<li><span>Model Objects</span><strong>{{ totalModelObjects }}</strong></li>
+							</ul>
+						</mat-card>
+
+						<mat-card class="split-card">
+							<h3>Description</h3>
+							<p>{{ project.description || 'No description provided for this project yet.' }}</p>
+						</mat-card>
+					</div>
+				</section>
+
+				<section id="model-health" class="section-card">
+					<h2>Model Health Radar</h2>
+					@if (radarAxes.length) {
+						<div class="radar-container">
+							<svg viewBox="0 0 300 300" class="radar-svg">
+								<!-- Background rings -->
+								@for (ring of [1, 0.75, 0.5, 0.25]; track ring) {
+									<polygon
+										[attr.points]="getPolygonPoints(ring)"
+										class="radar-ring"
+									/>
+								}
+								<!-- Axis lines -->
+								@for (i of axisIndices; track i) {
+									<line
+										x1="150" y1="150"
+										[attr.x2]="getAxisX(i)" [attr.y2]="getAxisY(i)"
+										class="radar-axis-line"
+									/>
+								}
+								<!-- Data polygon -->
+								<polygon
+									[attr.points]="dataPolygonPoints"
+									class="radar-data"
+								/>
+								<!-- Data points -->
+								@for (point of radarPoints; track point.axis) {
+									<circle
+										[attr.cx]="point.x" [attr.cy]="point.y"
+										r="4"
+										class="radar-dot"
+									/>
+								}
+								<!-- Axis labels -->
+								@for (label of radarLabels; track label.axis) {
+									<text
+										[attr.x]="label.x" [attr.y]="label.y"
+										class="radar-label"
+										text-anchor="middle"
+									>{{ label.axis }}</text>
+								}
+							</svg>
+						</div>
+						<div class="radar-legend">
+							@for (ax of radarAxes; track ax.axis) {
+								<div class="radar-legend-item">
+									<span class="radar-legend-dot" [class.good]="ax.score >= 80" [class.warn]="ax.score >= 50 && ax.score < 80" [class.bad]="ax.score < 50"></span>
+									<span class="radar-legend-name">{{ ax.axis }}</span>
+									<span class="radar-legend-score">{{ ax.score }}%</span>
+								</div>
+							}
+						</div>
+					} @else {
+						<p class="empty-radar">Run analysis to see the model health radar.</p>
+					}
+				</section>
+
+				<section id="quality-metrics" class="section-card">
+					<h2>Quality Metrics</h2>
+					<div class="stats-grid">
+						<div class="stat-card"><div class="stat-value">{{ qualityScore }}</div><div class="stat-label">Quality Score</div></div>
+						<div class="stat-card"><div class="stat-value">{{ totalChecks }}</div><div class="stat-label">Total Checks</div></div>
+						<div class="stat-card"><div class="stat-value">{{ project.bpa_violation_count || 0 }}</div><div class="stat-label">BPA Violations</div></div>
+						<div class="stat-card"><div class="stat-value">{{ project.inspector_failed_count || 0 }}</div><div class="stat-label">Inspector Fails</div></div>
+					</div>
+
+					<div class="overview-split">
+						<mat-card class="split-card">
+							<h3>Data Sources</h3>
+							<p>{{ project.data_source_count || 0 }} source{{ (project.data_source_count || 0) !== 1 ? 's' : '' }}</p>
+							<ul>
+								@for (source of (project.data_sources || []); track source) {
+									<li>{{ source }}</li>
+								}
+								@if (!(project.data_sources || []).length) {
+									<li><em>No data sources found</em></li>
+								}
+							</ul>
+						</mat-card>
+
+						<mat-card class="split-card">
+							<h3>Quick Actions</h3>
+							<div class="quick-actions">
+								<a mat-stroked-button [routerLink]="['/projects', projectId, 'bpa']" class="action-btn">
+									<mat-icon>rule</mat-icon> View BPA Report
+								</a>
+								<a mat-stroked-button [routerLink]="['/projects', projectId, 'inspector']" class="action-btn">
+									<mat-icon>visibility</mat-icon> View Inspector
+								</a>
+								<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']" class="action-btn">
+									<mat-icon>menu_book</mat-icon> View Catalog
+								</a>
+							</div>
+						</mat-card>
+					</div>
+				</section>
+			</div>
+		</div>
+	</section>
+}

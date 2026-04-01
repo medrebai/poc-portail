@@ -1,0 +1,21 @@
+EVALUATE
+VAR StartDate = DATE(2025,10,01)   // inject from flow
+VAR EndDate   = DATE(2025,10,31)   // inject from flow
+VAR DateFilter = DATESBETWEEN('Dim Date'[day], StartDate, EndDate)
+RETURN
+CALCULATETABLE(
+    SUMMARIZECOLUMNS(
+        'Fact Invoices'[invoice_id],
+        'Fact Invoices'[expected_payment_date],
+        'Fact Invoices'[performed_payment_date],
+        'Fact Invoices'[invoice_date],
+        'Fact Invoices'[invoice_payment_method],
+        'Fact Invoices'[is_closed],
+        'Fact Invoices'[turnover_invoiced_TE],
+        'Fact Invoices'[agency_id],
+        'Fact Invoices'[client_name],
+        'Fact Invoices'[client_id],
+        'Fact Invoices'[invoice_state_name]
+    ),
+    KEEPFILTERS(DateFilter)
+)

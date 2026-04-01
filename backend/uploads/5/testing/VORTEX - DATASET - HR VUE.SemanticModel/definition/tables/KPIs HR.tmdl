@@ -1,0 +1,52 @@
+table 'KPIs HR'
+	lineageTag: 5f8771ff-7716-4497-8679-8c8cddbc7314
+
+	column 'KPIs HR'
+		lineageTag: 75cc07e5-435d-4fbe-bd06-100e2f90249b
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'KPIs HR Commande'
+
+		relatedColumnDetails
+			groupByColumn: 'KPIs HR Champs'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPIs HR Champs'
+		isHidden
+		lineageTag: a0f3e7be-9608-4d35-b4e1-f0a910e94e99
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'KPIs HR Commande'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPIs HR Commande'
+		isHidden
+		formatString: 0
+		lineageTag: ae61e2e6-3fe8-4f7e-8095-ebbb19491388
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'KPIs HR' = calculated
+		mode: import
+		source =
+				{
+				    ("RESOURCES", NAMEOF('KPIs'[Active Resources]), 0),
+				    ("OCCUPATION RATE %", NAMEOF('KPIs'[Occupation Rate]), 1),
+				    ("TRANSFER RATE %", NAMEOF('KPIs'[Transfer Rate %]), 2),
+				    ("SENIORITY", NAMEOF('KPIs'[Seniority (in years)]), 3),
+				    ("TURNOVER %", NAMEOF('KPIs'[Turnover]), 4)
+				
+				}
+
+	annotation PBI_Id = 614a1b6f0cc64293ba74a1e227746e48
+

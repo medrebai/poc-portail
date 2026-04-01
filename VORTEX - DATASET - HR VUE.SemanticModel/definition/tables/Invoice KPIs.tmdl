@@ -1,0 +1,56 @@
+table 'Invoice KPIs'
+	lineageTag: 8b44acda-82c9-4593-9801-30672994facb
+
+	column 'Invoice KPIs'
+		lineageTag: a71282bd-615c-49c8-9e6a-e3b227b21868
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Invoice KPIs Commande'
+
+		relatedColumnDetails
+			groupByColumn: 'Invoice KPIs Champs'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Invoice KPIs Champs'
+		isHidden
+		lineageTag: 443e7d7d-040e-46e9-ace3-c28365773456
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Invoice KPIs Commande'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Invoice KPIs Commande'
+		isHidden
+		formatString: 0
+		lineageTag: cd2499f4-b7e7-4d34-a7a8-02e3651a6204
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Invoice KPIs' = calculated
+		mode: import
+		source =
+				{
+				    ("REVENUE", NAMEOF('KPIs'[Revenue]), 1),
+				    ("CLIENTS", NAMEOF('KPIs'[Clients Count]),2),
+				    ("PROJECTS", NAMEOF('KPIs'[Projects Count (Client)]), 3),
+				    ("INVOICE", NAMEOF('KPIs'[Invoice Count]), 4),
+				    ("ISSUED INVOICE", NAMEOF('KPIs'[Issued Invoice Count]), 5),
+				    ("ISSUED INVOICE TURNOVER", NAMEOF('KPIs'[Issued Invoice Turnover]), 6),
+				    ("PAID INVOICE", NAMEOF('KPIs'[Paid Invoice Count]), 7),
+				    ("PAID INVOICE TURNOVER", NAMEOF('KPIs'[Paid Invoice Turnover]), 8),
+				    ("INVOICE IN COLLECTION COUNT", NAMEOF('KPIs'[Invoice in Collection Count]), 9),
+				    ("INVOICE IN COLLECTION TURNOVER", NAMEOF('KPIs'[Invoice in Collection Turnover]), 10)
+				}
+
+	annotation PBI_Id = ded9c164667647b6af9872663f8cfbe3
+

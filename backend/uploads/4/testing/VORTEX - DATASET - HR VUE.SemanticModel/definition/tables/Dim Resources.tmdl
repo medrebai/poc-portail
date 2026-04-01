@@ -1,0 +1,200 @@
+table 'Dim Resources'
+	lineageTag: 94d75a97-f058-48df-bb0b-6abe8dad9b9b
+
+	column resource_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 22967245-28ef-40c9-be5d-f7135500b261
+		summarizeBy: none
+		sourceColumn: resource_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_first_name
+		dataType: string
+		lineageTag: b0d77253-2c51-4386-9782-f6f6561d94d3
+		summarizeBy: none
+		sourceColumn: resource_first_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resources_last_name
+		dataType: string
+		lineageTag: 0a787824-0c1b-43a7-b45f-b4ae7cbc30c4
+		summarizeBy: none
+		sourceColumn: resources_last_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_civility_name
+		dataType: string
+		lineageTag: 320921ea-37a1-4463-b5b7-52a5591046d0
+		summarizeBy: none
+		sourceColumn: resource_civility_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_title
+		dataType: string
+		lineageTag: 713cf82c-9d09-4d99-948f-cdeb75cd6f71
+		summarizeBy: none
+		sourceColumn: resource_title
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_mobility_areas
+		dataType: string
+		lineageTag: 65378401-9785-438d-ab24-eb1f99d9e5b2
+		summarizeBy: none
+		sourceColumn: resource_mobility_areas
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_avg_daily_price_TE
+		dataType: double
+		lineageTag: 4df5008c-f3bc-4bf5-b6e2-ed7dd22b5046
+		summarizeBy: sum
+		sourceColumn: resource_avg_daily_price_TE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column resource_expertise_areas
+		dataType: string
+		lineageTag: c278baf8-c854-4fcb-8b38-ebf5408b5a50
+		summarizeBy: none
+		sourceColumn: resource_expertise_areas
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_experience
+		dataType: int64
+		formatString: 0
+		lineageTag: d0d3a6a6-19a3-4d55-bb94-de435b5b8551
+		summarizeBy: sum
+		sourceColumn: resource_experience
+
+		annotation SummarizationSetBy = Automatic
+
+	column agency_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d1c5d904-28f9-4b6e-beba-bd410e378728
+		summarizeBy: none
+		sourceColumn: agency_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_typeof_name
+		dataType: string
+		lineageTag: dd672954-56a0-4404-8bbf-1a91c553aeaf
+		summarizeBy: none
+		sourceColumn: resource_typeof_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_state_name
+		dataType: string
+		lineageTag: e96bffd1-1592-4978-b217-326ebb81ab17
+		summarizeBy: none
+		sourceColumn: resource_state_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_currency
+		dataType: string
+		lineageTag: 09e7a3ed-1afd-431a-ab1a-26f269bd4694
+		summarizeBy: none
+		sourceColumn: resource_currency
+
+		annotation SummarizationSetBy = Automatic
+
+	column seniority_month
+		dataType: int64
+		formatString: 0
+		lineageTag: 1058fcc5-8a32-4cf4-8370-32b5f490e7ad
+		summarizeBy: sum
+		sourceColumn: seniority_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_activity_flag
+		dataType: string
+		lineageTag: ff33c77a-cd13-49bc-8255-ae8cc2215de5
+		summarizeBy: none
+		sourceColumn: resource_activity_flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column current_year_remaining_leave
+		dataType: double
+		formatString: 0
+		lineageTag: 3c34297f-ebca-46c1-bd67-6f7c5a392257
+		summarizeBy: sum
+		sourceColumn: current_year_remaining_leave
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_full_name
+		dataType: string
+		lineageTag: 2afd47fe-c67b-43dd-9d68-4af0bdcb7d21
+		summarizeBy: none
+		sourceColumn: resource_full_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column region_name = LOOKUPVALUE( 'Dim Agencies'[agency_name], 'Dim Agencies'[agency_id], 'Dim Resources'[agency_id])
+		lineageTag: fb709022-9666-4484-80c7-328b5d531172
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 7487ed8f-85ce-44b5-9e3e-f0feaf76c542
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column contract_typeOf
+		dataType: string
+		lineageTag: f5ccf997-10a2-4f26-82fe-7663f24ee85d
+		summarizeBy: none
+		sourceColumn: contract_typeOf
+
+		annotation SummarizationSetBy = Automatic
+
+	column resource_type_group
+		dataType: string
+		lineageTag: 741afc71-08d3-4aee-9500-d854c2e9652e
+		summarizeBy: none
+		sourceColumn: resource_type_group
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Resources' = m
+		mode: import
+		source =
+				let
+				    Source = Value.NativeQuery(GoogleBigQuery.Database([BillingProject=BQ_Proj]){[Name=BQ_Proj]}[Data],
+				"SELECT#(lf)  *#(lf)FROM `"&BQ_Proj&".03_datawarehouse.dim_resources`",
+				    null,
+				    [EnableFolding = true]
+				),
+				    #"Personnalisée ajoutée" = Table.AddColumn(Source, "Personnalisé", each [resource_first_name] & " " & [resources_last_name]),
+				    #"Colonnes renommées" = Table.RenameColumns(#"Personnalisée ajoutée",{{"Personnalisé", "resource_full_name"}}),
+				    #"Personnalisée ajoutée1" = Table.AddColumn(#"Colonnes renommées", "Region", each if [agency_id] = 1 then "FR" else if [agency_id] = 2 then "TN" else if [agency_id] = 3 then "UE" else "Other"),
+				    #"Type modifié" = Table.TransformColumnTypes(#"Personnalisée ajoutée1",{{"resource_full_name", type text}}),
+				    #"Personnalisée ajoutée2" = Table.AddColumn(#"Type modifié", "resource_type_group", each if List.Contains(
+				    {"Consultant Externe","Consultant Interne P","Conseil Assistance"},
+				    [resource_typeof_name]
+				) then "External Resource" else "Internal Resource")
+				in
+				    #"Personnalisée ajoutée2"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+

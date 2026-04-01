@@ -1,0 +1,46 @@
+// DAX Query
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Dim Resources'[resource_full_name],
+			'Dim Resources'[resource_typeof_name],
+			'Dim Resources'[resource_civility_name],
+			'Dim Resources'[resource_title],
+			'Dim Resources'[current_year_remaining_leave],
+			'Dim Date'[day],
+			"Revenue_per_Resource", 'KPIs'[Revenue per Resource],
+			"Cost_per_Resource", 'KPIs'[Cost per Resource],
+			"Margin_per_Resource", 'KPIs'[Margin per Resource],
+			"Working_Days__Client_", 'KPIs'[Working Days (Client)],
+			"Working_Days__Intercontract_", 'KPIs'[Working Days (Intercontract)],
+			"Occupation_Rate", 'KPIs'[Occupation Rate]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			501,
+			__DS0Core,
+			'Dim Date'[day],
+			1,
+			'Dim Resources'[resource_full_name],
+			1,
+			'Dim Resources'[resource_typeof_name],
+			1,
+			'Dim Resources'[resource_civility_name],
+			1,
+			'Dim Resources'[resource_title],
+			1,
+			'Dim Resources'[current_year_remaining_leave],
+			1
+		)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	'Dim Date'[day],
+	'Dim Resources'[resource_full_name],
+	'Dim Resources'[resource_typeof_name],
+	'Dim Resources'[resource_civility_name],
+	'Dim Resources'[resource_title],
+	'Dim Resources'[current_year_remaining_leave]

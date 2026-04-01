@@ -1,0 +1,16 @@
+expression BQ_Proj = "os-dpf-vortex-prj-dev" meta [IsParameterQuery=true, Type="Any", IsParameterQueryRequired=true]
+	lineageTag: ece7927f-870b-4ec7-9fa4-d0c817275895
+	queryGroup: Parameters
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression RowsNum = 0 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: 7e151298-3c17-4753-930f-e9422d6c0f9d
+	queryGroup: Parameters
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Number
+

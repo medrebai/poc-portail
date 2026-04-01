@@ -1,0 +1,300 @@
+﻿{
+    "Id":  "2caf7a7b-87c0-41ac-86df-45f10f7df6e2",
+    "TestedFilePath":  ".\\VORTEX - DATASET - HR VUE.Report",
+    "RulesFilePath":  ".\\ci-tools\\pbi-inspector-rules.json",
+    "CompletionTime":  "2026-03-24T16:57:52.071179+01:00",
+    "Verbose":  true,
+    "Results":  [
+                    {
+                        "Id":  "fc253da6-6b46-4374-85c6-6f0e9f124225",
+                        "RuleId":  "CHARTS_WIDER_THAN_TALL",
+                        "RuleName":  "Charts wider than tall",
+                        "RuleDescription":  "Want to check that your charts are wider than tall?",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c48932f1a49ab970dd7e\\page.json",
+                        "ParentName":  "c48932f1a49ab970dd7e",
+                        "ParentDisplayName":  "HR | RESOURCE VUE",
+                        "Pass":  false,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+                                       "8427ad151d1a0016ac77",
+                                       "ae3411d934d60b9a3041",
+                                       "c324cb8065b7c080a406",
+                                       "d730018f29c001030c63",
+                                       "f0ee644166ab609127cc"
+                                   ]
+                    },
+                    {
+                        "Id":  "24e71fa8-0581-41d4-a618-2e12d16c7075",
+                        "RuleId":  "CHARTS_WIDER_THAN_TALL",
+                        "RuleName":  "Charts wider than tall",
+                        "RuleDescription":  "Want to check that your charts are wider than tall?",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c9aed6a759f7c1fedaf7\\page.json",
+                        "ParentName":  "c9aed6a759f7c1fedaf7",
+                        "ParentDisplayName":  "Page 1",
+                        "Pass":  true,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+
+                                   ]
+                    },
+                    {
+                        "Id":  "85abc103-3407-426a-a96f-b90d37bda9cc",
+                        "RuleId":  "MOBILE_CHARTS_WIDER_THAN_TALL",
+                        "RuleName":  "Mobile charts wider than tall",
+                        "RuleDescription":  "Want to check that your charts are wider than tall?",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c48932f1a49ab970dd7e\\page.json",
+                        "ParentName":  "c48932f1a49ab970dd7e",
+                        "ParentDisplayName":  "HR | RESOURCE VUE",
+                        "Pass":  true,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+
+                                   ]
+                    },
+                    {
+                        "Id":  "8f167cf8-8514-46ee-ae80-18d1f422f722",
+                        "RuleId":  "MOBILE_CHARTS_WIDER_THAN_TALL",
+                        "RuleName":  "Mobile charts wider than tall",
+                        "RuleDescription":  "Want to check that your charts are wider than tall?",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c9aed6a759f7c1fedaf7\\page.json",
+                        "ParentName":  "c9aed6a759f7c1fedaf7",
+                        "ParentDisplayName":  "Page 1",
+                        "Pass":  true,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+
+                                   ]
+                    },
+                    {
+                        "Id":  "2931360a-fcd4-4277-bcc8-55ba9d49a589",
+                        "RuleId":  "DISABLE_SLOW_DATASOURCE_SETTINGS",
+                        "RuleName":  "Disable local slow datasource settings",
+                        "RuleDescription":  "Check that report slow data source settings are all disabled.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\report.json",
+                        "ParentName":  null,
+                        "ParentDisplayName":  "N/A",
+                        "Pass":  true,
+                        "Expected":  true,
+                        "Actual":  true
+                    },
+                    {
+                        "Id":  "16c7e9cb-5dea-4a98-9602-cc30e1b6f635",
+                        "RuleId":  "LOCAL_REPORT_SETTINGS",
+                        "RuleName":  "Local report settings",
+                        "RuleDescription":  "Check local report settings other than slow data source settings. This rule creates a json record of current local setting values and compares it to a json record of expected values. Currently, if this rules fails, I recommend comparing both output json records formatted in Visual Studio code to easily identify the failed setting values.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\report.json",
+                        "ParentName":  null,
+                        "ParentDisplayName":  "N/A",
+                        "Pass":  false,
+                        "Expected":  {
+                                         "isPersistentUserStateDisabled":  false,
+                                         "hideVisualContainerHeader":  true,
+                                         "useStylableVisualContainerHeader":  true,
+                                         "exportDataMode":  "AllowSummarizedAndUnderlying",
+                                         "isReportAnnotationsDisabled":  false,
+                                         "defaultFilterActionIsDataFilter":  false,
+                                         "defaultDrillFilterOtherVisuals":  true,
+                                         "useCrossReportDrillthrough":  true,
+                                         "allowChangeFilterTypes":  true,
+                                         "allowInlineExploration":  true,
+                                         "useEnhancedTooltips":  true,
+                                         "useScaledTooltips":  true,
+                                         "filterPaneHiddenInEditMode":  true,
+                                         "disableFilterPaneSearch":  false,
+                                         "pagesPosition":  "PagesPane",
+                                         "allowAutomatedInsightsNotification":  true,
+                                         "useDefaultAggregateDisplayName":  false,
+                                         "enableDeveloperMode":  false,
+                                         "pauseQueries":  false,
+                                         "queryLimitOption":  "Premium",
+                                         "customMemoryLimit":  "1048576",
+                                         "customTimeoutLimit":  "225"
+                                     },
+                        "Actual":  {
+                                       "isPersistentUserStateDisabled":  null,
+                                       "hideVisualContainerHeader":  null,
+                                       "useStylableVisualContainerHeader":  true,
+                                       "exportDataMode":  "AllowSummarized",
+                                       "isReportAnnotationsDisabled":  null,
+                                       "defaultFilterActionIsDataFilter":  null,
+                                       "defaultDrillFilterOtherVisuals":  true,
+                                       "useCrossReportDrillthrough":  null,
+                                       "allowChangeFilterTypes":  true,
+                                       "allowInlineExploration":  null,
+                                       "useEnhancedTooltips":  true,
+                                       "useScaledTooltips":  null,
+                                       "filterPaneHiddenInEditMode":  null,
+                                       "disableFilterPaneSearch":  null,
+                                       "pagesPosition":  null,
+                                       "allowAutomatedInsightsNotification":  "settings/allowAutomatedInsightsNotification",
+                                       "useDefaultAggregateDisplayName":  true,
+                                       "enableDeveloperMode":  null,
+                                       "pauseQueries":  null,
+                                       "queryLimitOption":  null,
+                                       "customMemoryLimit":  null,
+                                       "customTimeoutLimit":  null
+                                   }
+                    },
+                    {
+                        "Id":  "940cd1b4-914e-439f-ae9e-4b91e874287d",
+                        "RuleId":  "ACTIVE_PAGE",
+                        "RuleName":  "Active page",
+                        "RuleDescription":  "Ensure report\u0027s active page is set to the first page",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\pages.json",
+                        "ParentName":  null,
+                        "ParentDisplayName":  "N/A",
+                        "Pass":  false,
+                        "Expected":  true,
+                        "Actual":  false
+                    },
+                    {
+                        "Id":  "85446882-dab0-4d49-8973-be6151a5d987",
+                        "RuleId":  "SHOW_AXES_TITLES",
+                        "RuleName":  "Show visual axes titles",
+                        "RuleDescription":  "Check that certain charts have both axes title showing.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c48932f1a49ab970dd7e\\page.json",
+                        "ParentName":  "c48932f1a49ab970dd7e",
+                        "ParentDisplayName":  "HR | RESOURCE VUE",
+                        "Pass":  true,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+
+                                   ]
+                    },
+                    {
+                        "Id":  "edc5b6d2-3123-4df7-8198-8ddb5114de84",
+                        "RuleId":  "SHOW_AXES_TITLES",
+                        "RuleName":  "Show visual axes titles",
+                        "RuleDescription":  "Check that certain charts have both axes title showing.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c9aed6a759f7c1fedaf7\\page.json",
+                        "ParentName":  "c9aed6a759f7c1fedaf7",
+                        "ParentDisplayName":  "Page 1",
+                        "Pass":  true,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+
+                                   ]
+                    },
+                    {
+                        "Id":  "da5243d1-703b-4958-9964-18580b38f582",
+                        "RuleId":  "PERCENTAGE_OF_CHARTS_USING_CUSTOM_COLOURS",
+                        "RuleName":  "Percentage of charts across the report using custom colours is not greater than 10%",
+                        "RuleDescription":  "Check that charts avoid custom colours and use theme colours instead.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report",
+                        "ParentName":  null,
+                        "ParentDisplayName":  "N/A",
+                        "Pass":  true,
+                        "Expected":  true,
+                        "Actual":  true
+                    },
+                    {
+                        "Id":  "1379fd9b-8c0e-43a4-a819-87813d8a6d58",
+                        "RuleId":  "GIVE_VISIBLE_PAGES_MEANINGFUL_NAMES",
+                        "RuleName":  "Give visible pages meaningful names",
+                        "RuleDescription":  "Returns an array of visible page names with a default \u0027Page x\u0027 display name.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report",
+                        "ParentName":  null,
+                        "ParentDisplayName":  "N/A",
+                        "Pass":  false,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+                                       "Page 1"
+                                   ]
+                    },
+                    {
+                        "Id":  "6e93bb95-af5e-4fa9-b16a-6e3d0d4e9284",
+                        "RuleId":  "CHECK_FOR_VISUALS_OVERLAP",
+                        "RuleName":  "Check for visuals overlap with a 5px margin",
+                        "RuleDescription":  "Returns names of visuals that overlap while inflating visuals rectangle area by 5px left, right, top and bottom. Currently this does not check for overlap with the sides of report page itself. This rule does not currently work with visual groups.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c48932f1a49ab970dd7e\\page.json",
+                        "ParentName":  "c48932f1a49ab970dd7e",
+                        "ParentDisplayName":  "HR | RESOURCE VUE",
+                        "Pass":  false,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+                                       "05a19fc93503a7ec4da5",
+                                       "7994381eb016e92501b0",
+                                       "b8cdec6a27ea2caa11d2",
+                                       "d421c4d022e6e4d020a0",
+                                       "e30394c4805d86b24090",
+                                       "f0ee644166ab609127cc",
+                                       "1c1b443b376290434cce",
+                                       "4bffce8212130da29751",
+                                       "56970a91b7e05867369c",
+                                       "353b7fa10b7d3d704a03",
+                                       "952b080d7b8633e69040",
+                                       "98df3b570a190beb1247",
+                                       "ea3ee351c6095597521c",
+                                       "4ae679af373eb094d042",
+                                       "8427ad151d1a0016ac77",
+                                       "a2d1b75c6c6e03500c30",
+                                       "aacae11ae2bc5a7a8090",
+                                       "c2690f050b6c5951e470",
+                                       "c324cb8065b7c080a406",
+                                       "c54567696a21ca0da7c4",
+                                       "d730018f29c001030c63",
+                                       "f1e742707a89c00715e1",
+                                       "ba4d9af0cae585e50864"
+                                   ]
+                    },
+                    {
+                        "Id":  "9c4b1534-ad4b-4940-8aaa-7257cfd520dd",
+                        "RuleId":  "CHECK_FOR_VISUALS_OVERLAP",
+                        "RuleName":  "Check for visuals overlap with a 5px margin",
+                        "RuleDescription":  "Returns names of visuals that overlap while inflating visuals rectangle area by 5px left, right, top and bottom. Currently this does not check for overlap with the sides of report page itself. This rule does not currently work with visual groups.",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report\\definition\\pages\\c9aed6a759f7c1fedaf7\\page.json",
+                        "ParentName":  "c9aed6a759f7c1fedaf7",
+                        "ParentDisplayName":  "Page 1",
+                        "Pass":  false,
+                        "Expected":  [
+
+                                     ],
+                        "Actual":  [
+                                       "ead28d53fa474890d00f",
+                                       "eb70ae9a43ad6d0312c9"
+                                   ]
+                    },
+                    {
+                        "Id":  "7976e0a8-ce2a-4830-8731-6c3bc7ce61d7",
+                        "RuleId":  "VARY_BY_REPORT_NAME",
+                        "RuleName":  "Vary by report name",
+                        "RuleDescription":  "Run rule only if report display name is \u0027Inventory sample\u0027",
+                        "LogType":  1,
+                        "ItemPath":  "\\Month 1\\testproject\\VORTEX - DATASET - HR VUE.Report",
+                        "ParentName":  null,
+                        "ParentDisplayName":  "N/A",
+                        "Pass":  true,
+                        "Expected":  "This is another report",
+                        "Actual":  "This is another report"
+                    }
+                ]
+}

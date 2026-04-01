@@ -1,0 +1,53 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Project } from '../shared/models/api.models';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProjectService {
+  private readonly apiBase = 'http://127.0.0.1:5000/api/projects';
+
+  constructor(private readonly http: HttpClient) {}
+
+  list(): Observable<Project[]> {
+    return this.http.get<Project[]>(this.apiBase);
+  }
+
+  getById(projectId: number): Observable<Project> {
+    return this.http.get<Project>(`${this.apiBase}/${projectId}`);
+  }
+
+  create(payload: { name: string; description?: string }): Observable<Project> {
+    return this.http.post<Project>(this.apiBase, payload);
+  }
+
+  delete(projectId: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiBase}/${projectId}`);
+  }
+
+  upload(projectId: number, file: File): Observable<unknown> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiBase}/${projectId}/upload`, formData);
+  }
+
+  uploadFolder(projectId: number, files: File[]): Observable<unknown> {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('files', file);
+      const relativePath = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+      formData.append('paths', relativePath);
+    }
+    return this.http.post(`${this.apiBase}/${projectId}/upload`, formData);
+  }
+
+  analyze(projectId: number): Observable<unknown> {
+    return this.http.post(`${this.apiBase}/${projectId}/analyze`, {});
+  }
+
+  getHealthRadar(projectId: number): Observable<{ axes: Array<{ axis: string; score: number; violations: number }> }> {
+    return this.http.get<{ axes: Array<{ axis: string; score: number; violations: number }> }>(`${this.apiBase}/${projectId}/health-radar`);
+  }
+}
