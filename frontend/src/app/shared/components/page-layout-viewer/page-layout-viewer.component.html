@@ -25,19 +25,24 @@
             [style.width.px]="canvasWidth"
             [style.height.px]="canvasHeight"
           >
-            @for (visual of selectedPage.visuals; track visual.id) {
+            @for (visual of visualRenderOrder; track visual.id) {
               <div
                 class="visual"
                 [style.left.px]="visual.x * scale"
                 [style.top.px]="visual.y * scale"
                 [style.width.px]="visual.width * scale"
                 [style.height.px]="visual.height * scale"
+                [style.z-index]="getVisualLayer(visual)"
                 [style.background-color]="getVisualColor(visual.category)"
-                [class.hovered]="hoveredVisual?.id === visual.id"
+                [class.background-visual]="isBackgroundVisual(visual)"
+                [class.hovered]="hoveredVisual?.id === visual.id && !isBackgroundVisual(visual)"
                 (mouseenter)="onVisualHover(visual)"
                 (mouseleave)="onVisualLeave()"
+                [attr.title]="getVisualDisplayLabel(visual)"
               >
-                <span class="visual-label">{{ visual.title }}</span>
+                @if (shouldShowVisualLabel(visual)) {
+                  <span class="visual-label">{{ getVisualDisplayLabel(visual) }}</span>
+                }
               </div>
             }
           </div>

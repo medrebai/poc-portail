@@ -62,14 +62,67 @@
 					<mat-card class="info-card">
 						<div class="label">Model Quality Score</div>
 						<div class="value">{{ modelQualityScore }}/100</div>
+						<div class="value-subtext">{{ modelQualityBreakdownText }}</div>
 					</mat-card>
 					<mat-card class="info-card">
 						<div class="label">Dataset Size</div>
-						<div class="value">NaN</div>
+						@if (!isDatasetEditing) {
+							<div class="dataset-size-display">
+								<div class="dataset-size-value">{{ datasetSizeDisplayValue }}</div>
+								<button mat-stroked-button class="dataset-size-edit-btn" (click)="startDatasetSizeEdit()">
+									<mat-icon>edit</mat-icon>
+									Edit
+								</button>
+							</div>
+						} @else {
+							<div class="dataset-size-editor">
+								<mat-form-field appearance="outline" class="dataset-size-field value">
+									<input matInput [formControl]="datasetSizeValueInput" placeholder="e.g. 1.8" />
+								</mat-form-field>
+								<mat-form-field appearance="outline" class="dataset-size-field unit">
+									<mat-select [formControl]="datasetSizeUnitInput">
+										<mat-option value="GB">GB</mat-option>
+										<mat-option value="MB">MB</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div class="dataset-size-actions">
+								<button mat-stroked-button (click)="cancelDatasetSizeEdit()">Cancel</button>
+								<button mat-flat-button color="primary" (click)="saveDatasetSizeEdit()" [disabled]="!datasetSizeValueInput.value.trim()">Save</button>
+							</div>
+						}
+						<div class="value-subtext">Manual input (saved per project)</div>
+						<div class="value-subtext">Last update: {{ datasetSizeLastUpdated ? (datasetSizeLastUpdated | date:'medium') : 'n/a' }}</div>
 					</mat-card>
-					<mat-card class="info-card">
-						<div class="label">Auto Date/Time</div>
-						<div class="value">On</div>
+					<mat-card class="info-card dataset-trend-card">
+						<div class="label">Dataset Evolution (MB)</div>
+						@if (datasetSizeHasTrendData) {
+							<div class="trend-chart-wrap">
+								<svg viewBox="0 0 620 170" preserveAspectRatio="none" class="trend-chart-svg">
+									<defs>
+										<linearGradient id="datasetAreaGradient" x1="0" y1="0" x2="0" y2="1">
+											<stop offset="0%" stop-color="#3b82f6" stop-opacity="0.28"></stop>
+											<stop offset="100%" stop-color="#3b82f6" stop-opacity="0.03"></stop>
+										</linearGradient>
+									</defs>
+									<line x1="26" y1="16" x2="26" y2="142" class="line-axis"></line>
+									<line x1="26" y1="142" x2="602" y2="142" class="line-axis"></line>
+									<polygon [attr.points]="datasetSizeTrendAreaPoints" class="line-area"></polygon>
+									<polyline [attr.points]="datasetSizeTrendPoints" class="line-path"></polyline>
+									@for (point of datasetSizeTrendPlotPoints; track point.label + '-' + point.value) {
+										<circle [attr.cx]="point.x" [attr.cy]="point.y" r="4.2" class="line-dot">
+											<title>{{ point.tooltip || (point.label + ': ' + point.value + ' MB') }}</title>
+										</circle>
+									}
+								</svg>
+							</div>
+							<div class="line-chart-meta compact">
+								<span>Min {{ datasetSizeTrendMinMb | number:'1.0-1' }} MB</span>
+								<span>Max {{ datasetSizeTrendMaxMb | number:'1.0-1' }} MB</span>
+							</div>
+						} @else {
+							<div class="line-chart-empty compact">Need at least 2 saved points to draw the trend.</div>
+						}
 					</mat-card>
 				</div>
 

@@ -83,8 +83,9 @@ def export_inspector(results):
     return output
 
 
-def export_catalog(tables, columns, measures, relationships, roles):
+def export_catalog(tables, columns, measures, relationships, roles, partitions=None):
     wb = Workbook()
+    partitions = partitions or []
 
     # Tables sheet
     ws = wb.active
@@ -151,6 +152,72 @@ def export_catalog(tables, columns, measures, relationships, roles):
             ws5.cell(row=row, column=2, value=f.get('table', ''))
             ws5.cell(row=row, column=3, value=f.get('expression', ''))
             row += 1
+
+    # Partitions sheet
+    ws6 = wb.create_sheet('Partitions')
+    _write_headers(
+        ws6,
+        [
+            'Table',
+            'Partition Name',
+            'Mode',
+            'Source Type',
+            'Source',
+            'Source Project',
+            'Source Dataset',
+            'Source Object',
+            'M Step Count',
+            'Transformations M',
+            'SQL Query',
+            'Full M Query',
+        ],
+    )
+
+    for i, p in enumerate(partitions, 2):
+        ws6.cell(row=i, column=1, value=p.get('table', ''))
+        ws6.cell(row=i, column=2, value=p.get('partitionName', ''))
+        ws6.cell(row=i, column=3, value=p.get('mode', ''))
+        ws6.cell(row=i, column=4, value=p.get('sourceType', ''))
+        ws6.cell(row=i, column=5, value=p.get('source', ''))
+        ws6.cell(row=i, column=6, value=p.get('sourceProject', ''))
+        ws6.cell(row=i, column=7, value=p.get('sourceDataset', ''))
+        ws6.cell(row=i, column=8, value=p.get('sourceObject', ''))
+        ws6.cell(row=i, column=9, value=p.get('mStepCount', ''))
+        ws6.cell(row=i, column=10, value=p.get('mTransformations', ''))
+        ws6.cell(row=i, column=11, value=p.get('sqlQuery', ''))
+        ws6.cell(row=i, column=12, value=p.get('fullMQuery', ''))
+
+    # M Imports Explorer sheet (import-focused)
+    ws7 = wb.create_sheet('M Imports Explorer')
+    _write_headers(
+        ws7,
+        [
+            'Table',
+            'Source',
+            'Source Project',
+            'Source Dataset',
+            'Source Object',
+            'SQL Query',
+            'Transformations M',
+            'Nb Steps',
+            'Full M Query',
+        ],
+    )
+
+    import_rows = [
+        p for p in partitions
+        if (p.get('mode', '') or '').lower() in {'', 'import'}
+    ]
+    for i, p in enumerate(import_rows, 2):
+        ws7.cell(row=i, column=1, value=p.get('table', ''))
+        ws7.cell(row=i, column=2, value=p.get('source', ''))
+        ws7.cell(row=i, column=3, value=p.get('sourceProject', ''))
+        ws7.cell(row=i, column=4, value=p.get('sourceDataset', ''))
+        ws7.cell(row=i, column=5, value=p.get('sourceObject', ''))
+        ws7.cell(row=i, column=6, value=p.get('sqlQuery', ''))
+        ws7.cell(row=i, column=7, value=p.get('mTransformations', ''))
+        ws7.cell(row=i, column=8, value=p.get('mStepCount', ''))
+        ws7.cell(row=i, column=9, value=p.get('fullMQuery', ''))
 
     output = io.BytesIO()
     wb.save(output)

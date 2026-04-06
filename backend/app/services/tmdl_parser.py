@@ -150,12 +150,74 @@ def _parse_measure(block: str) -> dict | None:
 def _parse_partition(table_name: str, block: str) -> dict:
     name_m = re.match(r"'?([^'\n=]+)'?\s*=\s*(\w+)", block)
     part_name = name_m.group(1).strip() if name_m else table_name
+    source_type = name_m.group(2).strip() if name_m else "unknown"
     mode_m = re.search(r"mode:\s+(\w+)", block)
     mode = mode_m.group(1) if mode_m else "import"
 
+    # TMDL partitions in this project use `source =` block (not `expression =`).
+    m_expression = ""
+    src_m = re.search(r"source\s*=\s*\n([\s\S]+?)(?=\n\tannotation|\n\tref\s|\Z)", block)
+    if src_m:
+        lines = src_m.group(1).split("\n")
+        m_expression = "\n".join(re.sub(r"^\t{3}", "", l) for l in lines).strip()
+
+    # Compatibility fallback if an expression-style payload appears.
+    if not m_expression:
+        expr_m = re.search(r"expression\s*(?:=\s*)?\n?(```\n)?([\s\S]*?)(?:```|\n\t\t\w|\n\tpartition|\Z)", block)
+        if expr_m:
+            raw = expr_m.group(2) if expr_m.group(2) else ""
+            m_expression = re.sub(r"\n\t{2,}", "\n", raw).strip()
+
+    # ci-tools style enrichments
+    datasource = "Unknown"
+    bq_project = bq_dataset = bq_table = sql_query = ""
+    if "GoogleBigQuery" in block:
+        datasource = "Google BigQuery"
+        bq_m = re.search(r"BillingProject\s*=\s*([^\]]+)\]", block)
+        bq_project = bq_m.group(1).strip() if bq_m else ""
+        sql_m = re.search(r'Value\.NativeQuery\([^,]+,\s*"([\s\S]+?)",\s*null', block)
+        if sql_m:
+            sql_query = sql_m.group(1).strip()
+            tbl_m = re.search(r'FROM\s+`[^.]+\.([^.]+)\.([^`]+)`', sql_query)
+            if tbl_m:
+                bq_dataset = tbl_m.group(1)
+                bq_table = tbl_m.group(2)
+    elif "Sql.Database" in block or "Value.NativeQuery" in block:
+        datasource = "SQL Server"
+    elif "expression" in block.lower() and "let" not in block.lower():
+        datasource = "Calculated Table (DAX)"
+
+    step_patterns = [
+        (r"Table\.NestedJoin", "Join"),
+        (r"Table\.ExpandTableColumn", "Expand columns"),
+        (r"Table\.AddColumn", "Add column"),
+        (r"Table\.TransformColumnTypes", "Transform types"),
+        (r"Table\.RenameColumns", "Rename columns"),
+        (r"Table\.RemoveColumns", "Remove columns"),
+        (r"Table\.SelectRows", "Filter rows"),
+    ]
+    transformations = []
+    seen = set()
+    for pattern, label in step_patterns:
+        if re.search(pattern, block) and label not in seen:
+            transformations.append(label)
+            seen.add(label)
+    step_count = len(re.findall(r"^\s+#?\"[^\"]+\"\s*=", m_expression, re.MULTILINE))
+
     return {
         "partitionName": part_name,
+        "sourceType": source_type,
         "mode": mode,
+        "expression": m_expression,
+        "queryType": source_type,
+        "datasource": datasource,
+        "bqProject": bq_project,
+        "bqDataset": bq_dataset,
+        "bqTable": bq_table,
+        "sqlQuery": sql_query,
+        "transformations": transformations,
+        "stepCount": step_count,
+        "mQuery": m_expression,
     }
 
 

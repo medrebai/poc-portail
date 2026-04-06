@@ -35,6 +35,16 @@ def get_raw_result(project_id, result_type):
     return doc['data'] if doc else None
 
 
+def list_raw_results(project_id, result_type, limit=100):
+    db = get_mongo_db()
+    cursor = db.raw_results.find(
+        {'project_id': project_id, 'type': result_type},
+        sort=[('created_at', -1)],
+        limit=max(1, int(limit)),
+    )
+    return list(cursor)
+
+
 def delete_project_results(project_id):
     db = get_mongo_db()
     db.raw_results.delete_many({'project_id': project_id})

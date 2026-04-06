@@ -1,0 +1,112 @@
+graph TB
+    subgraph "Frontend - Angular 19"
+        direction TB
+        UI["Angular Material UI"]
+        PAGES["Pages"]
+        SERVICES["Angular Services"]
+        MODELS["TypeScript Models"]
+
+        subgraph "Pages"
+            PL["Project List"]
+            PO["Project Overview"]
+            BPA["BPA Violations"]
+            INS["Inspector Results"]
+            CAT["Model Catalog"]
+        end
+
+        subgraph "Shared Components"
+            SB["Severity Badge"]
+            CC["Chart Card"]
+            LR["Lineage Renderer SVG"]
+            PLV["Page Layout Viewer"]
+        end
+
+        subgraph "Services Layer"
+            PS["ProjectService"]
+            BS["BpaService"]
+            IS["InspectorService"]
+            CS["CatalogService"]
+            LS["LineageService"]
+            PGS["PageService"]
+        end
+    end
+
+    subgraph "Backend - Flask 3.1"
+        direction TB
+        subgraph "API Routes"
+            R1["Projects /api/projects"]
+            R2["BPA /api/projects/id/bpa"]
+            R3["Inspector /api/projects/id/inspector"]
+            R4["Catalog /api/projects/id/catalog"]
+            R5["Lineage /api/projects/id/lineage"]
+            R6["Export /api/projects/id/export"]
+        end
+
+        subgraph "Business Services"
+            TP["TMDL Parser"]
+            BA["BPA Analyzer"]
+            IA["Inspector Analyzer"]
+            PA["Page Analyzer"]
+            DP["DAX Parser"]
+            LE["Lineage Engine"]
+            ES["Export Service"]
+            FM["Fix Matcher"]
+        end
+
+        subgraph "Data Layer"
+            ORM["SQLAlchemy ORM"]
+            MC["MongoDB Client"]
+        end
+    end
+
+    subgraph "External Tools"
+        TE["Tabular Editor CLI"]
+        PI["PBI Inspector CLI"]
+    end
+
+    subgraph "Databases"
+        PG[("PostgreSQL\nbi_quality")]
+        MDB[("MongoDB\nbi_quality")]
+    end
+
+    subgraph "File Storage"
+        UPL["Uploads Directory\nPBIP Files"]
+        RULES["Rules Directory\nBPA + Inspector JSON"]
+    end
+
+    UI --> PAGES
+    PAGES --> SERVICES
+    SERVICES -->|HTTP REST| R1
+    SERVICES -->|HTTP REST| R2
+    SERVICES -->|HTTP REST| R3
+    SERVICES -->|HTTP REST| R4
+    SERVICES -->|HTTP REST| R5
+    SERVICES -->|HTTP REST| R6
+
+    R1 --> TP
+    R1 --> BA
+    R1 --> IA
+    R1 --> PA
+    R2 --> ORM
+    R3 --> ORM
+    R4 --> ORM
+    R5 --> LE
+    R6 --> ES
+
+    BA --> TE
+    IA --> PI
+    LE --> DP
+    LE --> ORM
+    LE --> MC
+    FM --> RULES
+
+    ORM --> PG
+    MC --> MDB
+    TP --> UPL
+    BA --> UPL
+    IA --> UPL
+
+    style PG fill:#336791,color:#fff
+    style MDB fill:#4DB33D,color:#fff
+    style TE fill:#E8720C,color:#fff
+    style PI fill:#F2C811,color:#000

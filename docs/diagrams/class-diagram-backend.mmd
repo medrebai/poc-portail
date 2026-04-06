@@ -1,0 +1,125 @@
+classDiagram
+    direction TB
+
+    class Project {
+        +int id
+        +str name
+        +str description
+        +datetime created_at
+        +datetime updated_at
+        +str status
+        +str error_message
+        +int table_count
+        +int measure_count
+        +int column_count
+        +int relationship_count
+        +int data_source_count
+        +int visual_count
+        +to_dict() dict
+    }
+
+    class ModelTable {
+        +int id
+        +int project_id
+        +str name
+        +bool is_hidden
+        +str mode
+        +int column_count
+        +int measure_count
+        +int partition_count
+    }
+
+    class ModelColumn {
+        +int id
+        +int table_id
+        +int project_id
+        +str name
+        +str data_type
+        +bool is_hidden
+        +str format_string
+        +str description
+        +str display_folder
+        +str source_column
+    }
+
+    class ModelMeasure {
+        +int id
+        +int table_id
+        +int project_id
+        +str name
+        +str expression
+        +str format_string
+        +str description
+        +str display_folder
+        +bool is_hidden
+    }
+
+    class ModelRelationship {
+        +int id
+        +int project_id
+        +str from_table
+        +str from_column
+        +str to_table
+        +str to_column
+        +str cross_filter
+        +str from_cardinality
+        +str to_cardinality
+        +bool is_active
+    }
+
+    class ModelRole {
+        +int id
+        +int project_id
+        +str name
+        +JSON filters
+    }
+
+    class BpaViolation {
+        +int id
+        +int project_id
+        +str rule_id
+        +str rule_name
+        +str category
+        +int severity
+        +str severity_label
+        +str object_type
+        +str object_name
+        +str table_name
+        +str description
+        +str fix_template
+        +JSON fix_steps
+    }
+
+    class BpaSummary {
+        +int id
+        +int project_id
+        +str rule_id
+        +str rule_name
+        +str category
+        +int severity
+        +str severity_label
+        +int count
+    }
+
+    class InspectorResult {
+        +int id
+        +int project_id
+        +str rule_id
+        +str rule_name
+        +str rule_description
+        +str page_name
+        +bool passed
+        +JSON expected
+        +JSON actual
+    }
+
+    Project "1" --> "*" ModelTable : tables
+    Project "1" --> "*" ModelColumn : columns
+    Project "1" --> "*" ModelMeasure : measures
+    Project "1" --> "*" ModelRelationship : relationships
+    Project "1" --> "*" ModelRole : roles
+    Project "1" --> "*" BpaViolation : violations
+    Project "1" --> "*" BpaSummary : summary
+    Project "1" --> "*" InspectorResult : results
+    ModelTable "1" --> "*" ModelColumn : columns
+    ModelTable "1" --> "*" ModelMeasure : measures

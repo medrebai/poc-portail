@@ -1,0 +1,88 @@
+flowchart LR
+    subgraph "Data Sources"
+        DS1["SQL Server"]
+        DS2["SharePoint"]
+        DS3["Excel File"]
+        DS4["BigQuery"]
+    end
+
+    subgraph "Tables"
+        T1["DimCustomer"]
+        T2["DimProduct"]
+        T3["FactSales"]
+        T4["DimDate"]
+    end
+
+    subgraph "Columns"
+        C1["CustomerKey"]
+        C2["ProductKey"]
+        C3["SalesAmount"]
+        C4["OrderDate"]
+        C5["CustomerName"]
+        C6["ProductName"]
+    end
+
+    subgraph "Measures"
+        M1["Total Sales"]
+        M2["YTD Sales"]
+        M3["Customer Count"]
+        M4["Avg Order Value"]
+    end
+
+    subgraph "Visuals"
+        V1["Sales KPI Card"]
+        V2["Revenue by Product"]
+        V3["Customer Trend"]
+        V4["Monthly Table"]
+    end
+
+    DS1 -->|connects_to_source| T1
+    DS1 -->|connects_to_source| T3
+    DS2 -->|connects_to_source| T2
+    DS3 -->|connects_to_source| T4
+
+    T1 -->|belongs_to_table| C1
+    T1 -->|belongs_to_table| C5
+    T2 -->|belongs_to_table| C2
+    T2 -->|belongs_to_table| C6
+    T3 -->|belongs_to_table| C3
+    T3 -->|belongs_to_table| C4
+
+    C3 -->|references_column| M1
+    M1 -->|depends_on_measure| M2
+    C1 -->|references_column| M3
+    C3 -->|references_column| M4
+
+    T3 -.->|has_relationship| T1
+    T3 -.->|has_relationship| T2
+    T3 -.->|has_relationship| T4
+
+    M1 -->|uses_field| V1
+    M2 -->|uses_field| V2
+    C6 -->|uses_field| V2
+    M3 -->|uses_field| V3
+    M1 -->|uses_field| V4
+    M4 -->|uses_field| V4
+
+    style DS1 fill:#4caf50,color:#fff
+    style DS2 fill:#4caf50,color:#fff
+    style DS3 fill:#4caf50,color:#fff
+    style DS4 fill:#4caf50,color:#fff
+    style T1 fill:#1565c0,color:#fff
+    style T2 fill:#1565c0,color:#fff
+    style T3 fill:#1565c0,color:#fff
+    style T4 fill:#1565c0,color:#fff
+    style C1 fill:#42a5f5,color:#fff
+    style C2 fill:#42a5f5,color:#fff
+    style C3 fill:#42a5f5,color:#fff
+    style C4 fill:#42a5f5,color:#fff
+    style C5 fill:#42a5f5,color:#fff
+    style C6 fill:#42a5f5,color:#fff
+    style M1 fill:#f9a825,color:#000
+    style M2 fill:#f9a825,color:#000
+    style M3 fill:#f9a825,color:#000
+    style M4 fill:#f9a825,color:#000
+    style V1 fill:#9c27b0,color:#fff
+    style V2 fill:#9c27b0,color:#fff
+    style V3 fill:#9c27b0,color:#fff
+    style V4 fill:#9c27b0,color:#fff

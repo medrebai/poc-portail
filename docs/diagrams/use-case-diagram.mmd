@@ -1,0 +1,72 @@
+graph LR
+    subgraph Actors
+        DEV["BI Developer"]
+        PM["Project Manager"]
+        ADMIN["Admin"]
+    end
+
+    subgraph "UC: Project Management"
+        UC1["Create Project"]
+        UC2["Upload PBIP File"]
+        UC3["Run Analysis"]
+        UC4["View Project List"]
+        UC5["Delete Project"]
+    end
+
+    subgraph "UC: Quality Analysis"
+        UC6["View BPA Violations"]
+        UC7["Filter by Severity/Category"]
+        UC8["View Fix Suggestions"]
+        UC9["Export BPA Report XLSX"]
+    end
+
+    subgraph "UC: Visual Inspection"
+        UC10["View Inspector Results"]
+        UC11["Filter Pass/Fail"]
+        UC12["View Page Layouts"]
+        UC13["Export Inspector Report"]
+    end
+
+    subgraph "UC: Model Documentation"
+        UC14["Browse Tables/Columns"]
+        UC15["Browse Measures DAX"]
+        UC16["View Relationships"]
+        UC17["View RLS Roles"]
+        UC18["View Partitions"]
+        UC19["Export Catalog XLSX"]
+    end
+
+    subgraph "UC: Data Lineage"
+        UC20["View Full Lineage"]
+        UC21["Visual Trace"]
+        UC22["Measure Impact Analysis"]
+        UC23["Column Impact Analysis"]
+    end
+
+    subgraph "UC: Dashboard"
+        UC24["View Project Overview"]
+        UC25["View Health Radar"]
+        UC26["View Quality Score"]
+    end
+
+    DEV --> UC1
+    DEV --> UC2
+    DEV --> UC3
+    DEV --> UC4
+    DEV --> UC6
+    DEV --> UC10
+    DEV --> UC14
+    DEV --> UC20
+    DEV --> UC21
+    DEV --> UC22
+    DEV --> UC23
+    DEV --> UC24
+    PM --> UC4
+    PM --> UC24
+    PM --> UC25
+    PM --> UC26
+    PM --> UC9
+    PM --> UC13
+    PM --> UC19
+    ADMIN --> UC5
+    ADMIN --> UC1

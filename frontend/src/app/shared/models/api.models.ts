@@ -12,6 +12,7 @@ export interface Project {
   relationship_count?: number;
   data_source_count?: number;
   visual_count?: number;
+  dataset_size?: string | null;
   data_sources?: string[];
   bpa_violation_count?: number;
   bpa_error_count?: number;
@@ -27,6 +28,47 @@ export interface Project {
     tabular_editor_path?: string;
     pbi_inspector_path?: string;
   };
+}
+
+export interface ModelCategory {
+  name: string;
+  score: number;
+  weight: number;
+  penalty: number;
+  errors: number;
+  warnings: number;
+  norm_factor: number;
+}
+
+export interface VisualCategory {
+  name: string;
+  score: number;
+  weight: number;
+  passed: number;
+  total: number;
+  rules: string[];
+}
+
+export interface ScoreResponse {
+  overall_score: number;
+  overall_grade: string;
+  overall_label: string;
+  overall_color: string;
+  model_score: number;
+  model_categories: ModelCategory[];
+  visual_score: number;
+  visual_categories: VisualCategory[];
+  model_weight: number;
+  visual_weight: number;
+}
+
+export interface ScoreSummary {
+  overall_score: number;
+  overall_grade: string;
+  overall_label: string;
+  overall_color: string;
+  model_score: number;
+  visual_score: number;
 }
 
 export interface CatalogTable {
@@ -138,4 +180,23 @@ export interface InspectorResult {
   passed: boolean;
   expected?: unknown;
   actual?: unknown;
+}
+
+export interface PartitionImportRow {
+  table: string;
+  partitionName: string;
+  sourceType: string;
+  mode: string;
+  expression: string;
+  source: string;
+  sourceProject: string;
+  sourceDataset: string;
+  sourceObject: string;
+  bqProject: string;
+  bqDataset: string;
+  bqTable: string;
+  sqlQuery: string;
+  mTransformations: string;
+  mStepCount: number;
+  fullMQuery: string;
 }

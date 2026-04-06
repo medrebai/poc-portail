@@ -21,13 +21,22 @@ def build_fix_suggestion(rule_id: str, table_name: str, object_name: str, fallba
 
     tbl = (table_name or '').strip()
     obj = (object_name or '').strip()
+    fallback = (fallback_object or '').strip()
     if not tbl:
-        tbl = (fallback_object or '').strip()
+        tbl = fallback
+    if not obj:
+        obj = fallback or tbl or 'selected object'
 
     action = tpl.get('template', '').replace('{table}', tbl).replace('{object}', obj)
     steps = [str(step).replace('{table}', tbl).replace('{object}', obj) for step in tpl.get('steps', [])]
+    normalized_steps = []
+    for step in steps:
+        # Guard against malformed placeholder remnants such as Select ''.
+        if "Select ''." in step:
+            step = step.replace("Select ''.", f"Select '{obj}'.")
+        normalized_steps.append(step)
 
-    suggestion = {'action': action, 'steps': steps}
+    suggestion = {'action': action, 'steps': normalized_steps}
     if tpl.get('warning'):
         suggestion['warning'] = tpl['warning']
     return suggestion

@@ -1,0 +1,103 @@
+graph TB
+    subgraph "Browser"
+        direction TB
+        APP["AppComponent<br/>Root Module"]
+
+        subgraph "Page Components"
+            PL["ProjectListComponent<br/>/projects"]
+            PC["ProjectCreateComponent<br/>/projects/new"]
+            PO["ProjectOverviewComponent<br/>/projects/:id"]
+            MC["ModelCatalogComponent<br/>/projects/:id/catalog"]
+            BV["BpaViolationsComponent<br/>/projects/:id/bpa"]
+            IR["InspectorResultsComponent<br/>/projects/:id/inspector"]
+        end
+
+        subgraph "Shared Components"
+            SB["SeverityBadgeComponent"]
+            CC["ChartCardComponent"]
+            FP["FilterPanelComponent"]
+            LR["LineageRendererComponent"]
+            PLV["PageLayoutViewerComponent"]
+        end
+
+        subgraph "Services"
+            PS["ProjectService"]
+            BS["BpaService"]
+            CS["CatalogService"]
+            IS["InspectorService"]
+            LS["LineageService"]
+            PGS["PageService"]
+        end
+    end
+
+    subgraph "Flask Backend"
+        direction TB
+        subgraph "Blueprints"
+            B1["projects_bp"]
+            B2["catalog_bp"]
+            B3["bpa_bp"]
+            B4["inspector_bp"]
+            B5["lineage_bp"]
+            B6["export_bp"]
+        end
+
+        subgraph "Services"
+            S1["TmdlParser"]
+            S2["BpaAnalyzer"]
+            S3["InspectorAnalyzer"]
+            S4["LineageEngine"]
+            S5["DaxParser"]
+            S6["PageAnalyzer"]
+            S7["FixMatcher"]
+            S8["ExportService"]
+        end
+    end
+
+    APP --> PL
+    APP --> PC
+    APP --> PO
+    APP --> MC
+    APP --> BV
+    APP --> IR
+
+    PO --> SB
+    PO --> CC
+    PO --> PLV
+    BV --> SB
+    BV --> FP
+    MC --> LR
+    IR --> FP
+
+    PL --> PS
+    PC --> PS
+    PO --> PS
+    PO --> BS
+    PO --> IS
+    PO --> PGS
+    MC --> CS
+    MC --> LS
+    BV --> BS
+    IR --> IS
+
+    PS -->|HTTP| B1
+    CS -->|HTTP| B2
+    BS -->|HTTP| B3
+    IS -->|HTTP| B4
+    LS -->|HTTP| B5
+
+    B1 --> S1
+    B1 --> S2
+    B1 --> S3
+    B1 --> S6
+    B2 --> S7
+    B5 --> S4
+    S4 --> S5
+    B6 --> S8
+
+    style APP fill:#dd2c00,color:#fff
+    style B1 fill:#1565c0,color:#fff
+    style B2 fill:#1565c0,color:#fff
+    style B3 fill:#1565c0,color:#fff
+    style B4 fill:#1565c0,color:#fff
+    style B5 fill:#1565c0,color:#fff
+    style B6 fill:#1565c0,color:#fff

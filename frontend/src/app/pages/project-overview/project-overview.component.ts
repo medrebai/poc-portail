@@ -6,11 +6,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { forkJoin } from 'rxjs';
 import { BpaService } from '../../services/bpa.service';
 import { InspectorService } from '../../services/inspector.service';
 import { ProjectService } from '../../services/project.service';
-import { BpaSummary, InspectorResult, Project } from '../../shared/models/api.models';
+import { BpaSummary, InspectorResult, Project, ScoreResponse } from '../../shared/models/api.models';
 import { SeverityBadgeComponent } from '../../shared/components/severity-badge/severity-badge.component';
 
 @Component({
@@ -23,6 +25,8 @@ import { SeverityBadgeComponent } from '../../shared/components/severity-badge/s
     MatCardModule,
     MatIconModule,
     MatChipsModule,
+    MatTooltipModule,
+    MatProgressBarModule,
     SeverityBadgeComponent,
   ],
   templateUrl: './project-overview.component.html',
@@ -37,6 +41,15 @@ export class ProjectOverviewComponent {
   newTag = '';
   isAddingTag = false;
   radarAxes: Array<{ axis: string; score: number; violations: number }> = [];
+  scores: ScoreResponse | null = null;
+  private readonly axisDescriptions: Record<string, string> = {
+    'Naming': 'Naming conventions quality for tables, columns, and measures.',
+    'Performance': 'Model patterns that can impact query speed and report responsiveness.',
+    'DAX Quality': 'DAX expression quality, readability, and reliability best practices.',
+    'Formatting': 'Model formatting and layout consistency for maintainability.',
+    'Maintenance': 'Long-term maintainability signals such as metadata and technical debt indicators.',
+    'Error Prevention': 'Rules that reduce risks of ambiguous logic, broken calculations, and incorrect results.',
+  };
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -53,11 +66,16 @@ export class ProjectOverviewComponent {
       project: this.projectService.getById(this.projectId),
       bpaSummary: this.bpaService.getSummary(this.projectId),
       inspectorResults: this.inspectorService.getResults(this.projectId),
-    }).subscribe(({ project, bpaSummary, inspectorResults }) => {
+      scores: this.projectService.getScores(this.projectId),
+    }).subscribe({
+      next: ({ project, bpaSummary, inspectorResults, scores }) => {
       this.project = project;
       this.bpaSummary = bpaSummary;
       this.inspectorResults = inspectorResults;
+      this.scores = scores;
       this.loadTags();
+      },
+      error: () => undefined,
     });
 
     this.projectService.getHealthRadar(this.projectId).subscribe({
@@ -74,16 +92,149 @@ export class ProjectOverviewComponent {
   }
 
   get qualityScore(): number {
-    if (!this.project) return 0;
-    const bpa = this.project.bpa_violation_count || 0;
-    const inspectorFails = this.project.inspector_failed_count || 0;
-    const penalty = (bpa * 0.08) + (inspectorFails * 1.2);
-    return Math.max(0, Math.round(100 - penalty));
+    if (!this.scores) return 0;
+    return Math.round(this.scores.overall_score);
   }
 
   get totalChecks(): number {
     if (!this.project) return 0;
     return (this.project.bpa_violation_count || 0) + (this.project.inspector_total || 0);
+  }
+
+  get hasDescription(): boolean {
+    return !!this.project?.description?.trim();
+  }
+
+  get bpaViolationCount(): number {
+    return this.project?.bpa_violation_count || 0;
+  }
+
+  get inspectorFailCount(): number {
+    return this.project?.inspector_failed_count || 0;
+  }
+
+  get inspectorTotalChecks(): number {
+    return this.project?.inspector_total || 0;
+  }
+
+  get qualityScoreBreakdown(): string {
+    if (!this.scores) return 'Scoring unavailable';
+    return `${this.modelWeightPercent}% Model + ${this.visualWeightPercent}% Visual`;
+  }
+
+  get modelWeightPercent(): number {
+    return Math.round((this.scores?.model_weight || 0) * 100);
+  }
+
+  get visualWeightPercent(): number {
+    return Math.round((this.scores?.visual_weight || 0) * 100);
+  }
+
+  get modelWeightedContribution(): number {
+    if (!this.scores) return 0;
+    return this.scores.model_score * this.scores.model_weight;
+  }
+
+  get visualWeightedContribution(): number {
+    if (!this.scores) return 0;
+    return this.scores.visual_score * this.scores.visual_weight;
+  }
+
+  get overallGrade(): string {
+    return this.scores?.overall_grade || 'N/A';
+  }
+
+  get overallLabel(): string {
+    return this.scores?.overall_label || 'Not Available';
+  }
+
+  get overallColor(): string {
+    return this.scores?.overall_color || '#9ca3af';
+  }
+
+  get modelScore(): number {
+    return this.scores?.model_score || 0;
+  }
+
+  get visualScore(): number {
+    return this.scores?.visual_score || 0;
+  }
+
+  get modelCategoryScores(): Array<{ label: string; score: number; detail: string }> {
+    return (this.scores?.model_categories || []).map((category) => ({
+      label: category.name,
+      score: category.score,
+      detail: `${category.errors} errors, ${category.warnings} warnings`,
+    }));
+  }
+
+  get visualCategoryScores(): Array<{ label: string; score: number; detail: string }> {
+    return (this.scores?.visual_categories || []).map((category) => ({
+      label: category.name,
+      score: category.score,
+      detail: `${category.passed}/${category.total} passed`,
+    }));
+  }
+
+  get scoreCategoryTiles(): Array<{
+    pillar: 'Model' | 'Visual';
+    label: string;
+    score: number;
+    detail: string;
+    drilldowns: Array<{ label: string; severity: number; count: number }>;
+  }> {
+    const model = this.modelCategoryScores.map((category) => ({
+      pillar: 'Model' as const,
+      label: category.label,
+      score: category.score,
+      detail: category.detail,
+      drilldowns: this.getCategorySeverityDrilldowns(category.label),
+    }));
+    const visual = this.visualCategoryScores.map((category) => ({
+      pillar: 'Visual' as const,
+      label: category.label,
+      score: category.score,
+      detail: category.detail,
+      drilldowns: [],
+    }));
+    return [...model, ...visual];
+  }
+
+  getCategorySeverityDrilldowns(category: string): Array<{ label: string; severity: number; count: number }> {
+    return [
+      { label: 'Error', severity: 3, count: this.getCategorySeverityCount(category, 3) },
+      { label: 'Warning', severity: 2, count: this.getCategorySeverityCount(category, 2) },
+      { label: 'Info', severity: 1, count: this.getCategorySeverityCount(category, 1) },
+    ];
+  }
+
+  bpaDrilldownQueryParams(category: string, severity?: number): Record<string, string> {
+    const params: Record<string, string> = {
+      category,
+      focus: 'violations-list',
+    };
+    if (severity) {
+      params['severity'] = String(severity);
+    }
+    return params;
+  }
+
+  private getCategorySeverityCount(category: string, severity: number): number {
+    return this.bpaSummary
+      .filter((item) => item.category === category && item.severity === severity)
+      .reduce((sum, item) => sum + item.count, 0);
+  }
+
+  get evaluatedRuleBreakdown(): string {
+    return `${this.inspectorTotalChecks} visual checks + ${this.bpaViolationCount} model violations`; 
+  }
+
+  get semanticModelBreakdown(): string {
+    return `${this.bpaViolationCount} non-compliant semantic model rules`;
+  }
+
+  get visualBreakdown(): string {
+    return `${this.inspectorFailCount} failed visual inspector checks`;
   }
 
   get performanceLabel(): string {
@@ -158,6 +309,10 @@ export class ProjectOverviewComponent {
       const p = this.polarToXY(cx, cy, r, i, n);
       return { axis: ax.axis, x: p.x, y: p.y };
     });
+  }
+
+  getAxisDescription(axis: string): string {
+    return this.axisDescriptions[axis] || 'Quality category measured by BPA rules.';
   }
 
   addTag(): void {

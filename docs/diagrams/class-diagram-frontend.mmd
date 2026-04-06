@@ -1,0 +1,172 @@
+classDiagram
+    direction TB
+
+    class ProjectListComponent {
+        +projects: Project[]
+        +loading: boolean
+        +ngOnInit()
+        +deleteProject(id)
+    }
+
+    class ProjectCreateComponent {
+        +projectName: string
+        +description: string
+        +selectedFile: File
+        +uploading: boolean
+        +onCreate()
+        +onFileSelected(event)
+    }
+
+    class ProjectOverviewComponent {
+        +project: Project
+        +bpaSummary: BpaSummary[]
+        +inspectorResults: InspectorResult[]
+        +healthRadar: any
+        +pages: PageData[]
+        +ngOnInit()
+        +loadProject()
+        +loadBpaSummary()
+        +loadInspectorResults()
+        +loadHealthRadar()
+        +loadPages()
+    }
+
+    class ModelCatalogComponent {
+        +project: Project
+        +tables: CatalogTable[]
+        +measures: CatalogMeasure[]
+        +relationships: CatalogRelationship[]
+        +roles: CatalogRole[]
+        +selectedTabIndex: number
+        +lineageMode: string
+        +lineageNodes: LineageNode[]
+        +lineageEdges: LineageEdge[]
+        +ngOnInit()
+        +loadCatalog()
+        +loadFullLineage()
+        +loadVisualTrace()
+        +loadMeasureImpact()
+        +loadColumnImpact()
+        +switchLineageMode(mode)
+    }
+
+    class BpaViolationsComponent {
+        +project: Project
+        +violations: BpaViolation[]
+        +summary: BpaSummary[]
+        +severityFilter: FormControl
+        +categoryFilter: FormControl
+        +loading: boolean
+        +ngOnInit()
+        +loadViolations()
+        +loadSummary()
+        +exportExcel()
+        +applyFilters()
+    }
+
+    class InspectorResultsComponent {
+        +project: Project
+        +results: InspectorResult[]
+        +passedFilter: FormControl
+        +pageFilter: FormControl
+        +loading: boolean
+        +ngOnInit()
+        +loadResults()
+        +exportExcel()
+        +applyFilters()
+    }
+
+    class LineageRendererComponent {
+        +nodes: LineageNode[]
+        +edges: LineageEdge[]
+        +zoom: number
+        -renderSVG()
+        -layoutNodes()
+        -drawEdges()
+        -handlePan()
+        -handleZoom()
+    }
+
+    class SeverityBadgeComponent {
+        +label: string
+        +tone: string
+    }
+
+    class ChartCardComponent {
+        +title: string
+        +items: ChartItem[]
+        +maxValue: number
+    }
+
+    class PageLayoutViewerComponent {
+        +projectId: number
+        +pages: PageData[]
+        +selectedPage: PageData
+        +scale: number
+        +selectPage(name)
+        +getVisualColor(type)
+    }
+
+    class ProjectService {
+        +list() Observable~Project[]~
+        +getById(id) Observable~Project~
+        +create(payload) Observable~Project~
+        +delete(id) Observable~void~
+        +upload(id, file) Observable~void~
+        +analyze(id) Observable~void~
+        +getHealthRadar(id) Observable~any~
+    }
+
+    class BpaService {
+        +getViolations(id, filters?) Observable~BpaViolation[]~
+        +getSummary(id) Observable~BpaSummary[]~
+        +export(id) Observable~Blob~
+    }
+
+    class CatalogService {
+        +getCatalog(id, table?) Observable~CatalogResponse~
+        +getTables(id) Observable~CatalogTable[]~
+        +getMeasures(id, filters?) Observable~CatalogMeasure[]~
+        +getRelationships(id, filters?) Observable~CatalogRelationship[]~
+        +getRoles(id) Observable~CatalogRole[]~
+        +exportCatalog(id) Observable~Blob~
+    }
+
+    class InspectorService {
+        +getResults(id, filters?) Observable~InspectorResult[]~
+        +export(id) Observable~Blob~
+    }
+
+    class LineageService {
+        +getFullLineage(id) Observable~LineageResponse~
+        +getVisualTrace(id, page, visual) Observable~LineageResponse~
+        +getMeasureImpact(id, measure) Observable~LineageResponse~
+        +getColumnImpact(id, table, column) Observable~LineageResponse~
+        +getVisuals(id) Observable~any[]~
+        +getMeasures(id) Observable~string[]~
+        +getTables(id) Observable~string[]~
+        +getColumns(id, table) Observable~string[]~
+    }
+
+    class PageService {
+        +getPages(id) Observable~any~
+    }
+
+    ProjectListComponent --> ProjectService
+    ProjectCreateComponent --> ProjectService
+    ProjectOverviewComponent --> ProjectService
+    ProjectOverviewComponent --> BpaService
+    ProjectOverviewComponent --> InspectorService
+    ProjectOverviewComponent --> PageService
+    ModelCatalogComponent --> CatalogService
+    ModelCatalogComponent --> LineageService
+    ModelCatalogComponent --> ProjectService
+    BpaViolationsComponent --> BpaService
+    BpaViolationsComponent --> ProjectService
+    InspectorResultsComponent --> InspectorService
+    InspectorResultsComponent --> ProjectService
+    ProjectOverviewComponent ..> SeverityBadgeComponent
+    ProjectOverviewComponent ..> ChartCardComponent
+    ProjectOverviewComponent ..> PageLayoutViewerComponent
+    ModelCatalogComponent ..> LineageRendererComponent
+    BpaViolationsComponent ..> SeverityBadgeComponent

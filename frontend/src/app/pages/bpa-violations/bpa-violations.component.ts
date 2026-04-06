@@ -49,6 +49,7 @@ export class BpaViolationsComponent {
   inspectorResults: InspectorResult[] = [];
   violations: BpaViolation[] = [];
   summary: BpaSummary[] = [];
+  datasetSizeHistory: Array<{ value: string | null; created_at: string | null }> = [];
 
   // Filter dropdowns
   readonly severityFilter = new FormControl('all', { nonNullable: true });
@@ -56,6 +57,8 @@ export class BpaViolationsComponent {
   readonly objectFilter = new FormControl('', { nonNullable: true });
   readonly ruleFilter = new FormControl('', { nonNullable: true });
   readonly objectTypeFilter = new FormControl('all', { nonNullable: true });
+  readonly datasetSizeValueInput = new FormControl('', { nonNullable: true });
+  readonly datasetSizeUnitInput = new FormControl<'MB' | 'GB'>('GB', { nonNullable: true });
 
   // Dropdown options (populated from data)
   categoryOptions: string[] = [];
@@ -64,9 +67,14 @@ export class BpaViolationsComponent {
 
   // Pagination
   currentPage = 1;
-  pageSize = 10;
+  pageSize = 5;
 
   readonly displayedColumns = ['severity', 'category', 'rule', 'object', 'object_type', 'fix'];
+  private datasetSyncReady = false;
+  private shouldAutoScrollToViolations = false;
+  isDatasetEditing = false;
+  private datasetEditSnapshotValue = '';
+  private datasetEditSnapshotUnit: 'MB' | 'GB' = 'GB';
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -76,6 +84,7 @@ export class BpaViolationsComponent {
     private readonly inspectorService: InspectorService,
   ) {
     this.projectId = Number(this.route.snapshot.paramMap.get('id'));
+    this.applyInitialQueryFilters();
     this.loadModelContext();
     this.refresh();
     this.severityFilter.valueChanges.subscribe(() => this.refresh());
@@ -85,15 +94,269 @@ export class BpaViolationsComponent {
     this.objectTypeFilter.valueChanges.subscribe(() => this.refresh());
   }
 
+  private applyInitialQueryFilters(): void {
+    const query = this.route.snapshot.queryParamMap;
+    const severity = query.get('severity');
+    const category = query.get('category');
+    const focus = query.get('focus');
+
+    if (severity && ['1', '2', '3', 'all'].includes(severity)) {
+      this.severityFilter.setValue(severity, { emitEvent: false });
+    }
+
+    if (category && category.trim()) {
+      this.categoryFilter.setValue(category.trim(), { emitEvent: false });
+    }
+
+    this.shouldAutoScrollToViolations = focus === 'violations-list';
+  }
+
+  private parseDatasetSize(rawValue: string): { value: string; unit: 'MB' | 'GB' } {
+    const normalized = (rawValue || '').trim();
+    if (!normalized) {
+      return { value: '', unit: 'GB' };
+    }
+
+    const match = normalized.match(/^([\d.,]+)\s*(GB|MB)?$/i);
+    if (!match) {
+      return { value: normalized, unit: 'GB' };
+    }
+
+    const value = (match[1] || '').replace(',', '.');
+    const unitRaw = (match[2] || 'GB').toUpperCase();
+    const unit: 'MB' | 'GB' = unitRaw === 'MB' ? 'MB' : 'GB';
+    return { value, unit };
+  }
+
+  private composedDatasetSizeValue(): string {
+    const value = (this.datasetSizeValueInput.value || '').trim();
+    if (!value) {
+      return '';
+    }
+    return `${value} ${this.datasetSizeUnitInput.value}`;
+  }
+
+  private setDatasetEditMode(editing: boolean): void {
+    this.isDatasetEditing = editing;
+    if (editing) {
+      this.datasetSizeValueInput.enable({ emitEvent: false });
+      this.datasetSizeUnitInput.enable({ emitEvent: false });
+    } else {
+      this.datasetSizeValueInput.disable({ emitEvent: false });
+      this.datasetSizeUnitInput.disable({ emitEvent: false });
+    }
+  }
+
   loadModelContext(): void {
     forkJoin({
       project: this.projectService.getById(this.projectId),
       catalog: this.catalogService.getCatalog(this.projectId),
       inspectorResults: this.inspectorService.getResults(this.projectId),
-    }).subscribe(({ project, catalog, inspectorResults }) => {
+      datasetSizeHistory: this.projectService.getDatasetSizeHistory(this.projectId, 200),
+    }).subscribe({
+      next: ({ project, catalog, inspectorResults, datasetSizeHistory }) => {
       this.project = project;
       this.catalog = catalog;
       this.inspectorResults = inspectorResults;
+      this.datasetSizeHistory = this.normalizeDatasetHistory(datasetSizeHistory.history || []);
+      const parsed = this.parseDatasetSize(project.dataset_size || '');
+      this.datasetSizeValueInput.setValue(parsed.value, { emitEvent: false });
+      this.datasetSizeUnitInput.setValue(parsed.unit, { emitEvent: false });
+      this.datasetSyncReady = true;
+      this.setDatasetEditMode(false);
+      },
+      error: () => {
+        this.datasetSizeHistory = [];
+        this.setDatasetEditMode(false);
+      },
+    });
+  }
+
+  startDatasetSizeEdit(): void {
+    this.datasetEditSnapshotValue = this.datasetSizeValueInput.value;
+    this.datasetEditSnapshotUnit = this.datasetSizeUnitInput.value;
+    this.setDatasetEditMode(true);
+  }
+
+  cancelDatasetSizeEdit(): void {
+    this.datasetSizeValueInput.setValue(this.datasetEditSnapshotValue, { emitEvent: false });
+    this.datasetSizeUnitInput.setValue(this.datasetEditSnapshotUnit, { emitEvent: false });
+    this.setDatasetEditMode(false);
+  }
+
+  saveDatasetSizeEdit(): void {
+    if (!this.datasetSyncReady) return;
+    const newValue = this.composedDatasetSizeValue();
+    this.projectService.updateDatasetSize(this.projectId, newValue).subscribe({
+      next: (response) => {
+        if (this.project) {
+          this.project.dataset_size = response.dataset_size;
+        }
+        this.setDatasetEditMode(false);
+        this.reloadDatasetHistory();
+      },
+      error: () => {
+        // Keep UI usable even if API save fails.
+      },
+    });
+  }
+
+  private reloadDatasetHistory(): void {
+    this.projectService.getDatasetSizeHistory(this.projectId, 200).subscribe({
+      next: (result) => {
+        this.datasetSizeHistory = this.normalizeDatasetHistory(result.history || []);
+      },
+      error: () => undefined,
+    });
+  }
+
+  private normalizeDatasetHistory(
+    history: Array<{ value: string | null; created_at: string | null }>
+  ): Array<{ value: string | null; created_at: string | null }> {
+    return [...history]
+      .filter((entry) => !!entry?.value)
+      .sort((a, b) => {
+        const ta = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const tb = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return ta - tb;
+      });
+  }
+
+  private toSizeInMB(raw: string | null): number {
+    const value = (raw || '').trim();
+    if (!value) return 0;
+    const match = value.match(/^([\d.,]+)\s*(GB|MB)?$/i);
+    if (!match) return 0;
+
+    const numeric = Number((match[1] || '').replace(',', '.'));
+    if (!Number.isFinite(numeric)) return 0;
+    const unit = (match[2] || 'GB').toUpperCase();
+    return unit === 'GB' ? numeric * 1024 : numeric;
+  }
+
+  private formatHistoryLabel(isoDate: string | null): string {
+    if (!isoDate) return 'N/A';
+    const dt = new Date(isoDate);
+    if (Number.isNaN(dt.getTime())) return 'N/A';
+    const month = String(dt.getMonth() + 1).padStart(2, '0');
+    const day = String(dt.getDate()).padStart(2, '0');
+    return `${month}/${day}`;
+  }
+
+  get datasetSizeLastUpdated(): string | null {
+    const latest = this.datasetSizeHistory[this.datasetSizeHistory.length - 1];
+    return latest?.created_at || null;
+  }
+
+  get datasetSizeDisplayValue(): string {
+    const value = this.composedDatasetSizeValue();
+    if (value) return value;
+    return this.project?.dataset_size || 'N/A';
+  }
+
+  get datasetSizeEvolutionChart(): Array<{ label: string; value: number; tooltip?: string }> {
+    const points = this.datasetSizeHistory.slice(-8).map((entry) => {
+      const mb = this.toSizeInMB(entry.value);
+      return {
+        label: this.formatHistoryLabel(entry.created_at),
+        value: Math.round(mb * 10) / 10,
+        tooltip: `${entry.value || 'N/A'}${entry.created_at ? ` • ${new Date(entry.created_at).toLocaleString()}` : ''}`,
+      };
+    });
+
+    const draftValue = this.composedDatasetSizeValue();
+    const latestStoredValue = (this.datasetSizeHistory[this.datasetSizeHistory.length - 1]?.value || '').trim();
+    if (draftValue && draftValue !== latestStoredValue) {
+      const mb = this.toSizeInMB(draftValue);
+      points.push({
+        label: 'Now',
+        value: Math.round(mb * 10) / 10,
+        tooltip: `Draft: ${draftValue}`,
+      });
+    }
+
+    return points;
+  }
+
+  get datasetSizeHasTrendData(): boolean {
+    return this.datasetSizeEvolutionChart.length >= 2;
+  }
+
+  get datasetSizeTrendMaxMb(): number {
+    const values = this.datasetSizeEvolutionChart.map((point) => point.value);
+    const max = Math.max(...values, 0);
+    return Math.max(1, max);
+  }
+
+  get datasetSizeTrendMinMb(): number {
+    const values = this.datasetSizeEvolutionChart.map((point) => point.value);
+    if (!values.length) return 0;
+    return Math.min(...values);
+  }
+
+  get datasetSizeTrendPoints(): string {
+    const points = this.datasetSizeEvolutionChart;
+    if (!points.length) return '';
+
+    const width = 620;
+    const height = 170;
+    const padLeft = 26;
+    const padRight = 18;
+    const padTop = 16;
+    const padBottom = 28;
+    const maxMb = this.datasetSizeTrendMaxMb;
+    const minMb = this.datasetSizeTrendMinMb;
+    const range = Math.max(1, maxMb - minMb);
+    const stepX = points.length > 1 ? (width - padLeft - padRight) / (points.length - 1) : 0;
+
+    return points
+      .map((point, index) => {
+        const x = padLeft + index * stepX;
+        const yRatio = (point.value - minMb) / range;
+        const y = padTop + (1 - yRatio) * (height - padTop - padBottom);
+        return `${x},${y}`;
+      })
+      .join(' ');
+  }
+
+  get datasetSizeTrendAreaPoints(): string {
+    const linePoints = this.datasetSizeTrendPoints;
+    if (!linePoints) return '';
+    const parts = linePoints.split(' ');
+    if (!parts.length) return '';
+    const first = parts[0].split(',');
+    const last = parts[parts.length - 1].split(',');
+    if (first.length !== 2 || last.length !== 2) return linePoints;
+    const baselineY = 142;
+    return `${linePoints} ${last[0]},${baselineY} ${first[0]},${baselineY}`;
+  }
+
+  get datasetSizeTrendPlotPoints(): Array<{ x: number; y: number; label: string; value: number; tooltip?: string }> {
+    const points = this.datasetSizeEvolutionChart;
+    if (!points.length) return [];
+
+    const width = 620;
+    const height = 170;
+    const padLeft = 26;
+    const padRight = 18;
+    const padTop = 16;
+    const padBottom = 28;
+    const maxMb = this.datasetSizeTrendMaxMb;
+    const minMb = this.datasetSizeTrendMinMb;
+    const range = Math.max(1, maxMb - minMb);
+    const stepX = points.length > 1 ? (width - padLeft - padRight) / (points.length - 1) : 0;
+
+    return points.map((point, index) => {
+      const x = padLeft + index * stepX;
+      const yRatio = (point.value - minMb) / range;
+      const y = padTop + (1 - yRatio) * (height - padTop - padBottom);
+      return {
+        x,
+        y,
+        label: point.label,
+        value: point.value,
+        tooltip: point.tooltip,
+      };
     });
   }
 
@@ -110,6 +373,10 @@ export class BpaViolationsComponent {
     this.bpaService.getViolations(this.projectId, filters).subscribe((violations) => {
       this.violations = violations;
       this.buildFilterOptions(violations);
+      if (this.shouldAutoScrollToViolations) {
+        this.shouldAutoScrollToViolations = false;
+        setTimeout(() => this.scrollTo('violations-list'), 0);
+      }
     });
 
     this.bpaService.getSummary(this.projectId).subscribe((summary) => {
@@ -129,6 +396,11 @@ export class BpaViolationsComponent {
       this.categoryOptions = Array.from(cats).sort();
       this.objectOptions = Array.from(objs).sort();
       this.filteredObjectOptions = this.objectOptions;
+    }
+
+    const selectedCategory = this.categoryFilter.value;
+    if (selectedCategory !== 'all' && !this.categoryOptions.includes(selectedCategory)) {
+      this.categoryOptions = [selectedCategory, ...this.categoryOptions].sort();
     }
   }
 
@@ -260,11 +532,17 @@ export class BpaViolationsComponent {
 
   get modelStats(): Array<{ label: string; value: string | number }> {
     return [
-      { label: 'Roles', value: this.catalog?.roles.length || 0 },
+      { label: 'Roles RLS', value: this.catalog?.roles.length || 0 },
       { label: 'Storage Mode', value: 'Import' },
       { label: 'Data Sources', value: (this.project?.data_sources || []).join(', ') || 'N/A' },
       { label: 'Culture', value: 'en-US / fr-FR' },
     ];
+  }
+
+  get modelQualityBreakdownText(): string {
+    const bpa = this.project?.bpa_violation_count || 0;
+    const penalty = (bpa * 0.09).toFixed(1);
+    return `100 - (${bpa} x 0.09) = ${this.modelQualityScore} (penalty ${penalty})`;
   }
 
   get scoreBreakdown(): Array<{ label: string; percent: number; tone: 'critical' | 'warning' | 'ok' }> {

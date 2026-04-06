@@ -1,0 +1,76 @@
+sequenceDiagram
+    autonumber
+    actor User as BI Developer
+    participant FE as Angular Frontend
+    participant API as Flask API
+    participant TP as TMDL Parser
+    participant BA as BPA Analyzer
+    participant IA as Inspector Analyzer
+    participant PA as Page Analyzer
+    participant TE as Tabular Editor CLI
+    participant PI as PBI Inspector CLI
+    participant PG as PostgreSQL
+    participant MG as MongoDB
+
+    User->>FE: Create Project
+    FE->>API: POST /api/projects
+    API->>PG: INSERT Project
+    PG-->>API: Project created
+    API-->>FE: Project {id, name, status: pending}
+
+    User->>FE: Upload PBIP ZIP
+    FE->>API: POST /api/projects/{id}/upload
+    API->>API: Extract ZIP to /uploads/{id}/
+    API->>API: Validate PBIP structure
+    API-->>FE: Upload success
+
+    User->>FE: Click Analyze
+    FE->>API: POST /api/projects/{id}/analyze
+    API->>PG: SET status = analyzing
+
+    rect rgb(230, 245, 255)
+        Note over API,MG: Step 1: TMDL Parsing
+        API->>TP: parse_full_model(definition_dir)
+        TP->>TP: Parse tables, columns, measures
+        TP->>TP: Parse relationships, roles
+        TP->>TP: Extract data sources from M queries
+        TP-->>API: Catalog JSON
+        API->>PG: INSERT ModelTable, ModelColumn, ModelMeasure...
+        API->>MG: INSERT raw model_catalog
+    end
+
+    rect rgb(255, 243, 224)
+        Note over API,TE: Step 2: BPA Analysis
+        API->>BA: run_bpa(definition_dir)
+        BA->>TE: Execute TabularEditor.exe -A rules.json -V
+        TE-->>BA: Console output with violations
+        BA->>BA: Parse violations, match fix templates
+        BA-->>API: Violations JSON
+        API->>PG: INSERT BpaViolation, BpaSummary
+        API->>MG: INSERT raw bpa_results
+    end
+
+    rect rgb(232, 245, 233)
+        Note over API,PI: Step 3: PBI Inspector
+        API->>IA: run_inspector(report_dir)
+        IA->>PI: Execute PBIRInspectorCLI.exe
+        PI-->>IA: TestRun_*.json
+        IA->>IA: Parse inspector results
+        IA-->>API: Results JSON
+        API->>PG: INSERT InspectorResult
+        API->>MG: INSERT raw inspector_results
+    end
+
+    rect rgb(243, 229, 245)
+        Note over API,MG: Step 4: Page Layout Extraction
+        API->>PA: analyze_pages(report_dir)
+        PA->>PA: Walk pages/*/page.json
+        PA->>PA: Extract visuals/*/visual.json
+        PA-->>API: Page layouts JSON
+        API->>MG: INSERT raw page_layouts
+    end
+
+    API->>PG: SET status = ready, UPDATE counts
+    API->>API: Cleanup uploaded files
+    API-->>FE: Analysis complete
+    FE-->>User: Dashboard ready

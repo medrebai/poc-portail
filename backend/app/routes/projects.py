@@ -7,11 +7,17 @@ from app.models import (
 )
 from app.utils.file_handler import extract_zip, validate_pbip_structure, cleanup_upload
 from app.utils.file_handler import save_uploaded_folder
-from app.utils.mongo_client import store_raw_result, delete_project_results, get_raw_result
+from app.utils.mongo_client import (
+    store_raw_result,
+    delete_project_results,
+    get_raw_result,
+    list_raw_results,
+)
 from app.services.tmdl_parser import parse_full_model
 from app.services.bpa_analyzer import run_bpa
 from app.services.inspector_analyzer import run_inspector
 from app.services.page_analyzer import PageAnalyzer
+from app.services.scoring_engine import ScoringEngine
 
 projects_bp = Blueprint('projects', __name__)
 
@@ -65,7 +71,52 @@ def get_project(project_id):
 
     analysis_meta = get_raw_result(project_id, 'analysis_meta')
     d['analysis_meta'] = analysis_meta or {}
+
+    dataset_size = get_raw_result(project_id, 'dataset_size')
+    if isinstance(dataset_size, dict):
+        d['dataset_size'] = dataset_size.get('value')
+    else:
+        d['dataset_size'] = dataset_size
+
     return jsonify(d)
+
+
+@projects_bp.route('/<int:project_id>/dataset-size', methods=['PUT'])
+def save_dataset_size(project_id):
+    project = db.session.get(Project, project_id)
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
+
+    data = request.get_json(silent=True) or {}
+    value = (data.get('value') or '').strip()
+    normalized = value if value else None
+
+    store_raw_result(project_id, 'dataset_size', {'value': normalized})
+    return jsonify({'project_id': project_id, 'dataset_size': normalized}), 200
+
+
+@projects_bp.route('/<int:project_id>/dataset-size/history', methods=['GET'])
+def get_dataset_size_history(project_id):
+    project = db.session.get(Project, project_id)
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
+
+    try:
+        limit = int(request.args.get('limit', 100))
+    except ValueError:
+        limit = 100
+
+    docs = list_raw_results(project_id, 'dataset_size', limit=limit)
+    history = []
+    for doc in docs:
+        payload = doc.get('data', {})
+        value = payload.get('value') if isinstance(payload, dict) else payload
+        history.append({
+            'value': value,
+            'created_at': doc.get('created_at').isoformat() if doc.get('created_at') else None,
+        })
+
+    return jsonify({'project_id': project_id, 'history': history}), 200
 
 
 @projects_bp.route('/<int:project_id>', methods=['DELETE'])
@@ -405,37 +456,19 @@ def _store_inspector_in_pg(project_id, inspector_data, report_dir=None):
 @projects_bp.route('/<int:project_id>/health-radar', methods=['GET'])
 def get_health_radar(project_id):
     """Return model health scores per category for a radar chart."""
-    project = db.session.get(Project, project_id)
-    if not project:
+    try:
+        score_payload = ScoringEngine.calculate_scores(project_id, db.session)
+    except ValueError:
         return jsonify({'error': 'Project not found'}), 404
 
-    # BPA categories and their violation counts
-    bpa_cats = db.session.query(
-        BpaViolation.category, db.func.count(BpaViolation.id)
-    ).filter_by(project_id=project_id).group_by(BpaViolation.category).all()
-
-    cat_counts = {cat: count for cat, count in bpa_cats}
-
-    # Map BPA categories to radar axes
-    axes_map = {
-        'Naming': ['Naming Conventions'],
-        'Performance': ['Performance'],
-        'DAX Quality': ['DAX Expressions'],
-        'Formatting': ['Formatting', 'Model Layout'],
-        'Maintenance': ['Maintenance', 'Metadata'],
-        'Error Prevention': ['Error Prevention'],
-    }
-
-    axes = []
-    for axis_name, categories in axes_map.items():
-        total_violations = sum(cat_counts.get(c, 0) for c in categories)
-        # Score: 100 minus penalties (each violation = -5, min 0)
-        score = max(0, 100 - total_violations * 5)
-        axes.append({
-            'axis': axis_name,
-            'score': score,
-            'violations': total_violations,
-        })
+    axes = [
+        {
+            'axis': category['name'],
+            'score': category['score'],
+            'violations': category['errors'] + category['warnings'],
+        }
+        for category in score_payload['model_categories']
+    ]
 
     return jsonify({'axes': axes})
 

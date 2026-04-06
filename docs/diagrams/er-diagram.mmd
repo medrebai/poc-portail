@@ -1,0 +1,122 @@
+erDiagram
+    PROJECT ||--o{ MODEL_TABLE : has
+    PROJECT ||--o{ MODEL_COLUMN : has
+    PROJECT ||--o{ MODEL_MEASURE : has
+    PROJECT ||--o{ MODEL_RELATIONSHIP : has
+    PROJECT ||--o{ MODEL_ROLE : has
+    PROJECT ||--o{ BPA_VIOLATION : has
+    PROJECT ||--o{ BPA_SUMMARY : has
+    PROJECT ||--o{ INSPECTOR_RESULT : has
+    MODEL_TABLE ||--o{ MODEL_COLUMN : contains
+    MODEL_TABLE ||--o{ MODEL_MEASURE : contains
+
+    PROJECT {
+        int id PK
+        varchar name
+        text description
+        timestamp created_at
+        timestamp updated_at
+        varchar status
+        text error_message
+        int table_count
+        int measure_count
+        int column_count
+        int relationship_count
+        int data_source_count
+        int visual_count
+    }
+
+    MODEL_TABLE {
+        int id PK
+        int project_id FK
+        varchar name
+        boolean is_hidden
+        varchar mode
+        int column_count
+        int measure_count
+        int partition_count
+    }
+
+    MODEL_COLUMN {
+        int id PK
+        int table_id FK
+        int project_id FK
+        varchar name
+        varchar data_type
+        boolean is_hidden
+        varchar format_string
+        text description
+        varchar display_folder
+        varchar source_column
+    }
+
+    MODEL_MEASURE {
+        int id PK
+        int table_id FK
+        int project_id FK
+        varchar name
+        text expression
+        varchar format_string
+        text description
+        varchar display_folder
+        boolean is_hidden
+    }
+
+    MODEL_RELATIONSHIP {
+        int id PK
+        int project_id FK
+        varchar from_table
+        varchar from_column
+        varchar to_table
+        varchar to_column
+        varchar cross_filter
+        varchar from_cardinality
+        varchar to_cardinality
+        boolean is_active
+    }
+
+    MODEL_ROLE {
+        int id PK
+        int project_id FK
+        varchar name
+        json filters
+    }
+
+    BPA_VIOLATION {
+        int id PK
+        int project_id FK
+        varchar rule_id
+        varchar rule_name
+        varchar category
+        int severity
+        varchar severity_label
+        varchar object_type
+        varchar object_name
+        varchar table_name
+        text description
+        text fix_template
+        json fix_steps
+    }
+
+    BPA_SUMMARY {
+        int id PK
+        int project_id FK
+        varchar rule_id
+        varchar rule_name
+        varchar category
+        int severity
+        varchar severity_label
+        int count
+    }
+
+    INSPECTOR_RESULT {
+        int id PK
+        int project_id FK
+        varchar rule_id
+        varchar rule_name
+        text rule_description
+        varchar page_name
+        boolean passed
+        json expected
+        json actual
+    }

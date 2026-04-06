@@ -33,7 +33,15 @@
       "Bash(find 'C:\\\\Users\\\\medre\\\\Documents\\\\PFE 2026\\\\month 2\\\\poc portail\\\\backend\\\\uploads\\\\4\\\\testing' -type f -name *.json)",
       "Bash(python3:*)",
       "Bash(node:*)",
-      "Bash(xargs -I {} sh -c \"echo \"\"{}:\"\" && find \"\"{}\"\" -type f\")"
+      "Bash(xargs -I {} sh -c \"echo \"\"{}:\"\" && find \"\"{}\"\" -type f\")",
+      "Bash(grep -r lineage 'C:\\\\Users\\\\medre\\\\Documents\\\\PFE 2026\\\\month 2\\\\poc portail' --include=*.py --include=*.ts)",
+      "Bash(grep -r partition 'C:\\\\Users\\\\medre\\\\Documents\\\\PFE 2026\\\\month 2\\\\poc portail/backend' --include=*.py)",
+      "Bash(cd /c/Users/medre/Documents/\"PFE 2026\"/\"month 2\"/\"poc portail\")",
+      "Bash(where mmdc:*)",
+      "Bash(npx --yes @mermaid-js/mermaid-cli --version)",
+      "Bash(npm list:*)",
+      "Bash(npx -y @mermaid-js/mermaid-cli --version)",
+      "Bash(python:*)"
     ]
   }
 }

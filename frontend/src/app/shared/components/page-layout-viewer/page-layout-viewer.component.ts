@@ -74,6 +74,7 @@ export class PageLayoutViewerComponent implements OnInit {
       card: '#8b5cf6',    // purple
       map: '#10b981',     // green
       text: '#6b7280',    // gray
+      shape: '#94a3b8',   // slate (background)
       other: '#9ca3af',   // light gray
     };
     return typeMap[type.toLowerCase()] || typeMap['other'];
@@ -87,9 +88,58 @@ export class PageLayoutViewerComponent implements OnInit {
       card: 'Card/KPI',
       map: 'Map',
       text: 'Text',
+      shape: 'Shape',
       other: 'Other',
     };
     return categoryMap[type.toLowerCase()] || 'Unknown';
+  }
+
+  isBackgroundVisual(visual: Visual): boolean {
+    const visualType = (visual.type || '').toLowerCase();
+    const category = (visual.category || '').toLowerCase();
+    return (
+      visualType.includes('shape') ||
+      visualType === 'unknown' ||
+      category === 'shape' ||
+      category === 'unknown' ||
+      category === 'other'
+    );
+  }
+
+  get visualRenderOrder(): Visual[] {
+    if (!this.selectedPage) return [];
+
+    // Render background visuals first so they stay in the back layer.
+    const withIndex = this.selectedPage.visuals.map((visual, index) => ({ visual, index }));
+    withIndex.sort((a, b) => {
+      const aBg = this.isBackgroundVisual(a.visual) ? 0 : 1;
+      const bBg = this.isBackgroundVisual(b.visual) ? 0 : 1;
+      if (aBg !== bBg) return aBg - bBg;
+      return a.index - b.index;
+    });
+    return withIndex.map((entry) => entry.visual);
+  }
+
+  getVisualLayer(visual: Visual): number {
+    return this.isBackgroundVisual(visual) ? 1 : 2;
+  }
+
+  shouldShowVisualLabel(visual: Visual): boolean {
+    const scaledWidth = visual.width * this.scale;
+    const scaledHeight = visual.height * this.scale;
+    const label = this.getVisualDisplayLabel(visual);
+    if (!label) {
+      return false;
+    }
+
+    // Let short labels appear on smaller visuals while still preventing vertical text stacks.
+    const compactLabel = label.length <= 10;
+    const minWidth = compactLabel ? 48 : 60;
+    return scaledWidth >= minWidth && scaledHeight >= 20;
+  }
+
+  getVisualDisplayLabel(visual: Visual): string {
+    return (visual.title || visual.name || visual.type || visual.id || '').trim();
   }
 
   onVisualHover(visual: Visual): void {

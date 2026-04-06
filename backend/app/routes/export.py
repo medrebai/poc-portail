@@ -4,6 +4,7 @@ from app.models import (
     Project, BpaViolation, InspectorResult,
     ModelTable, ModelColumn, ModelMeasure, ModelRelationship, ModelRole,
 )
+from app.services.lineage_engine import LineageEngine
 from app.services.export_service import export_bpa, export_inspector, export_catalog
 
 export_bp = Blueprint('export', __name__)
@@ -54,8 +55,16 @@ def export_catalog_excel(project_id):
     measures = ModelMeasure.query.filter_by(project_id=project_id).all()
     relationships = ModelRelationship.query.filter_by(project_id=project_id).all()
     roles = ModelRole.query.filter_by(project_id=project_id).all()
+    partitions = []
 
-    output = export_catalog(tables, columns, measures, relationships, roles)
+    try:
+        engine = LineageEngine(project_id, db.session)
+        partitions = engine.get_partitions()
+    except Exception:
+        # Catalog export should still work even if partition enrichment fails.
+        partitions = []
+
+    output = export_catalog(tables, columns, measures, relationships, roles, partitions)
 
     return send_file(
         output,

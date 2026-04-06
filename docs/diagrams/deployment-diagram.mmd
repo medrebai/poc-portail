@@ -1,0 +1,43 @@
+graph TB
+    subgraph "Developer Machine"
+        subgraph "Frontend Server :4200"
+            NG["Angular 19 Dev Server<br/>ng serve"]
+        end
+
+        subgraph "Backend Server :5000"
+            FL["Flask 3.1 Dev Server<br/>python run.py"]
+        end
+
+        subgraph "PostgreSQL :5432"
+            PG[("bi_quality<br/>SQLAlchemy ORM")]
+        end
+
+        subgraph "MongoDB :27017"
+            MG[("bi_quality<br/>PyMongo")]
+        end
+
+        subgraph "CLI Tools"
+            TE["TabularEditor.exe<br/>BPA Analysis"]
+            PI["PBI-Inspector.exe<br/>Visual Inspection"]
+        end
+
+        subgraph "File System"
+            UP["uploads/<br/>PBIP Projects"]
+            RU["rules/<br/>BPA + Inspector JSON"]
+        end
+    end
+
+    NG -->|"REST API<br/>CORS enabled"| FL
+    FL -->|"SQLAlchemy"| PG
+    FL -->|"PyMongo"| MG
+    FL -->|"subprocess"| TE
+    FL -->|"subprocess"| PI
+    FL -->|"file I/O"| UP
+    FL -->|"file I/O"| RU
+
+    style NG fill:#dd2c00,color:#fff
+    style FL fill:#1565c0,color:#fff
+    style PG fill:#336791,color:#fff
+    style MG fill:#4DB33D,color:#fff
+    style TE fill:#E8720C,color:#fff
+    style PI fill:#F2C811,color:#000

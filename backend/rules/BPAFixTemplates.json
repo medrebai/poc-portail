@@ -271,7 +271,7 @@
     "steps": [
       "Open table '{table}' in Tabular Editor.",
       "Select '{object}'.",
-      "Instead of using this pattern FILTER('Table','Table'[Column]=\"Value\") for the filter parameters of a CALCULATE or CALCULATETABLE function, use one of ..."
+      "Instead of using this pattern FILTER('Table','Table'[Column]=\"Value\") for the filter parameters of a CALCULATE or CALCULATETABLE function, use one of these options: KEEPFILTERS('Table'[Column]=\"Value\") or 'Table'[Column]=\"Value\"."
     ]
   },
   {
@@ -280,7 +280,7 @@
     "steps": [
       "Open table '{table}' in Tabular Editor.",
       "Select '{object}'.",
-      "Instead of using this pattern FILTER('Table',[Measure]>Value) for the filter parameters of a CALCULATE or CALCULATETABLE function, use one of the opti..."
+      "Instead of using this pattern FILTER('Table',[Measure]>Value) for the filter parameters of a CALCULATE or CALCULATETABLE function, filter by a column expression or use KEEPFILTERS with an explicit column predicate."
     ]
   },
   {

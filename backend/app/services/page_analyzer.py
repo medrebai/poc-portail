@@ -159,15 +159,69 @@ class PageAnalyzer:
     @staticmethod
     def _extract_query_fields(visual_obj: Dict[str, Any]) -> List[str]:
         """Extract field names from visual query for display."""
-        fields = []
+        fields: List[str] = []
+        seen = set()
+
+        def add_field(value: str) -> None:
+            cleaned = (value or '').strip()
+            if not cleaned or cleaned in seen:
+                return
+            seen.add(cleaned)
+            fields.append(cleaned)
+
+        def extract_from_field_node(field_node: Dict[str, Any]) -> None:
+            if not isinstance(field_node, dict):
+                return
+
+            column = field_node.get('Column')
+            if isinstance(column, dict):
+                entity = (column.get('Expression') or {}).get('SourceRef', {}).get('Entity', '')
+                prop = column.get('Property', '')
+                if entity and prop:
+                    add_field(f"{entity}.{prop}")
+                return
+
+            measure = field_node.get('Measure')
+            if isinstance(measure, dict):
+                entity = (measure.get('Expression') or {}).get('SourceRef', {}).get('Entity', '')
+                prop = measure.get('Property', '')
+                if entity and prop:
+                    add_field(f"{entity}.{prop}")
+                return
+
+            hierarchy = field_node.get('Hierarchy')
+            if isinstance(hierarchy, dict):
+                entity = (hierarchy.get('Expression') or {}).get('SourceRef', {}).get('Entity', '')
+                name = hierarchy.get('Hierarchy', '')
+                if entity and name:
+                    add_field(f"{entity}.{name}")
+
         query = visual_obj.get('query', {})
         query_state = query.get('queryState', {})
         for _role, role_data in query_state.items():
             projections = role_data.get('projections', [])
             for proj in projections:
+                extract_from_field_node(proj.get('field', {}))
                 query_ref = proj.get('queryRef', '')
                 if query_ref:
-                    fields.append(query_ref)
+                    add_field(query_ref)
+
+                native_ref = proj.get('nativeQueryRef', '')
+                if native_ref:
+                    add_field(native_ref)
+
+            for fp in role_data.get('fieldParameters', []) or []:
+                param_expr = fp.get('parameterExpr', {})
+                extract_from_field_node(param_expr)
+
+        sort_def = query.get('sortDefinition', {})
+        for sort_item in sort_def.get('sort', []) or []:
+            extract_from_field_node(sort_item.get('field', {}))
+
+        filter_config = visual_obj.get('filterConfig', {})
+        for flt in filter_config.get('filters', []) or []:
+            extract_from_field_node(flt.get('field', {}))
+
         return fields
 
     @staticmethod

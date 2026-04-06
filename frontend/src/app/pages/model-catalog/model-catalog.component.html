@@ -25,7 +25,7 @@
 				<h1 class="page-title">Model Documentation Explorer</h1>
 				<p class="page-subtitle">Browse every table, column, measure, relationship, and role with granular filters.</p>
 			</div>
-			<button mat-flat-button color="primary" (click)="exportCatalog()">
+			<button mat-flat-button color="primary" class="primary-cta" (click)="exportCatalog()">
 				<mat-icon>download</mat-icon>
 				Export Catalog
 			</button>
@@ -41,7 +41,7 @@
 		<!-- Top Stats Cards -->
 		<div class="top-cards-grid">
 			<mat-card class="top-card">
-				<div class="top-card-value">{{ (catalog?.tables || []).length }}</div>
+				<div class="top-card-value">{{ (catalog.tables || []).length }}</div>
 				<div class="top-card-label">Tables</div>
 			</mat-card>
 			<mat-card class="top-card">
@@ -53,11 +53,11 @@
 				<div class="top-card-label">Total Partitions</div>
 			</mat-card>
 			<mat-card class="top-card">
-				<div class="top-card-value">{{ (catalog?.relationships || []).length }}</div>
+				<div class="top-card-value">{{ (catalog.relationships || []).length }}</div>
 				<div class="top-card-label">Relationships</div>
 			</mat-card>
 			<mat-card class="top-card">
-				<div class="top-card-value">{{ (catalog?.roles || []).length }}</div>
+				<div class="top-card-value">{{ (catalog.roles || []).length }}</div>
 				<div class="top-card-label">RLS Roles</div>
 			</mat-card>
 		</div>
@@ -94,6 +94,17 @@
 										<mat-option [value]="measure">{{ measure }}</mat-option>
 									}
 								</mat-autocomplete>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Sort by</mat-label>
+								<mat-select [formControl]="tableSort">
+									<mat-option value="name_asc">Name (A-Z)</mat-option>
+									<mat-option value="columns_desc">Columns (High to Low)</mat-option>
+									<mat-option value="columns_asc">Columns (Low to High)</mat-option>
+									<mat-option value="measures_desc">Measures (High to Low)</mat-option>
+									<mat-option value="measures_asc">Measures (Low to High)</mat-option>
+								</mat-select>
 							</mat-form-field>
 
 							<mat-checkbox [formControl]="showHiddenTables" class="filter-checkbox">Show hidden tables</mat-checkbox>
@@ -192,13 +203,18 @@
 			<!-- Measures Tab -->
 			<mat-tab label="Measures">
 				<div class="tab-content">
-					<div class="section-card">
+					<div class="section-card measures-explorer">
 						<h2>Measures</h2>
 
 						<div class="toolbar-grid top-space">
 							<mat-form-field appearance="outline" class="filter-field">
 								<mat-label>Search measure</mat-label>
-								<input matInput [formControl]="measureSearch" placeholder="Search by measure name..." />
+								<input matInput [formControl]="measureSearch" [matAutocomplete]="measureAuto" placeholder="Search by measure name..." />
+								<mat-autocomplete #measureAuto="matAutocomplete">
+									@for (name of filteredMeasureSuggestions; track name) {
+										<mat-option [value]="name">{{ name }}</mat-option>
+									}
+								</mat-autocomplete>
 								<mat-icon matSuffix>search</mat-icon>
 							</mat-form-field>
 							<mat-form-field appearance="outline" class="filter-field">
@@ -221,17 +237,134 @@
 							</mat-form-field>
 						</div>
 
-						<div class="data-table-wrap">
-							<table mat-table [dataSource]="filteredMeasures">
-								<ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Measure</th><td mat-cell *matCellDef="let row">{{ row.name }}</td></ng-container>
-								<ng-container matColumnDef="table_name"><th mat-header-cell *matHeaderCellDef>Table</th><td mat-cell *matCellDef="let row">{{ row.table_name }}</td></ng-container>
-								<ng-container matColumnDef="display_folder"><th mat-header-cell *matHeaderCellDef>Folder</th><td mat-cell *matCellDef="let row">{{ row.display_folder || '-' }}</td></ng-container>
-								<ng-container matColumnDef="format_string"><th mat-header-cell *matHeaderCellDef>Format</th><td mat-cell *matCellDef="let row">{{ row.format_string || '-' }}</td></ng-container>
-								<ng-container matColumnDef="is_hidden"><th mat-header-cell *matHeaderCellDef>Hidden</th><td mat-cell *matCellDef="let row">{{ row.is_hidden ? 'Yes' : 'No' }}</td></ng-container>
-								<tr mat-header-row *matHeaderRowDef="measureColumns"></tr>
-								<tr mat-row *matRowDef="let row; columns: measureColumns"></tr>
-							</table>
+						<div class="table-stats">
+							<span class="stat-badge">{{ filteredMeasures.length }} measures</span>
+							<span class="stat-badge">Page {{ measureCurrentPage }} / {{ measurePageNumbers.length || 1 }}</span>
+							@if (measureInsightsLoading) {
+								<span class="stat-badge">Loading measure insights...</span>
+							}
 						</div>
+
+						<div class="measure-cards-grid">
+							@for (measure of pagedFilteredMeasures; track measure.id) {
+								<article class="measure-card">
+									<header class="measure-card-head">
+										<div class="measure-name">{{ measure.name }}</div>
+										<div class="measure-meta-badges">
+											<span class="entity-chip table-chip">{{ measure.table_name }}</span>
+											<span class="entity-chip format-chip">{{ displayedFormatString(measure) }}</span>
+											@if (measure.display_folder) {
+												<span class="entity-chip folder-chip">{{ measure.display_folder }}</span>
+											}
+										</div>
+									</header>
+
+									<div class="measure-format-row formula-row">
+										<div class="format-label">Measure Formula</div>
+										<pre class="format-value">{{ displayedFormulaText(measure) }}</pre>
+										<div class="formula-actions">
+											@if (isFormulaLong(measure)) {
+												<button mat-button class="format-toggle-btn" (click)="toggleFormulaExpanded(measure)">
+													{{ isFormulaExpanded(measure) ? 'Show less' : 'Show more' }}
+												</button>
+											}
+											<button mat-stroked-button class="copy-formula-btn" (click)="copyMeasureFormula(measure)">
+												<mat-icon>content_copy</mat-icon>
+												Copy formula
+											</button>
+										</div>
+									</div>
+
+									<div class="measure-relations-grid">
+										<div class="relation-block">
+											<div class="relation-title">Columns used</div>
+											<div class="chip-list">
+												@for (column of visibleRelationItems(measure, 'columns'); track column) {
+													<span class="entity-chip column-chip">{{ column }}</span>
+												} @empty {
+													<span class="entity-chip empty-chip">No columns detected</span>
+												}
+											</div>
+											@if (hasMoreRelationItems(measure, 'columns')) {
+												<button mat-button class="relation-more-btn" (click)="toggleMeasureRelationExpanded(measure, 'columns')">
+													{{ isMeasureRelationExpanded(measure, 'columns') ? 'Show less' : 'Show more' }}
+												</button>
+											}
+										</div>
+
+										<div class="relation-block">
+											<div class="relation-title">Visuals using this measure</div>
+											<div class="chip-list">
+												@for (visual of visibleRelationItems(measure, 'visuals'); track visual) {
+													<span class="entity-chip visual-chip">{{ visual }}</span>
+												} @empty {
+													<span class="entity-chip empty-chip">Not used in visuals</span>
+												}
+											</div>
+											@if (hasMoreRelationItems(measure, 'visuals')) {
+												<button mat-button class="relation-more-btn" (click)="toggleMeasureRelationExpanded(measure, 'visuals')">
+													{{ isMeasureRelationExpanded(measure, 'visuals') ? 'Show less' : 'Show more' }}
+												</button>
+											}
+										</div>
+
+										<div class="relation-block">
+											<div class="relation-title">Depends on measures</div>
+											<div class="chip-list">
+												@for (dep of visibleRelationItems(measure, 'dependsOnMeasures'); track dep) {
+													<span class="entity-chip measure-chip">{{ dep }}</span>
+												} @empty {
+													<span class="entity-chip empty-chip">No measure dependency</span>
+												}
+											</div>
+											@if (hasMoreRelationItems(measure, 'dependsOnMeasures')) {
+												<button mat-button class="relation-more-btn" (click)="toggleMeasureRelationExpanded(measure, 'dependsOnMeasures')">
+													{{ isMeasureRelationExpanded(measure, 'dependsOnMeasures') ? 'Show less' : 'Show more' }}
+												</button>
+											}
+										</div>
+
+										<div class="relation-block">
+											<div class="relation-title">Used by measures</div>
+											<div class="chip-list">
+												@for (dep of visibleRelationItems(measure, 'usedByMeasures'); track dep) {
+													<span class="entity-chip measure-upstream-chip">{{ dep }}</span>
+												} @empty {
+													<span class="entity-chip empty-chip">No downstream measure</span>
+												}
+											</div>
+											@if (hasMoreRelationItems(measure, 'usedByMeasures')) {
+												<button mat-button class="relation-more-btn" (click)="toggleMeasureRelationExpanded(measure, 'usedByMeasures')">
+													{{ isMeasureRelationExpanded(measure, 'usedByMeasures') ? 'Show less' : 'Show more' }}
+												</button>
+											}
+										</div>
+									</div>
+								</article>
+							} @empty {
+								<div class="empty-measures-card">No measures found with current filters.</div>
+							}
+						</div>
+
+						@if (measurePageNumbers.length > 1) {
+							<div class="pagination-nav">
+								<button mat-icon-button (click)="goToMeasurePage(measureCurrentPage - 1)" [disabled]="measureCurrentPage === 1">
+									<mat-icon>chevron_left</mat-icon>
+								</button>
+								@for (page of measurePageNumbers; track page) {
+									<button
+										mat-stroked-button
+										(click)="goToMeasurePage(page)"
+										[class.page-btn-active]="measureCurrentPage === page"
+									>
+										{{ page }}
+									</button>
+								}
+								<button mat-icon-button (click)="goToMeasurePage(measureCurrentPage + 1)" [disabled]="measureCurrentPage === measurePageNumbers.length">
+									<mat-icon>chevron_right</mat-icon>
+								</button>
+							</div>
+						}
 					</div>
 				</div>
 			</mat-tab>
@@ -239,8 +372,12 @@
 			<!-- Relationships Tab -->
 			<mat-tab label="Relationships">
 				<div class="tab-content">
-					<div class="section-card">
+					<div class="section-card relationships-explorer">
 						<h2>Relationships</h2>
+						<div class="table-stats">
+							<span class="stat-badge">{{ filteredRelationships.length }} relationships</span>
+							<span class="stat-badge">Page {{ relationshipCurrentPage }} / {{ relationshipPageNumbers.length || 1 }}</span>
+						</div>
 
 						<div class="toolbar-grid top-space">
 							<mat-form-field appearance="outline" class="filter-field">
@@ -258,17 +395,74 @@
 							</mat-form-field>
 						</div>
 
-						<div class="data-table-wrap">
-							<table mat-table [dataSource]="filteredRelationships">
-								<ng-container matColumnDef="from"><th mat-header-cell *matHeaderCellDef>From</th><td mat-cell *matCellDef="let row">{{ row.from_table }}[{{ row.from_column }}]</td></ng-container>
-								<ng-container matColumnDef="to"><th mat-header-cell *matHeaderCellDef>To</th><td mat-cell *matCellDef="let row">{{ row.to_table }}[{{ row.to_column }}]</td></ng-container>
-								<ng-container matColumnDef="cardinality"><th mat-header-cell *matHeaderCellDef>Cardinality</th><td mat-cell *matCellDef="let row">{{ row.from_cardinality }} → {{ row.to_cardinality }}</td></ng-container>
-								<ng-container matColumnDef="cross_filter"><th mat-header-cell *matHeaderCellDef>Cross Filter</th><td mat-cell *matCellDef="let row">{{ row.cross_filter }}</td></ng-container>
-								<ng-container matColumnDef="is_active"><th mat-header-cell *matHeaderCellDef>Active</th><td mat-cell *matCellDef="let row">{{ row.is_active ? 'Yes' : 'No' }}</td></ng-container>
+						<div class="data-table-wrap relationships-table-wrap">
+							<table mat-table [dataSource]="pagedFilteredRelationships" class="relationships-table">
+								<ng-container matColumnDef="from">
+									<th mat-header-cell *matHeaderCellDef>From</th>
+									<td mat-cell *matCellDef="let row">
+										<div class="rel-endpoint">
+											<div class="rel-table-name">{{ row.from_table }}</div>
+											<div class="rel-column-name">{{ row.from_column }}</div>
+										</div>
+									</td>
+								</ng-container>
+								<ng-container matColumnDef="to">
+									<th mat-header-cell *matHeaderCellDef>To</th>
+									<td mat-cell *matCellDef="let row">
+										<div class="rel-endpoint">
+											<div class="rel-table-name">{{ row.to_table }}</div>
+											<div class="rel-column-name">{{ row.to_column }}</div>
+										</div>
+									</td>
+								</ng-container>
+								<ng-container matColumnDef="cardinality">
+									<th mat-header-cell *matHeaderCellDef>Cardinality</th>
+									<td mat-cell *matCellDef="let row">
+										<div class="rel-cardinality">
+											<span class="entity-chip cardinality-chip">{{ row.from_cardinality || '?' }}</span>
+											<mat-icon>arrow_forward</mat-icon>
+											<span class="entity-chip cardinality-chip">{{ row.to_cardinality || '?' }}</span>
+										</div>
+									</td>
+								</ng-container>
+								<ng-container matColumnDef="cross_filter">
+									<th mat-header-cell *matHeaderCellDef>Cross Filter</th>
+									<td mat-cell *matCellDef="let row">
+										<span class="entity-chip cross-filter-chip">{{ row.cross_filter || 'Single' }}</span>
+									</td>
+								</ng-container>
+								<ng-container matColumnDef="is_active">
+									<th mat-header-cell *matHeaderCellDef>Status</th>
+									<td mat-cell *matCellDef="let row">
+										<span class="entity-chip" [class.rel-active-chip]="row.is_active" [class.rel-inactive-chip]="!row.is_active">
+											{{ row.is_active ? 'Active' : 'Inactive' }}
+										</span>
+									</td>
+								</ng-container>
 								<tr mat-header-row *matHeaderRowDef="relationshipColumns"></tr>
 								<tr mat-row *matRowDef="let row; columns: relationshipColumns"></tr>
 							</table>
 						</div>
+
+						@if (relationshipPageNumbers.length > 1) {
+							<div class="pagination-nav">
+								<button mat-icon-button (click)="goToRelationshipPage(relationshipCurrentPage - 1)" [disabled]="relationshipCurrentPage === 1">
+									<mat-icon>chevron_left</mat-icon>
+								</button>
+								@for (page of relationshipPageNumbers; track page) {
+									<button
+										mat-stroked-button
+										(click)="goToRelationshipPage(page)"
+										[class.page-btn-active]="relationshipCurrentPage === page"
+									>
+										{{ page }}
+									</button>
+								}
+								<button mat-icon-button (click)="goToRelationshipPage(relationshipCurrentPage + 1)" [disabled]="relationshipCurrentPage === relationshipPageNumbers.length">
+									<mat-icon>chevron_right</mat-icon>
+								</button>
+							</div>
+						}
 					</div>
 				</div>
 			</mat-tab>
@@ -303,6 +497,253 @@
 						</mat-accordion>
 					</div>
 				</div>
+			</mat-tab>
+
+			<!-- Partitions Tab -->
+			<mat-tab label="Partitions">
+				<div class="tab-content">
+					<div class="section-card">
+						<h2>M Imports Explorer</h2>
+						<div class="table-stats">
+							<span class="stat-badge">{{ totalPartitions }} imports</span>
+							<span class="stat-badge">{{ filteredPartitionRows.length }} filtered</span>
+							<button mat-stroked-button class="ghost-cta" (click)="loadPartitions()">
+								<mat-icon>refresh</mat-icon>
+								Refresh
+							</button>
+						</div>
+
+						<div class="toolbar-grid top-space">
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Search M imports</mat-label>
+								<input matInput [formControl]="partitionSearch" placeholder="Table, source, SQL, transformation..." />
+								<mat-icon matSuffix>search</mat-icon>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Source</mat-label>
+								<mat-select [formControl]="partitionSource">
+									<mat-option value="all">All sources</mat-option>
+									@for (source of partitionSources; track source) {
+										<mat-option [value]="source">{{ source }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="filter-field">
+								<mat-label>Source Project</mat-label>
+								<mat-select [formControl]="partitionProject">
+									<mat-option value="all">All projects</mat-option>
+									@for (project of partitionProjects; track project) {
+										<mat-option [value]="project">{{ project }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						@if (partitionsLoading) {
+							<div class="lineage-loading">
+								<mat-icon>hourglass_empty</mat-icon>
+								<p>Loading M imports...</p>
+							</div>
+						} @else {
+							<div class="m-imports-table-wrap">
+								<table class="m-imports-table">
+									<thead>
+										<tr>
+											<th>Table</th>
+											<th>Source</th>
+											<th>Source Project</th>
+											<th>Source Schema</th>
+											<th>Source Object</th>
+											<th>Requete SQL</th>
+											<th>Transformations M</th>
+											<th>Nb etapes</th>
+											<th>Requete M complete</th>
+										</tr>
+									</thead>
+									<tbody>
+										@for (row of pagedPartitionRows; track row.table + row.partitionName + row.sourceObject) {
+											<tr>
+												<td class="cell-strong">{{ row.table }}</td>
+												<td><span class="source-pill" [ngClass]="partitionSourceClass(row)">{{ row.source }}</span></td>
+												<td>{{ row.sourceProject || row.bqProject }}</td>
+												<td>{{ row.sourceDataset || row.bqDataset }}</td>
+												<td>{{ row.sourceObject || row.bqTable }}</td>
+												<td><pre class="m-sql">{{ row.sqlQuery }}</pre></td>
+												<td>{{ row.mTransformations }}</td>
+												<td>{{ row.mStepCount || '—' }}</td>
+												<td>
+													<div class="m-query-cell">
+														<pre class="m-query">{{ mQueryPreview(row.fullMQuery || '') }}</pre>
+														@if (hasRenderableMQuery(row.fullMQuery)) {
+															<button mat-stroked-button class="m-query-view-btn" (click)="openMQueryModal(row)">
+																<mat-icon>open_in_new</mat-icon>
+																Voir plus
+															</button>
+														}
+													</div>
+												</td>
+											</tr>
+										} @empty {
+											<tr>
+												<td colspan="9" class="empty-cell">No M imports found for this project.</td>
+											</tr>
+										}
+									</tbody>
+								</table>
+							</div>
+
+							@if (partitionPageNumbers.length > 1) {
+								<div class="pagination-nav">
+									<button mat-icon-button (click)="goToPartitionPage(partitionCurrentPage - 1)" [disabled]="partitionCurrentPage === 1">
+										<mat-icon>chevron_left</mat-icon>
+									</button>
+									@for (page of partitionPageNumbers; track page) {
+										<button
+											mat-stroked-button
+											(click)="goToPartitionPage(page)"
+											[class.page-btn-active]="partitionCurrentPage === page"
+										>
+											{{ page }}
+										</button>
+									}
+									<button mat-icon-button (click)="goToPartitionPage(partitionCurrentPage + 1)" [disabled]="partitionCurrentPage === partitionPageNumbers.length">
+										<mat-icon>chevron_right</mat-icon>
+									</button>
+								</div>
+							}
+
+							@if (mQueryModalOpen) {
+								<div class="m-query-modal-backdrop" (click)="closeMQueryModal()">
+									<div class="m-query-modal" (click)="$event.stopPropagation()">
+										<div class="m-query-modal-head">
+											<div class="m-query-modal-title">{{ mQueryModalTitle }}</div>
+											<div class="m-query-modal-actions">
+												<button mat-stroked-button (click)="copyMQueryModalContent()">
+													<mat-icon>content_copy</mat-icon>
+													Copier
+												</button>
+												<button mat-stroked-button (click)="closeMQueryModal()">
+													<mat-icon>close</mat-icon>
+													Fermer
+												</button>
+											</div>
+										</div>
+										<pre class="m-query-modal-content">{{ mQueryModalContent }}</pre>
+									</div>
+								</div>
+							}
+						}
+					</div>
+				</div>
+			</mat-tab>
+
+			<!-- Lineage Tab -->
+			<mat-tab label="Lineage">
+				<ng-template matTabContent>
+					<div class="tab-content lineage-tab">
+							<div class="lineage-main">
+								<div class="lineage-head">
+									<h2>Visual Lineage</h2>
+								</div>
+
+								<div class="lineage-tabs">
+									<button class="lineage-tab-btn" [class.active]="lineageMode === 'full'" (click)="switchLineageMode('full')">Full Lineage</button>
+									<button class="lineage-tab-btn" [class.active]="lineageMode === 'visual'" (click)="switchLineageMode('visual')">Visual Trace</button>
+									<button class="lineage-tab-btn" [class.active]="lineageMode === 'impact'" (click)="switchLineageMode('impact')">Impact Analysis</button>
+									<button class="lineage-tab-btn" [class.active]="lineageMode === 'column'" (click)="switchLineageMode('column')">Column Impact</button>
+								</div>
+
+								@if (lineageMode === 'visual') {
+									<div class="lineage-controls">
+										<label>Select a visual:</label>
+										<mat-form-field appearance="outline" class="lineage-filter-field">
+											<mat-select [(value)]="selectedVisual" (selectionChange)="loadVisualTrace()">
+												@for (v of lineageVisuals; track v) {
+													<mat-option [value]="v">{{ v.page }} — {{ v.name }}</mat-option>
+												}
+											</mat-select>
+										</mat-form-field>
+										<button mat-flat-button color="primary" class="lineage-action-btn" (click)="loadVisualTrace()" [disabled]="!selectedVisual">
+											<mat-icon>refresh</mat-icon> Refresh Trace
+										</button>
+									</div>
+								}
+
+								@if (lineageMode === 'impact') {
+									<div class="lineage-controls">
+										<label>Select a measure:</label>
+										<mat-form-field appearance="outline" class="lineage-filter-field">
+											<mat-select [(value)]="selectedMeasure" (selectionChange)="loadMeasureImpact()">
+												@for (m of lineageMeasures; track m) {
+													<mat-option [value]="m">{{ m }}</mat-option>
+												}
+											</mat-select>
+										</mat-form-field>
+										<button mat-flat-button color="primary" class="lineage-action-btn" (click)="loadMeasureImpact()" [disabled]="!selectedMeasure">
+											<mat-icon>refresh</mat-icon> Refresh Trace
+										</button>
+									</div>
+								}
+
+								@if (lineageMode === 'column') {
+									<div class="lineage-controls">
+										<label>Table:</label>
+										<mat-form-field appearance="outline" class="lineage-filter-field">
+											<mat-select [(value)]="selectedLineageTable" (selectionChange)="onLineageTableChange(true)">
+												@for (t of lineageTables; track t) {
+													<mat-option [value]="t">{{ t }}</mat-option>
+												}
+											</mat-select>
+										</mat-form-field>
+										<label>Column:</label>
+										<mat-form-field appearance="outline" class="lineage-filter-field">
+											<mat-select [(value)]="selectedColumn" [disabled]="!selectedLineageTable" (selectionChange)="loadColumnImpact()">
+												@for (c of lineageColumns; track c) {
+													<mat-option [value]="c">{{ c }}</mat-option>
+												}
+											</mat-select>
+										</mat-form-field>
+										<button mat-flat-button class="lineage-impact-btn lineage-action-btn" (click)="loadColumnImpact()" [disabled]="!selectedColumn">
+											<mat-icon>refresh</mat-icon> Refresh Trace
+										</button>
+									</div>
+								}
+
+								<div class="lineage-container" #lineageContainer>
+									@if (lineageLoading) {
+										<div class="lineage-loading">
+											<mat-icon>hourglass_empty</mat-icon>
+											<p>Loading lineage data...</p>
+										</div>
+									}
+									@if (!lineageLoading && lineageNodes.length === 0 && lineageMode === 'full') {
+										<div class="lineage-empty">
+											<mat-icon>account_tree</mat-icon>
+											<p>No lineage data available. Click "Full Lineage" to load or run analysis first.</p>
+										</div>
+									}
+									@if (!lineageLoading && lineageNodes.length > 0) {
+										<app-lineage-renderer
+											[nodes]="lineageNodes"
+											[edges]="lineageEdges"
+											[zoom]="lineageZoom"
+											[recenterToken]="lineageRecenterToken"
+										></app-lineage-renderer>
+									}
+
+									<div class="lineage-zoom-controls">
+										<button mat-icon-button (click)="zoomIn()"><mat-icon>add</mat-icon></button>
+										<button mat-icon-button (click)="zoomOut()"><mat-icon>remove</mat-icon></button>
+										<button mat-icon-button (click)="toggleLineageFullscreen()"><mat-icon>fullscreen</mat-icon></button>
+										<button mat-icon-button (click)="resetZoom()"><mat-icon>center_focus_strong</mat-icon></button>
+										<button mat-icon-button (click)="exportLineageSvg()"><mat-icon>download</mat-icon></button>
+									</div>
+								</div>
+							</div>
+					</div>
+				</ng-template>
 			</mat-tab>
 		</mat-tab-group>
 	</section>

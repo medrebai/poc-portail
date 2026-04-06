@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Project } from '../shared/models/api.models';
+import { Project, ScoreResponse, ScoreSummary } from '../shared/models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -49,5 +49,26 @@ export class ProjectService {
 
   getHealthRadar(projectId: number): Observable<{ axes: Array<{ axis: string; score: number; violations: number }> }> {
     return this.http.get<{ axes: Array<{ axis: string; score: number; violations: number }> }>(`${this.apiBase}/${projectId}/health-radar`);
+  }
+
+  getScores(projectId: number): Observable<ScoreResponse> {
+    return this.http.get<ScoreResponse>(`${this.apiBase}/${projectId}/scores`);
+  }
+
+  getScoreSummary(projectId: number): Observable<ScoreSummary> {
+    return this.http.get<ScoreSummary>(`${this.apiBase}/${projectId}/scores/summary`);
+  }
+
+  updateDatasetSize(projectId: number, value: string): Observable<{ project_id: number; dataset_size: string | null }> {
+    return this.http.put<{ project_id: number; dataset_size: string | null }>(
+      `${this.apiBase}/${projectId}/dataset-size`,
+      { value }
+    );
+  }
+
+  getDatasetSizeHistory(projectId: number, limit = 100): Observable<{ project_id: number; history: Array<{ value: string | null; created_at: string | null }> }> {
+    return this.http.get<{ project_id: number; history: Array<{ value: string | null; created_at: string | null }> }>(
+      `${this.apiBase}/${projectId}/dataset-size/history?limit=${limit}`
+    );
   }
 }
