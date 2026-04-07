@@ -150,21 +150,21 @@ export class LineageRendererComponent implements OnChanges, AfterViewInit {
       const dependentMeasures = this.nodes.filter((n) => n.type === 'measure' && n.metadata?.['impactRole'] === 'dependent');
       const visuals = this.nodes.filter((n) => n.type === 'visual');
 
-      if (sourceMeasures.length > 0) {
-        activeColumns.push({
-          type: 'measure',
-          nodes: sourceMeasures,
-          totalCount: sourceMeasures.length,
-          label: `Source Measure (${sourceMeasures.length})`,
-          color: TYPE_COLORS['measure'],
-        });
-      }
       if (dependentMeasures.length > 0) {
         activeColumns.push({
           type: 'measure',
           nodes: dependentMeasures,
           totalCount: dependentMeasures.length,
           label: `Dependent Measures (${dependentMeasures.length})`,
+          color: TYPE_COLORS['measure'],
+        });
+      }
+      if (sourceMeasures.length > 0) {
+        activeColumns.push({
+          type: 'measure',
+          nodes: sourceMeasures,
+          totalCount: sourceMeasures.length,
+          label: `Source Measure (${sourceMeasures.length})`,
           color: TYPE_COLORS['measure'],
         });
       }

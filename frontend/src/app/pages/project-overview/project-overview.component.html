@@ -16,7 +16,7 @@
 			</div>
 			<div class="project-header-actions">
 				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
-				<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']">View documentation</a>
+				<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']">View documentation</a>
 			</div>
 		</mat-card>
 
@@ -34,10 +34,21 @@
 		</div>
 
 		<div class="nav-tabs">
-			<a class="tab active" [routerLink]="['/projects', projectId]">Overview</a>
-			<a class="tab" [routerLink]="['/projects', projectId, 'bpa']">Model</a>
-			<a class="tab" [routerLink]="['/projects', projectId, 'inspector']">Visual</a>
-			<a class="tab" [routerLink]="['/projects', projectId, 'catalog']">Documentation</a>
+			<div class="tab-group">
+				<span class="group-label">Audit</span>
+				<div class="group-tabs">
+					<a class="tab active" [routerLink]="['/projects', projectId, 'audit', 'overview']">Overview</a>
+					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'model']">Model</a>
+					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'visual']">Visual</a>
+					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'optimization']">Optimization</a>
+				</div>
+			</div>
+			<div class="tab-group doc-group">
+				<span class="group-label">Documentation</span>
+				<div class="group-tabs">
+					<a class="tab" [routerLink]="['/projects', projectId, 'documentation']">Report Catalog</a>
+				</div>
+			</div>
 		</div>
 
 		<div class="top-cards-grid">
@@ -61,10 +72,112 @@
 				<div class="top-card-value">{{ project.visual_count || getPageCount() }}</div>
 				<div class="top-card-label">Pages</div>
 			</mat-card>
-			<mat-card class="top-card">
-				<div class="top-card-value">{{ project.data_source_count || 0 }}</div>
-				<div class="top-card-label">Data Sources</div>
-			</mat-card>
+		</div>
+
+		<div class="overview-split overview-priority-row">
+			<section id="quality-metrics" class="section-card quality-metrics-card">
+				<h2>Quality Metrics</h2>
+				<div class="stats-grid">
+					<div class="stat-card">
+						<div class="stat-value">{{ qualityScore }}</div>
+						<div class="stat-label">Quality Score / 100</div>
+						<div class="stat-subtext">{{ qualityScoreBreakdown }}</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-value">{{ totalChecks }}</div>
+						<div class="stat-label">Rules Evaluated</div>
+						<div class="stat-subtext">{{ evaluatedRuleBreakdown }}</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-value">{{ bpaViolationCount }}</div>
+						<div class="stat-label">Semantic Model Violations</div>
+						<div class="stat-subtext">{{ semanticModelBreakdown }}</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-value">{{ inspectorFailCount }}</div>
+						<div class="stat-label">Visual Rule Failures</div>
+						<div class="stat-subtext">{{ visualBreakdown }}</div>
+					</div>
+				</div>
+
+				<mat-card class="split-card">
+					<h3>Score Breakdown</h3>
+					<ul>
+						<li><span>Model score ({{ modelWeightPercent }}%)</span><strong>{{ modelScore | number:'1.0-2' }}</strong></li>
+						<li><span>Visual score ({{ visualWeightPercent }}%)</span><strong>{{ visualScore | number:'1.0-2' }}</strong></li>
+						<li><span>Weighted model contribution</span><strong>{{ modelWeightedContribution | number:'1.0-2' }}</strong></li>
+						<li><span>Weighted visual contribution</span><strong>{{ visualWeightedContribution | number:'1.0-2' }}</strong></li>
+						<li><span>Overall score</span><strong>{{ qualityScore }}/100 ({{ overallGrade }})</strong></li>
+					</ul>
+				</mat-card>
+			</section>
+
+			<section class="section-card quick-actions-card">
+				<h2>Quick Actions</h2>
+				<div class="quick-actions">
+					<a mat-stroked-button [routerLink]="['/projects', projectId, 'audit', 'model']" class="action-btn">
+						<mat-icon>rule</mat-icon> View BPA Report
+					</a>
+					<a mat-stroked-button [routerLink]="['/projects', projectId, 'audit', 'visual']" class="action-btn">
+						<mat-icon>visibility</mat-icon> View Inspector
+					</a>
+					<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']" class="action-btn">
+						<mat-icon>menu_book</mat-icon> View Report Catalog
+					</a>
+				</div>
+
+				<mat-card class="split-card compact-radar-card">
+					<h3>Model Health Radar</h3>
+					@if (radarAxes.length) {
+						<div class="radar-container compact-radar">
+							<svg viewBox="0 0 300 300" class="radar-svg">
+								@for (ring of [1, 0.75, 0.5, 0.25]; track ring) {
+									<polygon
+										[attr.points]="getPolygonPoints(ring)"
+										class="radar-ring"
+									/>
+								}
+								@for (i of axisIndices; track i) {
+									<line
+										x1="150" y1="150"
+										[attr.x2]="getAxisX(i)" [attr.y2]="getAxisY(i)"
+										class="radar-axis-line"
+									/>
+								}
+								<polygon
+									[attr.points]="dataPolygonPoints"
+									class="radar-data"
+								/>
+								@for (point of radarPoints; track point.axis) {
+									<circle
+										[attr.cx]="point.x" [attr.cy]="point.y"
+										r="4"
+										class="radar-dot"
+									/>
+								}
+								@for (label of radarLabels; track label.axis) {
+									<text
+										[attr.x]="label.x" [attr.y]="label.y"
+										class="radar-label"
+										text-anchor="middle"
+									>{{ label.axis }}</text>
+								}
+							</svg>
+						</div>
+						<div class="radar-legend compact-legend">
+							@for (ax of radarAxes; track ax.axis) {
+								<div class="radar-legend-item" [matTooltip]="getAxisDescription(ax.axis)" matTooltipPosition="above" matTooltipShowDelay="150">
+									<span class="radar-legend-dot" [class.good]="ax.score >= 80" [class.warn]="ax.score >= 50 && ax.score < 80" [class.bad]="ax.score < 50"></span>
+									<span class="radar-legend-name">{{ ax.axis }}</span>
+									<span class="radar-legend-score">{{ ax.score }}%</span>
+								</div>
+							}
+						</div>
+					} @else {
+						<p class="empty-radar">Run analysis to see the model health radar.</p>
+					}
+				</mat-card>
+			</section>
 		</div>
 
 		<section class="section-card score-summary-section">
@@ -83,14 +196,14 @@
 					<div class="pillar-row">
 						<div class="pillar-head">
 							<span>Semantic Model (60%)</span>
-							<strong>{{ modelScore | number:'1.0-2' }}</strong>
+							<strong>{{ modelGrade }} ({{ modelScore | number:'1.0-2' }}%)</strong>
 						</div>
 						<mat-progress-bar mode="determinate" [value]="modelScore"></mat-progress-bar>
 					</div>
 					<div class="pillar-row">
 						<div class="pillar-head">
 							<span>Visual Quality (40%)</span>
-							<strong>{{ visualScore | number:'1.0-2' }}</strong>
+							<strong>{{ visualGrade }} ({{ visualScore | number:'1.0-2' }}%)</strong>
 						</div>
 						<mat-progress-bar mode="determinate" [value]="visualScore"></mat-progress-bar>
 					</div>
@@ -113,7 +226,7 @@
 							<div class="category-drilldowns">
 								<a
 									class="category-link"
-									[routerLink]="['/projects', projectId, 'bpa']"
+									[routerLink]="['/projects', projectId, 'audit', 'model']"
 									[queryParams]="bpaDrilldownQueryParams(item.label)"
 								>
 									View category
@@ -123,7 +236,7 @@
 										<a
 											class="severity-link"
 											[class.empty]="drill.count === 0"
-											[routerLink]="['/projects', projectId, 'bpa']"
+											[routerLink]="['/projects', projectId, 'audit', 'model']"
 											[queryParams]="bpaDrilldownQueryParams(item.label, drill.severity)"
 										>
 											{{ drill.label }} ({{ drill.count }})
@@ -136,154 +249,5 @@
 				}
 			</div>
 		</section>
-
-		<div class="model-layout">
-			<aside class="left-nav">
-				<button type="button" (click)="scrollTo('project-info')">Project Info</button>
-				<button type="button" (click)="scrollTo('model-health')">Model Health</button>
-				<button type="button" (click)="scrollTo('quality-metrics')">Quality Metrics</button>
-			</aside>
-
-			<div class="model-content">
-				<section id="project-info" class="section-card">
-					<h2>Project Information</h2>
-					<div class="overview-split">
-						<mat-card class="split-card">
-							<h3>{{ project.name }}</h3>
-							<ul>
-								<li><span>Status</span><strong><app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge></strong></li>
-								<li><span>Created</span><strong>{{ project.created_at ? (project.created_at | date:'short') : 'N/A' }}</strong></li>
-								<li><span>Last Update</span><strong>{{ project.updated_at ? (project.updated_at | date:'short') : 'N/A' }}</strong></li>
-								<li><span>Model Objects</span><strong>{{ totalModelObjects }}</strong></li>
-							</ul>
-						</mat-card>
-
-						<mat-card class="split-card">
-							<h3>Quick Actions</h3>
-							<div class="quick-actions">
-								<a mat-stroked-button [routerLink]="['/projects', projectId, 'bpa']" class="action-btn">
-									<mat-icon>rule</mat-icon> View BPA Report
-								</a>
-								<a mat-stroked-button [routerLink]="['/projects', projectId, 'inspector']" class="action-btn">
-									<mat-icon>visibility</mat-icon> View Inspector
-								</a>
-								<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']" class="action-btn">
-									<mat-icon>menu_book</mat-icon> View Catalog
-								</a>
-							</div>
-						</mat-card>
-					</div>
-				</section>
-
-				<section id="model-health" class="section-card">
-					<h2>Model Health Radar</h2>
-					@if (radarAxes.length) {
-						<div class="radar-container">
-							<svg viewBox="0 0 300 300" class="radar-svg">
-								<!-- Background rings -->
-								@for (ring of [1, 0.75, 0.5, 0.25]; track ring) {
-									<polygon
-										[attr.points]="getPolygonPoints(ring)"
-										class="radar-ring"
-									/>
-								}
-								<!-- Axis lines -->
-								@for (i of axisIndices; track i) {
-									<line
-										x1="150" y1="150"
-										[attr.x2]="getAxisX(i)" [attr.y2]="getAxisY(i)"
-										class="radar-axis-line"
-									/>
-								}
-								<!-- Data polygon -->
-								<polygon
-									[attr.points]="dataPolygonPoints"
-									class="radar-data"
-								/>
-								<!-- Data points -->
-								@for (point of radarPoints; track point.axis) {
-									<circle
-										[attr.cx]="point.x" [attr.cy]="point.y"
-										r="4"
-										class="radar-dot"
-									/>
-								}
-								<!-- Axis labels -->
-								@for (label of radarLabels; track label.axis) {
-									<text
-										[attr.x]="label.x" [attr.y]="label.y"
-										class="radar-label"
-										text-anchor="middle"
-									>{{ label.axis }}</text>
-								}
-							</svg>
-						</div>
-						<div class="radar-legend">
-							@for (ax of radarAxes; track ax.axis) {
-								<div class="radar-legend-item" [matTooltip]="getAxisDescription(ax.axis)" matTooltipPosition="above" matTooltipShowDelay="150">
-									<span class="radar-legend-dot" [class.good]="ax.score >= 80" [class.warn]="ax.score >= 50 && ax.score < 80" [class.bad]="ax.score < 50"></span>
-									<span class="radar-legend-name">{{ ax.axis }}</span>
-									<span class="radar-legend-score">{{ ax.score }}%</span>
-								</div>
-							}
-						</div>
-					} @else {
-						<p class="empty-radar">Run analysis to see the model health radar.</p>
-					}
-				</section>
-
-				<section id="quality-metrics" class="section-card">
-					<h2>Quality Metrics</h2>
-					<div class="stats-grid">
-						<div class="stat-card">
-							<div class="stat-value">{{ qualityScore }}</div>
-							<div class="stat-label">Quality Score / 100</div>
-							<div class="stat-subtext">{{ qualityScoreBreakdown }}</div>
-						</div>
-						<div class="stat-card">
-							<div class="stat-value">{{ totalChecks }}</div>
-							<div class="stat-label">Rules Evaluated</div>
-							<div class="stat-subtext">{{ evaluatedRuleBreakdown }}</div>
-						</div>
-						<div class="stat-card">
-							<div class="stat-value">{{ bpaViolationCount }}</div>
-							<div class="stat-label">Semantic Model Violations</div>
-							<div class="stat-subtext">{{ semanticModelBreakdown }}</div>
-						</div>
-						<div class="stat-card">
-							<div class="stat-value">{{ inspectorFailCount }}</div>
-							<div class="stat-label">Visual Rule Failures</div>
-							<div class="stat-subtext">{{ visualBreakdown }}</div>
-						</div>
-					</div>
-
-					<div class="overview-split">
-						<mat-card class="split-card data-sources-card">
-							<h3>Data Sources</h3>
-							<p class="data-sources-summary">{{ project.data_source_count || 0 }} source{{ (project.data_source_count || 0) !== 1 ? 's' : '' }} connected</p>
-							<div class="data-source-pills">
-								@for (source of (project.data_sources || []); track source) {
-									<span class="data-source-pill">{{ source }}</span>
-								}
-								@if (!(project.data_sources || []).length) {
-									<span class="data-source-empty">No data sources found</span>
-								}
-							</div>
-						</mat-card>
-
-						<mat-card class="split-card">
-							<h3>Score Breakdown</h3>
-							<ul>
-								<li><span>Model score ({{ modelWeightPercent }}%)</span><strong>{{ modelScore | number:'1.0-2' }}</strong></li>
-								<li><span>Visual score ({{ visualWeightPercent }}%)</span><strong>{{ visualScore | number:'1.0-2' }}</strong></li>
-								<li><span>Weighted model contribution</span><strong>{{ modelWeightedContribution | number:'1.0-2' }}</strong></li>
-								<li><span>Weighted visual contribution</span><strong>{{ visualWeightedContribution | number:'1.0-2' }}</strong></li>
-								<li><span>Overall score</span><strong>{{ qualityScore }}/100 ({{ overallGrade }})</strong></li>
-							</ul>
-						</mat-card>
-					</div>
-				</section>
-			</div>
-		</div>
 	</section>
 }

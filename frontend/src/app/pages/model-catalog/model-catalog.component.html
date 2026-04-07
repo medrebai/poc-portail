@@ -16,7 +16,7 @@
 			</div>
 			<div class="project-header-actions">
 				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
-				<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']">View documentation</a>
+				<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']">View documentation</a>
 			</div>
 		</mat-card>
 
@@ -32,10 +32,24 @@
 		</div>
 
 		<div class="nav-tabs">
-			<a class="tab" [routerLink]="['/projects', projectId]">Overview</a>
-			<a class="tab" [routerLink]="['/projects', projectId, 'bpa']">Model</a>
-			<a class="tab" [routerLink]="['/projects', projectId, 'inspector']">Visual</a>
-			<a class="tab active" [routerLink]="['/projects', projectId, 'catalog']">Documentation</a>
+			<div class="tab-group">
+				<span class="group-label">Audit</span>
+				<div class="group-tabs">
+					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'overview']">Overview</a>
+					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'model']">Model</a>
+					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'visual']">Visual</a>
+					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'optimization']">Optimization</a>
+				</div>
+			</div>
+			<div class="tab-group doc-group">
+				<span class="group-label">Documentation</span>
+				<div class="group-tabs">
+					<a class="tab active report-catalog-tab" [routerLink]="['/projects', projectId, 'documentation']">
+						<mat-icon>menu_book</mat-icon>
+						<span>Report Catalog</span>
+					</a>
+				</div>
+			</div>
 		</div>
 
 		<!-- Top Stats Cards -->
@@ -63,6 +77,81 @@
 		</div>
 
 		<mat-tab-group>
+			<mat-tab label="Overview">
+				<div class="tab-content">
+					<div class="section-card documentation-overview-section">
+						<h2>Documentation Overview</h2>
+
+						<div class="top-cards-grid overview-cards-grid">
+							<mat-card class="top-card">
+								<div class="top-card-value">{{ project.table_count || (catalog.tables || []).length }}</div>
+								<div class="top-card-label">Tables</div>
+							</mat-card>
+							<mat-card class="top-card">
+								<div class="top-card-value">{{ project.column_count || 0 }}</div>
+								<div class="top-card-label">Columns</div>
+							</mat-card>
+							<mat-card class="top-card">
+								<div class="top-card-value">{{ project.measure_count || allMeasures.length }}</div>
+								<div class="top-card-label">Measures</div>
+							</mat-card>
+							<mat-card class="top-card">
+								<div class="top-card-value">{{ project.relationship_count || (catalog.relationships || []).length }}</div>
+								<div class="top-card-label">Relationships</div>
+							</mat-card>
+							<mat-card class="top-card">
+								<div class="top-card-value">{{ project.visual_count || 0 }}</div>
+								<div class="top-card-label">Pages</div>
+							</mat-card>
+							<mat-card class="top-card">
+								<div class="top-card-value">{{ project.data_source_count || 0 }}</div>
+								<div class="top-card-label">Data Sources</div>
+							</mat-card>
+						</div>
+
+						<div class="overview-split">
+							<mat-card class="split-card">
+								<h3>Project Information</h3>
+								<ul>
+									<li><span>Name</span><strong>{{ project.name }}</strong></li>
+									<li><span>Status</span><strong><app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge></strong></li>
+									<li><span>Created</span><strong>{{ project.created_at ? (project.created_at | date:'short') : 'N/A' }}</strong></li>
+									<li><span>Last Update</span><strong>{{ project.updated_at ? (project.updated_at | date:'short') : 'N/A' }}</strong></li>
+								</ul>
+							</mat-card>
+
+							<mat-card class="split-card">
+								<h3>Quick Actions</h3>
+								<div class="quick-actions">
+									<a mat-stroked-button [routerLink]="['/projects', projectId, 'audit', 'model']" class="action-btn">
+										<mat-icon>rule</mat-icon> View BPA Report
+									</a>
+									<a mat-stroked-button [routerLink]="['/projects', projectId, 'audit', 'visual']" class="action-btn">
+										<mat-icon>visibility</mat-icon> View Inspector
+									</a>
+									<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']" class="action-btn">
+										<mat-icon>menu_book</mat-icon> View Report Catalog
+									</a>
+								</div>
+							</mat-card>
+						</div>
+
+						<mat-card class="split-card data-sources-card">
+							<h3>Data Sources</h3>
+							<p class="data-sources-summary">{{ project.data_source_count || 0 }} source{{ (project.data_source_count || 0) !== 1 ? 's' : '' }} connected</p>
+							<div class="data-source-pills">
+								@for (source of (project.data_sources || []); track source) {
+									<span class="data-source-pill">{{ source }}</span>
+								}
+								@if (!(project.data_sources || []).length) {
+									<span class="data-source-empty">No data sources found</span>
+								}
+							</div>
+						</mat-card>
+					</div>
+				</div>
+			</mat-tab>
+
 			<!-- Tables Tab -->
 			<mat-tab label="Tables">
 				<div class="tab-content">
@@ -472,29 +561,47 @@
 				<div class="tab-content">
 					<div class="section-card">
 						<h2>RLS (Row-Level Security) Roles</h2>
+						<div class="table-stats">
+							<span class="stat-badge">{{ roles.length }} role{{ roles.length !== 1 ? 's' : '' }}</span>
+						</div>
 
-						<mat-accordion class="roles-accordion">
-							@for (role of roles; track role.id) {
-								<mat-expansion-panel>
-									<mat-expansion-panel-header>
-										<div class="panel-header-wrap">
-											<div class="panel-title-line">
-												<span class="role-name">{{ role.name }}</span>
-											</div>
-											<div class="panel-desc-line">
-												{{ role.filters.length }} filters
-											</div>
-										</div>
-									</mat-expansion-panel-header>
-									@for (filter of role.filters; track filter.table + filter.expression) {
-										<div class="role-filter">
-											<div class="filter-table">{{ filter.table }}</div>
-											<pre class="filter-expression">{{ filter.expression }}</pre>
-										</div>
-									}
-								</mat-expansion-panel>
-							}
-						</mat-accordion>
+						@if (roles.length) {
+							<div class="rls-table-wrap">
+								<table class="rls-table">
+									<thead>
+										<tr>
+											<th>Role</th>
+											<th>Table</th>
+											<th>Filter Expression</th>
+										</tr>
+									</thead>
+									<tbody>
+										@for (role of roles; track role.id) {
+											@if (role.filters.length) {
+												@for (filter of role.filters; track filter.table + '::' + filter.expression + '::' + $index) {
+													<tr>
+														<td><span class="role-cell-chip">{{ role.name }}</span></td>
+														<td class="role-table-cell">{{ filter.table }}</td>
+														<td><pre class="role-expression-cell">{{ filter.expression }}</pre></td>
+													</tr>
+												}
+											} @else {
+												<tr>
+													<td><span class="role-cell-chip">{{ role.name }}</span></td>
+													<td class="role-table-cell">-</td>
+													<td><span class="role-no-filter">No filters defined</span></td>
+												</tr>
+											}
+										}
+									</tbody>
+								</table>
+							</div>
+						} @else {
+							<div class="lineage-empty">
+								<mat-icon>admin_panel_settings</mat-icon>
+								<p>No RLS roles found in this model.</p>
+							</div>
+						}
 					</div>
 				</div>
 			</mat-tab>
@@ -556,10 +663,10 @@
 											<th>Source Project</th>
 											<th>Source Schema</th>
 											<th>Source Object</th>
-											<th>Requete SQL</th>
+											<th>SQL Query</th>
 											<th>Transformations M</th>
-											<th>Nb etapes</th>
-											<th>Requete M complete</th>
+											<th>Step Count</th>
+											<th>Full M Query</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -634,6 +741,70 @@
 									</div>
 								</div>
 							}
+						}
+					</div>
+				</div>
+			</mat-tab>
+
+			<mat-tab label="Dynamic Features">
+				<div class="tab-content">
+					<div class="section-card dynamic-features-section">
+						<div class="dynamic-features-hero">
+							<h2>Dynamic Features (Calculation Groups)</h2>
+							<p class="dynamic-features-subtitle">
+								This section documents calculation-group style dynamic behavior detected in model measures.
+							</p>
+						</div>
+
+						<div class="dynamic-features-stats">
+							<span class="stat-badge dynamic-stat">{{ dynamicFeatureGroups.length }} groups</span>
+							<span class="stat-badge dynamic-stat">{{ dynamicFeatureTotalItems }} calculation items</span>
+							<span class="stat-badge dynamic-stat">{{ dynamicFeatureFunctionCount }} dynamic functions detected</span>
+						</div>
+
+						@if (dynamicFeatureGroups.length) {
+							<mat-accordion class="dynamic-features-accordion">
+								@for (group of dynamicFeatureGroups; track group.name) {
+									<mat-expansion-panel>
+										<mat-expansion-panel-header>
+											<div class="panel-header-wrap">
+												<div class="panel-title-line">
+													<span class="table-name">{{ group.name }}</span>
+													<span class="table-badge dynamic-count-badge">{{ group.itemCount }} item{{ group.itemCount !== 1 ? 's' : '' }}</span>
+												</div>
+												<div class="panel-desc-line">Functions: {{ group.functions.join(', ') || 'none detected' }}</div>
+											</div>
+										</mat-expansion-panel-header>
+
+										<div class="dynamic-feature-items">
+											@for (item of group.measures; track item.tableName + '::' + item.name) {
+												<article class="dynamic-feature-item">
+													<div class="dynamic-feature-head">
+														<div class="dynamic-feature-title">{{ item.name }}</div>
+														<div class="dynamic-feature-chips">
+															@for (fn of item.functions; track fn) {
+																<span class="entity-chip measure-chip">{{ fn }}</span>
+															}
+															@if (item.isHidden) {
+																<span class="entity-chip empty-chip">Hidden</span>
+															}
+														</div>
+													</div>
+													<p class="dynamic-feature-meta">From table {{ item.tableName }}</p>
+													<p class="dynamic-feature-description">{{ item.description }}</p>
+													<span class="dynamic-expression-label">Expression preview</span>
+													<pre class="dynamic-feature-expression">{{ item.expressionPreview }}</pre>
+												</article>
+											}
+										</div>
+									</mat-expansion-panel>
+								}
+							</mat-accordion>
+						} @else {
+							<div class="lineage-empty">
+								<mat-icon>functions</mat-icon>
+								<p>No calculation-group style dynamic features were detected for this model.</p>
+							</div>
 						}
 					</div>
 				</div>

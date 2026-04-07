@@ -131,37 +131,109 @@
 /* ── Nav Tabs ─────────────────────────────────────────────── */
 .nav-tabs {
   display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.3rem;
-  background: #f1f5f9;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light);
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.65rem 0.75rem;
+  background: linear-gradient(145deg, #f8fafc 0%, #eef4fb 100%);
+  border-radius: 12px;
+  border: 1px solid #d8e2ef;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
   overflow-x: auto;
 }
 
+.tab-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  min-width: max-content;
+}
+
+.group-label {
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0.14rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  width: fit-content;
+}
+
+.group-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.34rem;
+  padding: 0.26rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.doc-group {
+  position: relative;
+  margin-left: auto;
+}
+
+.doc-group::before {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 70%;
+  background: linear-gradient(to bottom, transparent, #cbd5e1 20%, #cbd5e1 80%, transparent);
+}
+
 .tab {
-  padding: 0.4rem 0.85rem;
-  border-radius: 6px;
+  padding: 0.43rem 0.92rem;
+  border-radius: 8px;
   text-decoration: none;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   color: var(--text-secondary);
   white-space: nowrap;
-  transition: all 160ms var(--ease);
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease), background-color 160ms var(--ease), color 160ms var(--ease);
 }
-.tab:hover { background: rgba(255,255,255,0.7); color: var(--text-primary); }
-.tab.active {
-  background: var(--bg-card);
+.tab:hover {
+  background: rgba(255, 255, 255, 0.9);
   color: var(--text-primary);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+.tab.active {
+  background: linear-gradient(160deg, #ffffff 0%, #f8fbff 100%);
+  color: #0f172a;
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.1), inset 0 0 0 1px rgba(59, 130, 246, 0.2);
   font-weight: 700;
+}
+
+.tab:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.45);
+  outline-offset: 1px;
+}
+
+@media (max-width: 880px) {
+  .nav-tabs {
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .doc-group {
+    margin-left: 0;
+  }
+
+  .doc-group::before {
+    display: none;
+  }
 }
 
 /* ── Top Structure Cards ──────────────────────────────────── */
 .top-cards-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.6rem;
 }
 
@@ -525,6 +597,46 @@
   gap: 0.65rem;
 }
 
+.overview-priority-row {
+  align-items: stretch;
+}
+
+.quick-actions-card,
+.quality-metrics-card {
+  height: 100%;
+}
+
+.quality-metrics-card .stats-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quick-actions-card .compact-radar-card {
+  margin-top: 0.7rem;
+}
+
+.compact-radar-card .radar-container {
+  padding: 0.2rem 0;
+}
+
+.compact-radar .radar-svg {
+  max-width: 210px;
+}
+
+.compact-radar-card .radar-legend {
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.compact-radar-card .radar-legend-item {
+  font-size: 0.72rem;
+}
+
+.compact-radar-card .radar-legend-score {
+  font-size: 0.72rem;
+}
+
 .split-card {
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
@@ -744,4 +856,12 @@
   .overview-split, .stats-grid { grid-template-columns: 1fr; }
   .top-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .score-categories-grid { grid-template-columns: 1fr; }
+
+  .quality-metrics-card .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-radar .radar-svg {
+    max-width: 240px;
+  }
 }

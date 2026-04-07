@@ -16,7 +16,7 @@
 			</div>
 			<div class="project-header-actions">
 				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
-				<a mat-stroked-button [routerLink]="['/projects', projectId, 'catalog']">View documentation</a>
+				<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']">View documentation</a>
 			</div>
 		</mat-card>
 	}
@@ -33,10 +33,21 @@
 	</div>
 
 	<div class="nav-tabs">
-		<a class="tab" [routerLink]="['/projects', projectId]">Overview</a>
-		<a class="tab" [routerLink]="['/projects', projectId, 'bpa']">Model</a>
-		<a class="tab active" [routerLink]="['/projects', projectId, 'inspector']">Visual</a>
-		<a class="tab" [routerLink]="['/projects', projectId, 'catalog']">Documentation</a>
+		<div class="tab-group">
+			<span class="group-label">Audit</span>
+			<div class="group-tabs">
+				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'overview']">Overview</a>
+				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'model']">Model</a>
+				<a class="tab active" [routerLink]="['/projects', projectId, 'audit', 'visual']">Visual</a>
+				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'optimization']">Optimization</a>
+			</div>
+		</div>
+		<div class="tab-group doc-group">
+			<span class="group-label">Documentation</span>
+			<div class="group-tabs">
+				<a class="tab" [routerLink]="['/projects', projectId, 'documentation']">Report Catalog</a>
+			</div>
+		</div>
 	</div>
 
 	<div class="top-cards-grid">
@@ -179,7 +190,7 @@
 										<app-severity-badge [label]="item.passed ? 'Passed' : 'Failed'" [tone]="item.passed ? 'success' : 'error'"></app-severity-badge>
 										<span class="ml">{{ item.rule_name }}</span>
 									</div>
-									<div class="panel-desc-line">Page: {{ item.page_name || 'Report level' }}</div>
+									<div class="panel-desc-line">Page: {{ displayPageName(item.page_name) }}</div>
 								</div>
 							</mat-expansion-panel-header>
 
@@ -187,7 +198,7 @@
 								<div class="fix-meta">
 									<span class="fix-tag">{{ item.passed ? 'PASS' : 'FAIL' }}</span>
 									<span class="fix-label-inline">Page:</span>
-									<span class="fix-object">{{ item.page_name || 'Report level' }}</span>
+									<span class="fix-object">{{ displayPageName(item.page_name) }}</span>
 								</div>
 
 								<div class="fix-section">

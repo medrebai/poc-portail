@@ -98,8 +98,6 @@ export class InspectorResultsComponent {
     if (this.passedFilter.value !== 'all') {
       filters['passed'] = this.passedFilter.value === 'passed';
     }
-    if (this.pageFilter.value) filters['page'] = this.pageFilter.value;
-    if (this.ruleFilter.value) filters['rule'] = this.ruleFilter.value;
 
     this.currentPage = 1;
 
@@ -112,10 +110,16 @@ export class InspectorResultsComponent {
   private buildFilterOptions(results: InspectorResult[]): void {
     if (this.pageOptions.length === 0) {
       const pages = new Set<string>();
+      let hasReportLevel = false;
       for (const r of results) {
-        if (r.page_name) pages.add(r.page_name);
+        const page = this.displayPageName(r.page_name);
+        if (page === 'Report level') {
+          hasReportLevel = true;
+        } else {
+          pages.add(page);
+        }
       }
-      pages.add('Report level');
+      if (hasReportLevel) pages.add('Report level');
       this.pageOptions = Array.from(pages).sort();
       this.filteredPageOptions = this.pageOptions;
     }
@@ -151,11 +155,17 @@ export class InspectorResultsComponent {
   }
 
   get filteredResults(): InspectorResult[] {
-    return [...this.results].sort((a, b) => {
-      const pageA = a.page_name || 'Report level';
-      const pageB = b.page_name || 'Report level';
-      return pageA.localeCompare(pageB);
-    });
+    const pageFilter = this.pageFilter.value.trim().toLowerCase();
+    const ruleFilter = this.ruleFilter.value.trim().toLowerCase();
+
+    return this.results
+      .filter((result) => {
+        const pageName = this.displayPageName(result.page_name);
+        const matchesPage = !pageFilter || pageName.toLowerCase().includes(pageFilter);
+        const matchesRule = !ruleFilter || (result.rule_name || '').toLowerCase().includes(ruleFilter);
+        return matchesPage && matchesRule;
+      })
+      .sort((a, b) => this.displayPageName(a.page_name).localeCompare(this.displayPageName(b.page_name)));
   }
 
   get paginatedResults(): InspectorResult[] {
@@ -222,7 +232,7 @@ export class InspectorResultsComponent {
   get failedByPageChart(): Array<{ label: string; value: number }> {
     const map = new Map<string, number>();
     for (const result of this.results.filter((r) => !r.passed)) {
-      const page = result.page_name || 'Report level';
+      const page = this.displayPageName(result.page_name);
       map.set(page, (map.get(page) ?? 0) + 1);
     }
     return Array.from(map.entries()).map(([label, value]) => ({ label, value }));
@@ -231,10 +241,17 @@ export class InspectorResultsComponent {
   get byPageChart(): Array<{ label: string; value: number }> {
     const map = new Map<string, number>();
     for (const result of this.results) {
-      const page = result.page_name || 'Report level';
+      const page = this.displayPageName(result.page_name);
       map.set(page, (map.get(page) ?? 0) + 1);
     }
     return Array.from(map.entries()).map(([label, value]) => ({ label, value }));
+  }
+
+  displayPageName(pageName?: string | null): string {
+    const normalized = (pageName || '').trim();
+    if (!normalized) return 'Report level';
+    if (/^(n\/?a|na|-|report\s*level)$/i.test(normalized)) return 'Report level';
+    return normalized;
   }
 
   roundPercentage(passed: number, total: number): number {

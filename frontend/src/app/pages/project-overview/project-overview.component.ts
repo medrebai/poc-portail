@@ -160,6 +160,22 @@ export class ProjectOverviewComponent {
     return this.scores?.visual_score || 0;
   }
 
+  get modelGrade(): string {
+    return this.scoreToGrade(this.modelScore);
+  }
+
+  get visualGrade(): string {
+    return this.scoreToGrade(this.visualScore);
+  }
+
+  private scoreToGrade(score: number): string {
+    if (score >= 90) return 'A';
+    if (score >= 80) return 'B';
+    if (score >= 70) return 'C';
+    if (score >= 60) return 'D';
+    return 'F';
+  }
+
   get modelCategoryScores(): Array<{ label: string; score: number; detail: string }> {
     return (this.scores?.model_categories || []).map((category) => ({
       label: category.name,

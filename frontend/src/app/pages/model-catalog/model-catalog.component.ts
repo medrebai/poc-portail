@@ -37,6 +37,22 @@ interface MeasureInsight {
   usedByMeasures: string[];
 }
 
+interface DynamicFeatureMeasureDoc {
+  tableName: string;
+  name: string;
+  description: string;
+  expressionPreview: string;
+  isHidden: boolean;
+  functions: string[];
+}
+
+interface DynamicFeatureGroupDoc {
+  name: string;
+  itemCount: number;
+  functions: string[];
+  measures: DynamicFeatureMeasureDoc[];
+}
+
 type MeasureRelationType = 'columns' | 'visuals' | 'dependsOnMeasures' | 'usedByMeasures';
 
 @Component({
@@ -64,6 +80,13 @@ type MeasureRelationType = 'columns' | 'visuals' | 'dependsOnMeasures' | 'usedBy
 })
 export class ModelCatalogComponent implements OnInit {
   private readonly defaultLineageZoom = 1.2;
+  private readonly dynamicFunctionPatterns: Array<{ label: string; pattern: RegExp }> = [
+    { label: 'SELECTEDMEASURE', pattern: /\bSELECTEDMEASURE\b/i },
+    { label: 'SELECTEDMEASURENAME', pattern: /\bSELECTEDMEASURENAME\b/i },
+    { label: 'ISSELECTEDMEASURE', pattern: /\bISSELECTEDMEASURE\b/i },
+    { label: 'SWITCH', pattern: /\bSWITCH\s*\(/i },
+    { label: 'FORMAT', pattern: /\bFORMAT\s*\(/i },
+  ];
 
   projectId: number;
   project: Project | null = null;
@@ -131,7 +154,7 @@ export class ModelCatalogComponent implements OnInit {
   private expandedFormulaMeasureKeys = new Set<string>();
   private expandedMeasureRelationKeys = new Set<string>();
   measureCurrentPage = 1;
-  readonly measurePageSize = 10;
+  readonly measurePageSize = 6;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -265,6 +288,75 @@ export class ModelCatalogComponent implements OnInit {
     return this.catalog?.tables.flatMap((table) =>
       (table.measures ?? []).map((measure) => ({ ...measure, table_name: table.name }))
     ) ?? [];
+  }
+
+  get dynamicFeatureGroups(): DynamicFeatureGroupDoc[] {
+    const groups = new Map<string, DynamicFeatureMeasureDoc[]>();
+
+    for (const measure of this.allMeasures) {
+      const expression = (measure.expression || '').trim();
+      const tableName = (measure.table_name || 'Unknown Table').trim();
+      const isLikelyCalcGroupTable = /calc(ulation)?\s*group/i.test(tableName);
+      const functions = this.detectDynamicFunctions(expression);
+      if (!isLikelyCalcGroupTable && functions.length === 0) {
+        continue;
+      }
+
+      const preview = expression
+        ? expression.replace(/\s+/g, ' ').trim().slice(0, 200)
+        : 'No expression available';
+
+      const entry: DynamicFeatureMeasureDoc = {
+        tableName,
+        name: measure.name,
+        description: (measure.description || '').trim() || 'No description provided',
+        expressionPreview: preview,
+        isHidden: !!measure.is_hidden,
+        functions,
+      };
+
+      const list = groups.get(tableName) ?? [];
+      list.push(entry);
+      groups.set(tableName, list);
+    }
+
+    return Array.from(groups.entries())
+      .map(([name, measures]) => {
+        const functionSet = new Set<string>();
+        for (const measure of measures) {
+          for (const fn of measure.functions) functionSet.add(fn);
+        }
+        return {
+          name,
+          itemCount: measures.length,
+          functions: Array.from(functionSet).sort((a, b) => a.localeCompare(b)),
+          measures: [...measures].sort((a, b) => a.name.localeCompare(b.name)),
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  get dynamicFeatureTotalItems(): number {
+    return this.dynamicFeatureGroups.reduce((sum, group) => sum + group.itemCount, 0);
+  }
+
+  get dynamicFeatureFunctionCount(): number {
+    const fnSet = new Set<string>();
+    for (const group of this.dynamicFeatureGroups) {
+      for (const fn of group.functions) fnSet.add(fn);
+    }
+    return fnSet.size;
+  }
+
+  private detectDynamicFunctions(expression: string): string[] {
+    if (!expression) return [];
+    const found: string[] = [];
+    for (const rule of this.dynamicFunctionPatterns) {
+      if (rule.pattern.test(expression)) {
+        found.push(rule.label);
+      }
+    }
+    return found;
   }
 
   get filteredMeasures(): CatalogMeasure[] {

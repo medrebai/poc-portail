@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Project, ScoreResponse, ScoreSummary } from '../shared/models/api.models';
+import {
+  Project,
+  ScoreResponse,
+  ScoreSummary,
+} from '../shared/models/api.models';
 
 @Injectable({
   providedIn: 'root'
