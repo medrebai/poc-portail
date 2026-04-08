@@ -524,12 +524,6 @@ export class BpaViolationsComponent {
     return pages.size;
   }
 
-  get modelQualityScore(): number {
-    if (!this.project) return 0;
-    const bpa = this.project.bpa_violation_count || 0;
-    return Math.max(0, Math.round(100 - (bpa * 0.09)));
-  }
-
   get modelStats(): Array<{ label: string; value: string | number }> {
     return [
       { label: 'Roles RLS', value: this.catalog?.roles.length || 0 },
@@ -537,12 +531,6 @@ export class BpaViolationsComponent {
       { label: 'Data Sources', value: (this.project?.data_sources || []).join(', ') || 'N/A' },
       { label: 'Culture', value: 'en-US / fr-FR' },
     ];
-  }
-
-  get modelQualityBreakdownText(): string {
-    const bpa = this.project?.bpa_violation_count || 0;
-    const penalty = (bpa * 0.09).toFixed(1);
-    return `100 - (${bpa} x 0.09) = ${this.modelQualityScore} (penalty ${penalty})`;
   }
 
   get scoreBreakdown(): Array<{ label: string; percent: number; tone: 'critical' | 'warning' | 'ok' }> {

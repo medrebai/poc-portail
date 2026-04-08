@@ -1,0 +1,25 @@
+{
+  "skill_name": "ui-ux-pro-max",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm redesigning a Power BI auditing platform (Angular 19 + Material Design). It's a web app that analyzes semantic models and reports for quality issues. The current design is functional but bland. Generate a complete design system for this platform including color palette, typography, UI style recommendations (modern/professional), component styling patterns, and an overview of how to structure the dashboard. The platform serves BI developers and project managers. Stack: React/Angular.",
+      "expected_output": "A complete design system with color palette, typography recommendations, UI style guide, component patterns, and specific recommendations for a BI auditing dashboard"
+    },
+    {
+      "id": 2,
+      "prompt": "I need to redesign the dashboard/overview page of my BI Quality Analyzer platform. Current page shows: project summary cards (tables count, measures, columns, etc.), a health radar chart (6 axes), BPA violation summary by severity, inspector pass/fail summary, and page visual count. The layout is a 6-column grid with Material cards. Redesign this with modern UX patterns, better visual hierarchy, improved data visualization, and make it more engaging for BI project managers. What style and layout patterns would work best?",
+      "expected_output": "UI/UX redesign recommendations including layout pattern, visual hierarchy improvements, card styling, chart recommendations, color scheme application, and specific Angular Material component suggestions"
+    },
+    {
+      "id": 3,
+      "prompt": "Redesign the Model Catalog page of a Power BI auditing tool. Current layout has: tabbed navigation (Tables, Measures, Relationships, RLS Roles, Partitions, Lineage), accordion-style tables list, detail grid with columns/measures, and SVG lineage visualization. Data is hierarchical and complex. I want it modern, professional, with better discoverability. What UI patterns, styling, and component architecture would improve this? Stack: Angular.",
+      "expected_output": "Design recommendations for complex hierarchical data display including tab patterns, accordion styling, detail view layouts, navigation patterns, and integration with SVG visualizations"
+    },
+    {
+      "id": 4,
+      "prompt": "What color palettes, font pairings, and design patterns would best suit a SaaS-style data analysis platform targeting professional BI developers? The platform handles quality auditing, compliance checking, and best practice recommendations. It needs to convey trust, professionalism, and technical sophistication. Should it be dark mode, light mode, or both? What chart types and visual approaches work best for displaying model health scores, violations, and impact analysis?",
+      "expected_output": "Color palette recommendations, typography pairings, design patterns for SaaS/data analysis tools, dark/light mode guidance, chart type recommendations, and visual hierarchy patterns"
+    }
+  ]
+}

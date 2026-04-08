@@ -24,7 +24,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title">Model Optimization Explorer</h1>
-      <p class="page-subtitle">Starter optimization checks 1, 2, 3, 4, 5, 7, 8 and 9 with filters and actionable recommendations.</p>
+      <p class="page-subtitle">Optimization checks with usage status, visibility context, DAX-aware relationship logic, and per-row explanations.</p>
     </div>
   </div>
 
@@ -68,7 +68,7 @@
     <div class="model-content">
       <section id="optimization-overview" class="section-card">
         <h2>Checks Scope</h2>
-        <p class="section-subtitle">Running checks: 1, 2, 3, 4, 5, 7, 8 and 9.</p>
+        <p class="section-subtitle">Use the cards to focus by optimization theme. Hover a card to see detection logic.</p>
 
         <div class="checks-grid">
           @for (card of checkCards; track card.id) {
@@ -77,18 +77,25 @@
               [class.active]="isCheckActive(card.id)"
               role="button"
               tabindex="0"
+              [matTooltip]="checkTooltip(card.id)"
+              matTooltipPosition="above"
               (click)="applyCheckFilter(card.id)"
               (keydown.enter)="applyCheckFilter(card.id)"
               (keydown.space)="applyCheckFilter(card.id); $event.preventDefault()"
             >
-              <div class="check-id">Check {{ card.id }}</div>
+              <div class="check-id-row">
+                <div class="check-id">Check {{ card.id }}</div>
+                <span class="check-severity" [class.error]="card.severityTone === 'error'" [class.warning]="card.severityTone === 'warning'" [class.info]="card.severityTone === 'info'">
+                  {{ card.severityTone }}
+                </span>
+              </div>
               <div class="check-title">{{ card.label }}</div>
               <div class="check-count">{{ card.count }} finding{{ card.count !== 1 ? 's' : '' }}</div>
             </mat-card>
           }
         </div>
 
-        <div class="confidence-legend-card">
+        <div class="confidence-legend-card compact">
           <div class="confidence-legend-head">
             <mat-icon>verified</mat-icon>
             <h3>Confidence Legend</h3>
@@ -109,6 +116,7 @@
       <section id="optimization-findings" class="section-card">
         <h2>Optimization Findings</h2>
 
+        <div class="filters-shell">
         <div class="toolbar-grid top-space">
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Search</mat-label>
@@ -123,11 +131,23 @@
               <mat-option value="1">1 - Unused Columns</mat-option>
               <mat-option value="2">2 - Unused Measures</mat-option>
               <mat-option value="3">3 - Unused Tables</mat-option>
-              <mat-option value="4">4 - Bi-Directional Relationships</mat-option>
-              <mat-option value="5">5 - Inactive Relationships</mat-option>
-              <mat-option value="7">7 - Hidden Measures Not Used In Visuals</mat-option>
-              <mat-option value="8">8 - Visible Technical Columns</mat-option>
-              <mat-option value="9">9 - Measures Without Format String</mat-option>
+              <mat-option value="4">4 - Bi-Directional Relationships May Be Unnecessary</mat-option>
+              <mat-option value="5">5 - Inactive Relationships Never Activated In DAX</mat-option>
+              <mat-option value="6">6 - Hidden Measures Not Used In Visuals</mat-option>
+              <mat-option value="7">7 - Visible Technical Columns</mat-option>
+              <mat-option value="8">8 - Measures Without Format String</mat-option>
+              <mat-option value="9">9 - Large Text Columns Not Used In Visuals</mat-option>
+              <mat-option value="10">10 - Calculated Columns That Could Be Measures</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Table</mat-label>
+            <mat-select [formControl]="tableFilter">
+              <mat-option value="all">All tables</mat-option>
+              @for (table of tableOptions; track table) {
+                <mat-option [value]="table">{{ table }}</mat-option>
+              }
             </mat-select>
           </mat-form-field>
 
@@ -160,6 +180,27 @@
               <mat-option value="review">Needs review</mat-option>
             </mat-select>
           </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Usage Status</mat-label>
+            <mat-select [formControl]="usageStatusFilter">
+              <mat-option value="all">All</mat-option>
+              <mat-option value="unused">unused</mat-option>
+              <mat-option value="dependency-only">dependency-only</mat-option>
+              <mat-option value="used">used</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Visibility</mat-label>
+            <mat-select [formControl]="visibilityFilter">
+              <mat-option value="all">All</mat-option>
+              <mat-option value="Visible">Visible</mat-option>
+              <mat-option value="Hidden">Hidden</mat-option>
+              <mat-option value="N/A">N/A</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
         </div>
 
         <div class="table-stats">
@@ -186,6 +227,8 @@
                   <th>Object</th>
                   <th>Type</th>
                   <th>Table</th>
+                  <th>Usage</th>
+                  <th>Visibility</th>
                   <th>Severity</th>
                   <th>Confidence</th>
                   <th>Reason</th>
@@ -196,9 +239,11 @@
                 @for (row of pagedFindings; track row.checkId + '::' + row.objectType + '::' + row.tableName + '::' + row.objectName + '::' + $index) {
                   <tr>
                     <td><span class="check-chip">#{{ row.checkId }}</span></td>
-                    <td>{{ row.objectName }}</td>
+                    <td [matTooltip]="objectTooltip(row)" matTooltipPosition="above">{{ row.objectName }}</td>
                     <td>{{ row.objectType }}</td>
                     <td>{{ row.tableName }}</td>
+                    <td><span class="tone-chip" [ngClass]="usageStatusClass(row.usageStatus)">{{ row.usageStatus }}</span></td>
+                    <td>{{ row.visibility }}</td>
                     <td><span class="tone-chip" [ngClass]="severityClass(row.severity)">{{ row.severity }}</span></td>
                     <td><span class="tone-chip" [ngClass]="confidenceClass(row.confidence)">{{ row.confidence }}</span></td>
                     <td>{{ row.reason }}</td>
@@ -213,7 +258,6 @@
               </tbody>
             </table>
           </div>
-
           @if (pageNumbers.length > 1) {
             <div class="pagination-nav">
               <button mat-icon-button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
@@ -235,6 +279,8 @@
           }
         }
       </section>
+
+
     </div>
   </div>
 </section>
