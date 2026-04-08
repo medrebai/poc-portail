@@ -1,12 +1,15 @@
-<section>
-	<div class="page-head">
-		<div>
-			<h1 class="page-title">Create And Analyze Project</h1>
+<section class="create-shell">
+
+	<!-- Page Header -->
+	<div class="page-header">
+		<div class="page-header-left">
+			<h1 class="page-title">Create & Analyze</h1>
 			<p class="page-subtitle">Upload a PBIP ZIP and run TMDL + BPA + PBI Inspector in one guided flow.</p>
 		</div>
 	</div>
 
-	<mat-card class="create-card">
+	<!-- Create Card -->
+	<div class="card">
 		<form [formGroup]="form" class="form-grid">
 			<mat-form-field appearance="outline">
 				<mat-label>Project name</mat-label>
@@ -22,8 +25,8 @@
 		<div class="upload-zone">
 			<mat-icon>upload_file</mat-icon>
 			<div>
-				<div class="strong">Upload PBIP Source</div>
-				<div class="hint">Choose either a ZIP file or a folder containing SemanticModel/definition and Report.</div>
+				<div class="upload-title">Upload PBIP Source</div>
+				<div class="upload-hint">Choose either a ZIP file or a folder containing SemanticModel/definition and Report.</div>
 			</div>
 
 			<mat-button-toggle-group [value]="uploadMode" aria-label="Upload mode">
@@ -54,11 +57,11 @@
 
 		@if (busy) {
 			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
-			<p class="step">{{ stepLabel }}</p>
+			<p class="step-label">{{ stepLabel }}</p>
 		}
 
 		@if (error) {
-			<p class="error">{{ error }}</p>
+			<p class="error-msg">{{ error }}</p>
 		}
 
 		<div class="actions">
@@ -67,5 +70,5 @@
 				Analyze
 			</button>
 		</div>
-	</mat-card>
+	</div>
 </section>

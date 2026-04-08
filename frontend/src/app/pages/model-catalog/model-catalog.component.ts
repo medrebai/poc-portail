@@ -28,7 +28,6 @@ import {
   Project,
 } from '../../shared/models/api.models';
 import { SeverityBadgeComponent } from '../../shared/components/severity-badge/severity-badge.component';
-import { LineageRendererComponent } from '../../shared/components/lineage-renderer/lineage-renderer.component';
 
 interface MeasureInsight {
   columns: string[];
@@ -73,7 +72,6 @@ type MeasureRelationType = 'columns' | 'visuals' | 'dependsOnMeasures' | 'usedBy
     MatTabsModule,
     MatAutocompleteModule,
     SeverityBadgeComponent,
-    LineageRendererComponent,
   ],
   templateUrl: './model-catalog.component.html',
   styleUrl: './model-catalog.component.scss'

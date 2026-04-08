@@ -1,19 +1,108 @@
-<mat-toolbar class="topbar" role="banner">
-  <div class="brand">
-    <mat-icon>insights</mat-icon>
+<!-- ── Top Header Bar ─────────────────────────────────────── -->
+<header class="topbar">
+  <a class="brand" routerLink="/projects">
+    <div class="brand-icon">
+      <mat-icon>insights</mat-icon>
+    </div>
     <span class="brand-text">BI Quality Analyzer</span>
-  </div>
-  <div class="spacer"></div>
-  @for (item of navItems; track item.path) {
-    <a mat-button class="nav-link" [routerLink]="item.path" routerLinkActive="active-link">
-      <mat-icon>{{ item.icon }}</mat-icon>
-      {{ item.label }}
-    </a>
-  }
-</mat-toolbar>
+  </a>
 
-<main class="workspace">
-  <mat-card class="canvas">
+  <div class="topbar-center">
+    @if (projectName) {
+      <div class="breadcrumb">
+        <a routerLink="/projects" class="breadcrumb-link">Projects</a>
+        <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+        <span class="breadcrumb-current">{{ projectName }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="topbar-actions">
+    @if (!projectId) {
+      <a mat-button class="topbar-btn" routerLink="/projects/new">
+        <mat-icon>add</mat-icon>
+        New Project
+      </a>
+    }
+  </div>
+</header>
+
+<!-- ── Main Layout ───────────────────────────────────────── -->
+<div class="app-layout" [class.has-sidebar]="!!projectId">
+
+  <!-- Sidebar (only when inside a project) -->
+  @if (projectId) {
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+
+        <!-- Audit Section -->
+        <div class="nav-section">
+          <div class="nav-section-label">
+            <mat-icon>verified</mat-icon>
+            Audit
+          </div>
+          <a class="nav-item"
+             [routerLink]="['/projects', projectId, 'audit', 'overview']"
+             routerLinkActive="nav-item--active">
+            <mat-icon>dashboard</mat-icon>
+            <span>Overview</span>
+          </a>
+          <a class="nav-item"
+             [routerLink]="['/projects', projectId, 'audit', 'model']"
+             routerLinkActive="nav-item--active">
+            <mat-icon>rule</mat-icon>
+            <span>Model Audit</span>
+          </a>
+          <a class="nav-item"
+             [routerLink]="['/projects', projectId, 'audit', 'visual']"
+             routerLinkActive="nav-item--active">
+            <mat-icon>visibility</mat-icon>
+            <span>Visual Audit</span>
+          </a>
+          <a class="nav-item"
+             [routerLink]="['/projects', projectId, 'audit', 'optimization']"
+             routerLinkActive="nav-item--active">
+            <mat-icon>speed</mat-icon>
+            <span>Optimization</span>
+          </a>
+        </div>
+
+        <!-- Documentation Section -->
+        <div class="nav-section">
+          <div class="nav-section-label">
+            <mat-icon>menu_book</mat-icon>
+            Documentation
+          </div>
+          <a class="nav-item"
+             [routerLink]="['/projects', projectId, 'documentation']"
+             [routerLinkActiveOptions]="{exact: true}"
+             routerLinkActive="nav-item--active">
+            <mat-icon>schema</mat-icon>
+            <span>Model Explorer</span>
+          </a>
+          <a class="nav-item"
+             [routerLink]="['/projects', projectId, 'documentation', 'visuals']"
+             routerLinkActive="nav-item--active">
+            <mat-icon>grid_view</mat-icon>
+            <span>Visual Explorer</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <a class="nav-item" routerLink="/projects">
+          <mat-icon>arrow_back</mat-icon>
+          <span>All Projects</span>
+        </a>
+      </div>
+    </aside>
+  }
+
+  <!-- Main Content -->
+  <main class="main-content">
     <router-outlet></router-outlet>
-  </mat-card>
-</main>
+  </main>
+
+</div>

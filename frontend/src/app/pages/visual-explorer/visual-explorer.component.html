@@ -1,0 +1,139 @@
+<section class="visual-explorer-shell">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1 class="page-title">Visual Explorer</h1>
+      <p class="page-subtitle">Explore report page layouts and trace visual-to-model lineage across your project.</p>
+    </div>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="content-grid">
+    <aside class="content-nav">
+      <button type="button" (click)="scrollTo('page-layout')" class="nav-btn" [class.nav-btn--active]="activeSection === 'page-layout'">
+        <mat-icon>grid_view</mat-icon> Page Layout
+      </button>
+      <button type="button" (click)="scrollTo('lineage')" class="nav-btn" [class.nav-btn--active]="activeSection === 'lineage'">
+        <mat-icon>account_tree</mat-icon> Visual Lineage
+      </button>
+    </aside>
+
+    <div class="content-main">
+
+      <!-- Page Layout Viewer -->
+      <section id="page-layout" class="card">
+        <h2 class="card__title">Page Layout Viewer</h2>
+        @if (pages.length > 0) {
+          <app-page-layout-viewer [pages]="pages" [projectId]="projectId"></app-page-layout-viewer>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>grid_view</mat-icon>
+            <strong>No page layouts available</strong>
+            <p>Run analysis to extract page visual information.</p>
+          </div>
+        }
+      </section>
+
+      <!-- Visual Lineage -->
+      <section id="lineage" class="card">
+        <h2 class="card__title">Visual Lineage</h2>
+
+        <div class="lineage-tabs">
+          <button class="lineage-tab-btn" [class.active]="lineageMode === 'full'" (click)="switchLineageMode('full')">Full Lineage</button>
+          <button class="lineage-tab-btn" [class.active]="lineageMode === 'visual'" (click)="switchLineageMode('visual')">Visual Trace</button>
+          <button class="lineage-tab-btn" [class.active]="lineageMode === 'impact'" (click)="switchLineageMode('impact')">Impact Analysis</button>
+          <button class="lineage-tab-btn" [class.active]="lineageMode === 'column'" (click)="switchLineageMode('column')">Column Impact</button>
+        </div>
+
+        @if (lineageMode === 'visual') {
+          <div class="lineage-controls">
+            <label>Select a visual:</label>
+            <mat-form-field appearance="outline" class="lineage-filter-field">
+              <mat-select [(value)]="selectedVisual" (selectionChange)="loadVisualTrace()">
+                @for (v of lineageVisuals; track v) {
+                  <mat-option [value]="v">{{ v.page }} — {{ v.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-flat-button color="primary" class="lineage-action-btn" (click)="loadVisualTrace()" [disabled]="!selectedVisual">
+              <mat-icon>refresh</mat-icon> Refresh
+            </button>
+          </div>
+        }
+
+        @if (lineageMode === 'impact') {
+          <div class="lineage-controls">
+            <label>Select a measure:</label>
+            <mat-form-field appearance="outline" class="lineage-filter-field">
+              <mat-select [(value)]="selectedMeasure" (selectionChange)="loadMeasureImpact()">
+                @for (m of lineageMeasures; track m) {
+                  <mat-option [value]="m">{{ m }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-flat-button color="primary" class="lineage-action-btn" (click)="loadMeasureImpact()" [disabled]="!selectedMeasure">
+              <mat-icon>refresh</mat-icon> Refresh
+            </button>
+          </div>
+        }
+
+        @if (lineageMode === 'column') {
+          <div class="lineage-controls">
+            <label>Table:</label>
+            <mat-form-field appearance="outline" class="lineage-filter-field">
+              <mat-select [(value)]="selectedLineageTable" (selectionChange)="onLineageTableChange(true)">
+                @for (t of lineageTables; track t) {
+                  <mat-option [value]="t">{{ t }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <label>Column:</label>
+            <mat-form-field appearance="outline" class="lineage-filter-field">
+              <mat-select [(value)]="selectedColumn" [disabled]="!selectedLineageTable" (selectionChange)="loadColumnImpact()">
+                @for (c of lineageColumns; track c) {
+                  <mat-option [value]="c">{{ c }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-flat-button color="primary" class="lineage-action-btn" (click)="loadColumnImpact()" [disabled]="!selectedColumn">
+              <mat-icon>refresh</mat-icon> Refresh
+            </button>
+          </div>
+        }
+
+        <div class="lineage-container" #lineageContainer>
+          @if (lineageLoading) {
+            <div class="lineage-empty">
+              <mat-icon>hourglass_empty</mat-icon>
+              <p>Loading lineage data...</p>
+            </div>
+          }
+          @if (!lineageLoading && lineageNodes.length === 0 && lineageMode === 'full') {
+            <div class="lineage-empty">
+              <mat-icon>account_tree</mat-icon>
+              <p>No lineage data available. Click "Full Lineage" to load or run analysis first.</p>
+            </div>
+          }
+          @if (!lineageLoading && lineageNodes.length > 0) {
+            <app-lineage-renderer
+              [nodes]="lineageNodes"
+              [edges]="lineageEdges"
+              [zoom]="lineageZoom"
+              [recenterToken]="lineageRecenterToken"
+            ></app-lineage-renderer>
+          }
+
+          <div class="lineage-zoom-controls">
+            <button mat-icon-button (click)="zoomIn()"><mat-icon>add</mat-icon></button>
+            <button mat-icon-button (click)="zoomOut()"><mat-icon>remove</mat-icon></button>
+            <button mat-icon-button (click)="toggleLineageFullscreen()"><mat-icon>fullscreen</mat-icon></button>
+            <button mat-icon-button (click)="resetZoom()"><mat-icon>center_focus_strong</mat-icon></button>
+            <button mat-icon-button (click)="exportLineageSvg()"><mat-icon>download</mat-icon></button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

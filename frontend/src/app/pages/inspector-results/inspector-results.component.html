@@ -1,152 +1,140 @@
-<section class="model-shell">
-	@if (project) {
-		<mat-card class="project-header-card">
-			<div class="project-header-main">
-				<div class="project-thumb" aria-hidden="true">
-					<mat-icon>analytics</mat-icon>
-				</div>
-				<div class="project-meta">
-					<div class="project-title-row">
-						<h1>{{ project.name }}</h1>
-						<span class="env-chip">dev</span>
-					</div>
-					<p>Last updated {{ project.updated_at ? (project.updated_at | date:'medium') : 'n/a' }}</p>
-					<p>Created {{ project.created_at ? (project.created_at | date:'medium') : 'n/a' }}</p>
-				</div>
-			</div>
-			<div class="project-header-actions">
-				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
-				<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']">View documentation</a>
-			</div>
-		</mat-card>
-	}
+<section class="inspector-shell">
 
-	<div class="page-head">
-		<div>
-			<h1 class="page-title">Visual Quality Inspector</h1>
-			<p class="page-subtitle">Analyze report pages, visual rules compliance, and inspector check results.</p>
+	<!-- Page Header -->
+	<div class="page-header">
+		<div class="page-header-left">
+			<h1 class="page-title">Visual Audit</h1>
+			<p class="page-subtitle">Report pages, visual rules compliance, and inspector results.</p>
 		</div>
-		<button mat-flat-button color="primary" (click)="export()">
-			<mat-icon>download</mat-icon>
-			Export Inspector
-		</button>
+		<div class="page-header-right">
+			<button mat-flat-button color="primary" (click)="export()" class="export-btn">
+				<mat-icon>download</mat-icon>
+				Export
+			</button>
+		</div>
 	</div>
 
-	<div class="nav-tabs">
-		<div class="tab-group">
-			<span class="group-label">Audit</span>
-			<div class="group-tabs">
-				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'overview']">Overview</a>
-				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'model']">Model</a>
-				<a class="tab active" [routerLink]="['/projects', projectId, 'audit', 'visual']">Visual</a>
-				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'optimization']">Optimization</a>
+	<!-- KPI Strip -->
+	<div class="kpi-strip">
+		<div class="kpi-card">
+			<div class="kpi-icon kpi-icon--pages"><mat-icon>web</mat-icon></div>
+			<div class="kpi-data">
+				<div class="kpi-value">{{ project?.visual_count || getPageCount() }}</div>
+				<div class="kpi-label">Pages</div>
 			</div>
 		</div>
-		<div class="tab-group doc-group">
-			<span class="group-label">Documentation</span>
-			<div class="group-tabs">
-				<a class="tab" [routerLink]="['/projects', projectId, 'documentation']">Report Catalog</a>
+		<div class="kpi-card">
+			<div class="kpi-icon kpi-icon--total"><mat-icon>checklist</mat-icon></div>
+			<div class="kpi-data">
+				<div class="kpi-value">{{ total }}</div>
+				<div class="kpi-label">Total Rules</div>
+			</div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-icon kpi-icon--passed"><mat-icon>check_circle</mat-icon></div>
+			<div class="kpi-data">
+				<div class="kpi-value">{{ passed }}</div>
+				<div class="kpi-label">Passed</div>
+			</div>
+		</div>
+		<div class="kpi-card">
+			<div class="kpi-icon kpi-icon--failed"><mat-icon>cancel</mat-icon></div>
+			<div class="kpi-data">
+				<div class="kpi-value">{{ failed }}</div>
+				<div class="kpi-label">Failed</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="top-cards-grid">
-		<mat-card class="top-card">
-			<div class="top-card-value">{{ project?.visual_count || getPageCount() }}</div>
-			<div class="top-card-label">Pages</div>
-		</mat-card>
-		<mat-card class="top-card">
-			<div class="top-card-value">{{ total }}</div>
-			<div class="top-card-label">Total Rules</div>
-		</mat-card>
-		<mat-card class="top-card">
-			<div class="top-card-value">{{ passed }}</div>
-			<div class="top-card-label">Passed Rules</div>
-		</mat-card>
-		<mat-card class="top-card">
-			<div class="top-card-value">{{ failed }}</div>
-			<div class="top-card-label">Failed Rules</div>
-		</mat-card>
-	</div>
-
-	<div class="model-layout">
-		<aside class="left-nav">
-			<button type="button" (click)="scrollTo('visual-overview')">Visual Overview</button>
-			<button type="button" (click)="scrollTo('page-layout')">Page Layout</button>
-			<button type="button" (click)="scrollTo('quality-report')">Quality Report</button>
-			<button type="button" (click)="scrollTo('issues-list')">Issues List</button>
+	<!-- Content -->
+	<div class="content-grid">
+		<aside class="content-nav">
+			<button type="button" (click)="scrollTo('visual-overview')" class="nav-btn">
+				<mat-icon>dashboard</mat-icon> Overview
+			</button>
+			<button type="button" (click)="scrollTo('quality-report')" class="nav-btn">
+				<mat-icon>assessment</mat-icon> Quality Report
+			</button>
+			<button type="button" (click)="scrollTo('issues-list')" class="nav-btn">
+				<mat-icon>list_alt</mat-icon> Results
+			</button>
 		</aside>
 
-		<div class="model-content">
-			<section id="visual-overview" class="section-card">
-				<h2>Visual Overview</h2>
-				<div class="overview-info-cards">
-					<mat-card class="info-card">
-						<div class="label">Compliance Rate</div>
-						<div class="value">{{ roundPercentage(passed, total) }}%</div>
-					</mat-card>
-					<mat-card class="info-card">
-						<div class="label">Report Pages</div>
-						<div class="value">{{ project?.visual_count || 0 }}</div>
-					</mat-card>
-					<mat-card class="info-card">
-						<div class="label">Avg Rules/Page</div>
-						<div class="value">{{ avgRulesPerPage }}</div>
-					</mat-card>
+		<div class="content-main">
+
+			<!-- Visual Overview -->
+			<section id="visual-overview" class="card">
+				<h2 class="card__title">Visual Overview</h2>
+				<div class="overview-kpis">
+					<div class="overview-kpi">
+						<div class="overview-kpi__value">{{ roundPercentage(passed, total) }}%</div>
+						<div class="overview-kpi__label">Compliance Rate</div>
+					</div>
+					<div class="overview-kpi">
+						<div class="overview-kpi__value">{{ project?.visual_count || 0 }}</div>
+						<div class="overview-kpi__label">Report Pages</div>
+					</div>
+					<div class="overview-kpi">
+						<div class="overview-kpi__value">{{ avgRulesPerPage }}</div>
+						<div class="overview-kpi__label">Avg Rules/Page</div>
+					</div>
 				</div>
 
-				<div class="overview-split">
-					<mat-card class="split-card">
-						<h3>Results Overview</h3>
-						<ul>
+				<div class="split-row">
+					<div class="sub-card">
+						<h3 class="sub-card__title">Results Overview</h3>
+						<ul class="key-value-list">
 							<li><span>Total Checks</span><strong>{{ total }}</strong></li>
 							<li><span>Passed</span><strong>{{ passed }}</strong></li>
 							<li><span>Failed</span><strong>{{ failed }}</strong></li>
 							<li><span>Pass Rate</span><strong>{{ roundPercentage(passed, total) }}%</strong></li>
 						</ul>
-					</mat-card>
-
-					<mat-card class="split-card">
-						<h3>Rules by Page</h3>
-						<ul>
+					</div>
+					<div class="sub-card">
+						<h3 class="sub-card__title">Rules by Page</h3>
+						<ul class="key-value-list">
 							@for (item of byPageChart; track item.label) {
 								<li><span>{{ item.label }}</span><strong>{{ item.value }}</strong></li>
 							}
 						</ul>
-					</mat-card>
-				</div>
-			</section>
-
-			<section id="page-layout" class="section-card">
-				<h2>Page Layout Viewer</h2>
-				@if (pages.length > 0) {
-					<app-page-layout-viewer [pages]="pages" [projectId]="projectId"></app-page-layout-viewer>
-				} @else {
-					<div class="fix-box">
-						<p>No page layout data available. Run analysis to extract page visual information.</p>
 					</div>
-				}
+				</div>
 			</section>
 
-			<section id="quality-report" class="section-card">
-				<h2>Quality Report</h2>
-				<div class="stats-grid">
-					<div class="stat-card"><div class="stat-value">{{ total }}</div><div class="stat-label">Total</div></div>
-					<div class="stat-card" style="background: var(--success-bg); border-color: var(--success-border);"><div class="stat-value">{{ passed }}</div><div class="stat-label">Passed</div></div>
-					<div class="stat-card error"><div class="stat-value">{{ failed }}</div><div class="stat-label">Failed</div></div>
-					<div class="stat-card info"><div class="stat-value">{{ project?.visual_count || 0 }}</div><div class="stat-label">Pages</div></div>
+			<!-- Quality Report -->
+			<section id="quality-report" class="card">
+				<h2 class="card__title">Quality Report</h2>
+				<div class="severity-strip">
+					<div class="severity-card">
+						<div class="severity-val">{{ total }}</div>
+						<div class="severity-lbl">Total</div>
+					</div>
+					<div class="severity-card severity-card--pass">
+						<div class="severity-val">{{ passed }}</div>
+						<div class="severity-lbl">Passed</div>
+					</div>
+					<div class="severity-card severity-card--fail">
+						<div class="severity-val">{{ failed }}</div>
+						<div class="severity-lbl">Failed</div>
+					</div>
+					<div class="severity-card severity-card--info">
+						<div class="severity-val">{{ project?.visual_count || 0 }}</div>
+						<div class="severity-lbl">Pages</div>
+					</div>
 				</div>
 
-				<div class="charts-grid">
+				<div class="charts-row">
 					<app-chart-card [title]="'Pass / Fail Ratio'" [items]="passFailChart"></app-chart-card>
 					<app-chart-card [title]="'Failed Rules by Page'" [items]="failedByPageChart"></app-chart-card>
 					<app-chart-card [title]="'Rules by Page'" [items]="byPageChart"></app-chart-card>
 				</div>
 			</section>
 
-			<section id="issues-list" class="section-card">
-				<h2>Inspector Results</h2>
-				<div class="toolbar-grid top-space">
+			<!-- Issues List -->
+			<section id="issues-list" class="card">
+				<h2 class="card__title">Inspector Results</h2>
+
+				<div class="filters-row">
 					<mat-form-field appearance="outline">
 						<mat-label>Status</mat-label>
 						<mat-select [formControl]="passedFilter">
@@ -177,45 +165,45 @@
 					</mat-form-field>
 				</div>
 
-				<div class="violations-header">
-					<span class="violations-count">{{ filteredResults.length }} results · Page {{ currentPage }} of {{ totalPages || 1 }}</span>
+				<div class="violations-meta">
+					<span>{{ filteredResults.length }} results</span>
+					<span>Page {{ currentPage }} of {{ totalPages || 1 }}</span>
 				</div>
 
 				<mat-accordion>
 					@for (item of paginatedResults; track item.id) {
 						<mat-expansion-panel>
 							<mat-expansion-panel-header>
-								<div class="panel-header-wrap">
-									<div class="panel-title-line">
+								<div class="v-header">
+									<div class="v-header__top">
 										<app-severity-badge [label]="item.passed ? 'Passed' : 'Failed'" [tone]="item.passed ? 'success' : 'error'"></app-severity-badge>
-										<span class="ml">{{ item.rule_name }}</span>
+										<span class="v-header__rule">{{ item.rule_name }}</span>
 									</div>
-									<div class="panel-desc-line">Page: {{ displayPageName(item.page_name) }}</div>
+									<div class="v-header__obj">Page: {{ displayPageName(item.page_name) }}</div>
 								</div>
 							</mat-expansion-panel-header>
 
-							<div class="fix-box">
-								<div class="fix-meta">
-									<span class="fix-tag">{{ item.passed ? 'PASS' : 'FAIL' }}</span>
-									<span class="fix-label-inline">Page:</span>
-									<span class="fix-object">{{ displayPageName(item.page_name) }}</span>
+							<div class="v-detail">
+								<div class="v-detail__tags">
+									<span class="tag" [class.tag--pass]="item.passed" [class.tag--fail]="!item.passed">{{ item.passed ? 'PASS' : 'FAIL' }}</span>
+									<span class="tag">{{ displayPageName(item.page_name) }}</span>
 								</div>
 
-								<div class="fix-section">
-									<div class="fix-label">Description</div>
+								<div class="v-detail__section">
+									<div class="v-detail__label">Description</div>
 									<p>{{ item.rule_description || '-' }}</p>
 								</div>
 
 								@if (item.expected || item.actual) {
-									<div class="fix-section">
-										<div class="fix-label">Details</div>
+									<div class="v-detail__section">
+										<div class="v-detail__label">Details</div>
 										@if (item.expected) {
 											<p><strong>Expected:</strong></p>
-											<pre>{{ item.expected | json }}</pre>
+											<pre class="code-block">{{ item.expected | json }}</pre>
 										}
 										@if (item.actual) {
 											<p><strong>Actual:</strong></p>
-											<pre>{{ item.actual | json }}</pre>
+											<pre class="code-block">{{ item.actual | json }}</pre>
 										}
 									</div>
 								}
@@ -226,25 +214,27 @@
 
 				@if (filteredResults.length) {
 					<nav class="pagination">
-						<button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+						<button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
 							<mat-icon>chevron_left</mat-icon>
 						</button>
 						@for (p of pageNumbers; track p) {
-							<button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+							<button class="pg-btn" [class.pg-btn--active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
 						}
-						<button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+						<button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
 							<mat-icon>chevron_right</mat-icon>
 						</button>
 					</nav>
 				}
 
 				@if (!results.length) {
-					<div class="fix-box top-space">
+					<div class="empty-state">
+						<mat-icon>check_circle</mat-icon>
 						<strong>No Inspector results found.</strong>
-						<p>This usually means Inspector did not run successfully for this project yet. Re-run Analyze and refresh this page.</p>
+						<p>Inspector did not run successfully yet. Re-run Analyze and refresh.</p>
 					</div>
 				}
 			</section>
 		</div>
 	</div>
+
 </section>

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -18,13 +17,11 @@ import { PageService } from '../../services/page.service';
 import { InspectorResult, Project } from '../../shared/models/api.models';
 import { SeverityBadgeComponent } from '../../shared/components/severity-badge/severity-badge.component';
 import { ChartCardComponent } from '../../shared/components/chart-card/chart-card.component';
-import { PageLayoutViewerComponent } from '../../shared/components/page-layout-viewer/page-layout-viewer.component';
 
 @Component({
   selector: 'app-inspector-results',
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
@@ -36,7 +33,6 @@ import { PageLayoutViewerComponent } from '../../shared/components/page-layout-v
     MatAutocompleteModule,
     SeverityBadgeComponent,
     ChartCardComponent,
-    PageLayoutViewerComponent,
   ],
   templateUrl: './inspector-results.component.html',
   styleUrl: './inspector-results.component.scss'

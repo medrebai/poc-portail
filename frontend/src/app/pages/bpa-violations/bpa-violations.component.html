@@ -1,183 +1,168 @@
-<section class="model-shell">
-	@if (project) {
-		<mat-card class="project-header-card">
-			<div class="project-header-main">
-				<div class="project-thumb" aria-hidden="true">
-					<mat-icon>analytics</mat-icon>
-				</div>
-				<div class="project-meta">
-					<div class="project-title-row">
-						<h1>{{ project.name }}</h1>
-						<span class="env-chip">dev</span>
-					</div>
-					<p>Last updated {{ project.updated_at ? (project.updated_at | date:'medium') : 'n/a' }}</p>
-					<p>Created {{ project.created_at ? (project.created_at | date:'medium') : 'n/a' }}</p>
-				</div>
-			</div>
-			<div class="project-header-actions">
-				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
-				<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']">View documentation</a>
-			</div>
-		</mat-card>
-	}
+<section class="bpa-shell">
 
-	<div class="page-head">
-		<div>
-			<h1 class="page-title">Model Quality Explorer</h1>
-			<p class="page-subtitle">Semantic model review with structure KPIs, model overview, and BPA violations explorer.</p>
+	<!-- Page Header -->
+	<div class="page-header">
+		<div class="page-header-left">
+			<h1 class="page-title">Model Audit</h1>
+			<p class="page-subtitle">Semantic model review — structure KPIs, BPA violations, and quality scores.</p>
 		</div>
-		<button mat-flat-button color="primary" (click)="export()">
-			<mat-icon>download</mat-icon>
-			Export BPA
-		</button>
-	</div>
-
-	<div class="nav-tabs">
-		<div class="tab-group">
-			<span class="group-label">Audit</span>
-			<div class="group-tabs">
-				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'overview']">Overview</a>
-				<a class="tab active" [routerLink]="['/projects', projectId, 'audit', 'model']">Model</a>
-				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'visual']">Visual</a>
-				<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'optimization']">Optimization</a>
-			</div>
-		</div>
-		<div class="tab-group doc-group">
-			<span class="group-label">Documentation</span>
-			<div class="group-tabs">
-				<a class="tab" [routerLink]="['/projects', projectId, 'documentation']">Report Catalog</a>
-			</div>
+		<div class="page-header-right">
+			<button mat-flat-button color="primary" (click)="export()" class="export-btn">
+				<mat-icon>download</mat-icon>
+				Export
+			</button>
 		</div>
 	</div>
 
-	<div class="top-cards-grid">
+	<!-- KPI Strip -->
+	<div class="kpi-strip">
 		@for (card of modelCards; track card.label) {
-			<mat-card class="top-card">
-				<div class="top-card-value">{{ card.value }}</div>
-				<div class="top-card-label">{{ card.label }}</div>
-			</mat-card>
+			<div class="kpi-card">
+				<div class="kpi-value">{{ card.value }}</div>
+				<div class="kpi-label">{{ card.label }}</div>
+			</div>
 		}
 	</div>
 
-	<div class="model-layout">
-		<aside class="left-nav">
-			<button type="button" (click)="scrollTo('model-overview')">Model Overview</button>
-			<button type="button" (click)="scrollTo('quality-report')">Quality Report</button>
-			<button type="button" (click)="scrollTo('violations-list')">Violations List</button>
+	<!-- Content Sections -->
+	<div class="content-grid">
+		<aside class="content-nav">
+			<button type="button" (click)="scrollTo('model-overview')" class="nav-btn">
+				<mat-icon>info</mat-icon> Model Overview
+			</button>
+			<button type="button" (click)="scrollTo('quality-report')" class="nav-btn">
+				<mat-icon>assessment</mat-icon> Quality Report
+			</button>
+			<button type="button" (click)="scrollTo('violations-list')" class="nav-btn">
+				<mat-icon>warning</mat-icon> Violations
+			</button>
 		</aside>
 
-		<div class="model-content">
-			<section id="model-overview" class="section-card">
-				<h2>Model Overview</h2>
-				<div class="overview-info-cards">
-					<mat-card class="info-card">
-						<div class="label">Dataset Size</div>
+		<div class="content-main">
+
+			<!-- Model Overview -->
+			<section id="model-overview" class="card">
+				<h2 class="card__title">Model Overview</h2>
+				<div class="info-row">
+					<div class="info-block">
+						<div class="info-block__label">Dataset Size</div>
 						@if (!isDatasetEditing) {
-							<div class="dataset-size-display">
-								<div class="dataset-size-value">{{ datasetSizeDisplayValue }}</div>
-								<button mat-stroked-button class="dataset-size-edit-btn" (click)="startDatasetSizeEdit()">
+							<div class="dataset-display">
+								<span class="dataset-value">{{ datasetSizeDisplayValue }}</span>
+								<button mat-icon-button (click)="startDatasetSizeEdit()" class="edit-btn">
 									<mat-icon>edit</mat-icon>
-									Edit
 								</button>
 							</div>
 						} @else {
-							<div class="dataset-size-editor">
-								<mat-form-field appearance="outline" class="dataset-size-field value">
+							<div class="dataset-editor">
+								<mat-form-field appearance="outline" class="field-sm">
 									<input matInput [formControl]="datasetSizeValueInput" placeholder="e.g. 1.8" />
 								</mat-form-field>
-								<mat-form-field appearance="outline" class="dataset-size-field unit">
+								<mat-form-field appearance="outline" class="field-sm field-unit">
 									<mat-select [formControl]="datasetSizeUnitInput">
 										<mat-option value="GB">GB</mat-option>
 										<mat-option value="MB">MB</mat-option>
 									</mat-select>
 								</mat-form-field>
-							</div>
-							<div class="dataset-size-actions">
-								<button mat-stroked-button (click)="cancelDatasetSizeEdit()">Cancel</button>
-								<button mat-flat-button color="primary" (click)="saveDatasetSizeEdit()" [disabled]="!datasetSizeValueInput.value.trim()">Save</button>
+								<button mat-icon-button (click)="cancelDatasetSizeEdit()"><mat-icon>close</mat-icon></button>
+								<button mat-icon-button color="primary" (click)="saveDatasetSizeEdit()" [disabled]="!datasetSizeValueInput.value.trim()"><mat-icon>check</mat-icon></button>
 							</div>
 						}
-						<div class="value-subtext">Manual input (saved per project)</div>
-						<div class="value-subtext">Last update: {{ datasetSizeLastUpdated ? (datasetSizeLastUpdated | date:'medium') : 'n/a' }}</div>
-					</mat-card>
-					<mat-card class="info-card dataset-trend-card">
-						<div class="label">Dataset Evolution (MB)</div>
+						<div class="info-sub">Last update: {{ datasetSizeLastUpdated ? (datasetSizeLastUpdated | date:'medium') : 'n/a' }}</div>
+					</div>
+
+					<div class="info-block trend-block">
+						<div class="info-block__label">Dataset Evolution (MB)</div>
 						@if (datasetSizeHasTrendData) {
 							<div class="trend-chart-wrap">
-								<svg viewBox="0 0 620 170" preserveAspectRatio="none" class="trend-chart-svg">
+								<svg viewBox="0 0 620 170" preserveAspectRatio="none" class="trend-svg">
 									<defs>
 										<linearGradient id="datasetAreaGradient" x1="0" y1="0" x2="0" y2="1">
-											<stop offset="0%" stop-color="#3b82f6" stop-opacity="0.28"></stop>
-											<stop offset="100%" stop-color="#3b82f6" stop-opacity="0.03"></stop>
+											<stop offset="0%" stop-color="#0F52BA" stop-opacity="0.2"></stop>
+											<stop offset="100%" stop-color="#0F52BA" stop-opacity="0.02"></stop>
 										</linearGradient>
 									</defs>
-									<line x1="26" y1="16" x2="26" y2="142" class="line-axis"></line>
-									<line x1="26" y1="142" x2="602" y2="142" class="line-axis"></line>
-									<polygon [attr.points]="datasetSizeTrendAreaPoints" class="line-area"></polygon>
-									<polyline [attr.points]="datasetSizeTrendPoints" class="line-path"></polyline>
+									<line x1="26" y1="16" x2="26" y2="142" class="axis-line"></line>
+									<line x1="26" y1="142" x2="602" y2="142" class="axis-line"></line>
+									<polygon [attr.points]="datasetSizeTrendAreaPoints" class="area-fill"></polygon>
+									<polyline [attr.points]="datasetSizeTrendPoints" class="trend-line"></polyline>
 									@for (point of datasetSizeTrendPlotPoints; track point.label + '-' + point.value) {
-										<circle [attr.cx]="point.x" [attr.cy]="point.y" r="4.2" class="line-dot">
+										<circle [attr.cx]="point.x" [attr.cy]="point.y" r="4" class="trend-dot">
 											<title>{{ point.tooltip || (point.label + ': ' + point.value + ' MB') }}</title>
 										</circle>
 									}
 								</svg>
 							</div>
-							<div class="line-chart-meta compact">
+							<div class="trend-meta">
 								<span>Min {{ datasetSizeTrendMinMb | number:'1.0-1' }} MB</span>
 								<span>Max {{ datasetSizeTrendMaxMb | number:'1.0-1' }} MB</span>
 							</div>
 						} @else {
-							<div class="line-chart-empty compact">Need at least 2 saved points to draw the trend.</div>
+							<div class="empty-state-sm">Need at least 2 saved points to draw the trend.</div>
 						}
-					</mat-card>
+					</div>
 				</div>
 
-				<div class="overview-split">
-					<mat-card class="split-card">
-						<h3>Model Stats</h3>
-						<ul>
+				<div class="split-row">
+					<div class="sub-card">
+						<h3 class="sub-card__title">Model Stats</h3>
+						<ul class="key-value-list">
 							@for (item of modelStats; track item.label) {
 								<li><span>{{ item.label }}</span><strong>{{ item.value }}</strong></li>
 							}
 						</ul>
-					</mat-card>
-
-					<mat-card class="split-card">
-						<h3>BPA Score Breakdown</h3>
+					</div>
+					<div class="sub-card">
+						<h3 class="sub-card__title">BPA Score Breakdown</h3>
 						@for (score of scoreBreakdown; track score.label) {
 							<div class="score-row">
-								<div class="score-meta">
+								<div class="score-row__meta">
 									<span>{{ score.label }}</span>
 									<strong>{{ score.percent }}%</strong>
 								</div>
-								<div class="score-track">
-									<div class="score-fill" [ngClass]="score.tone" [style.width.%]="score.percent"></div>
+								<div class="score-bar-track">
+									<div class="score-bar-fill" [ngClass]="score.tone" [style.width.%]="score.percent"></div>
 								</div>
 							</div>
 						}
-					</mat-card>
+					</div>
 				</div>
 			</section>
 
-			<section id="quality-report" class="section-card">
-				<h2>Quality Report</h2>
-				<div class="stats-grid">
-					<div class="stat-card"><div class="stat-value">{{ totalCount }}</div><div class="stat-label">Total</div></div>
-					<div class="stat-card error"><div class="stat-value">{{ errorCount }}</div><div class="stat-label">Errors</div></div>
-					<div class="stat-card warning"><div class="stat-value">{{ warningCount }}</div><div class="stat-label">Warnings</div></div>
-					<div class="stat-card info"><div class="stat-value">{{ infoCount }}</div><div class="stat-label">Info</div></div>
+			<!-- Quality Report -->
+			<section id="quality-report" class="card">
+				<h2 class="card__title">Quality Report</h2>
+				<div class="severity-strip">
+					<div class="severity-card">
+						<div class="severity-val">{{ totalCount }}</div>
+						<div class="severity-lbl">Total</div>
+					</div>
+					<div class="severity-card severity-card--error">
+						<div class="severity-val">{{ errorCount }}</div>
+						<div class="severity-lbl">Errors</div>
+					</div>
+					<div class="severity-card severity-card--warn">
+						<div class="severity-val">{{ warningCount }}</div>
+						<div class="severity-lbl">Warnings</div>
+					</div>
+					<div class="severity-card severity-card--info">
+						<div class="severity-val">{{ infoCount }}</div>
+						<div class="severity-lbl">Info</div>
+					</div>
 				</div>
 
-				<div class="charts-grid">
+				<div class="charts-row">
 					<app-chart-card [title]="'By Category'" [items]="byCategory"></app-chart-card>
 					<app-chart-card [title]="'By Severity'" [items]="bySeverity"></app-chart-card>
 					<app-chart-card [title]="'Top Rules'" [items]="topRules"></app-chart-card>
 				</div>
 			</section>
 
-			<section id="violations-list" class="section-card">
-				<h2>BPA Violations</h2>
-				<div class="toolbar-grid top-space">
+			<!-- Violations List -->
+			<section id="violations-list" class="card">
+				<h2 class="card__title">BPA Violations</h2>
+
+				<div class="filters-row">
 					<mat-form-field appearance="outline">
 						<mat-label>Severity</mat-label>
 						<mat-select [formControl]="severityFilter">
@@ -197,6 +182,7 @@
 							}
 						</mat-select>
 					</mat-form-field>
+
 					<mat-form-field appearance="outline">
 						<mat-label>Object</mat-label>
 						<input matInput [formControl]="objectFilter" [matAutocomplete]="auto" />
@@ -206,7 +192,12 @@
 							}
 						</mat-autocomplete>
 					</mat-form-field>
-					<mat-form-field appearance="outline"><mat-label>Rule ID</mat-label><input matInput [formControl]="ruleFilter" /></mat-form-field>
+
+					<mat-form-field appearance="outline">
+						<mat-label>Rule ID</mat-label>
+						<input matInput [formControl]="ruleFilter" />
+					</mat-form-field>
+
 					<mat-form-field appearance="outline">
 						<mat-label>Object type</mat-label>
 						<mat-select [formControl]="objectTypeFilter">
@@ -218,38 +209,38 @@
 					</mat-form-field>
 				</div>
 
-				<div class="violations-header">
-					<span class="violations-count">{{ filteredViolations.length }} violations · Page {{ currentPage }} of {{ totalPages || 1 }}</span>
+				<div class="violations-meta">
+					<span>{{ filteredViolations.length }} violations</span>
+					<span>Page {{ currentPage }} of {{ totalPages || 1 }}</span>
 				</div>
 
 				<mat-accordion>
 					@for (item of paginatedViolations; track item.id) {
 						<mat-expansion-panel>
 							<mat-expansion-panel-header>
-								<div class="panel-header-wrap">
-									<div class="panel-title-line">
+								<div class="v-header">
+									<div class="v-header__top">
 										<app-severity-badge [label]="item.severity_label" [tone]="tone(item.severity)"></app-severity-badge>
-										<span class="ml">{{ item.rule_name }}</span>
+										<span class="v-header__rule">{{ item.rule_name }}</span>
 									</div>
-									<div class="panel-desc-line">Object: {{ item.table_name }}[{{ item.object_name }}]</div>
+									<div class="v-header__obj">{{ item.table_name }}[{{ item.object_name }}]</div>
 								</div>
 							</mat-expansion-panel-header>
 
-							<div class="fix-box">
-								<div class="fix-meta">
-									<span class="fix-tag">{{ item.object_type }}</span>
-									<span class="fix-tag category">{{ item.category }}</span>
-									<span class="fix-label-inline">Object:</span>
-									<span class="fix-object">{{ item.table_name }}[{{ item.object_name }}]</span>
+							<div class="v-detail">
+								<div class="v-detail__tags">
+									<span class="tag">{{ item.object_type }}</span>
+									<span class="tag tag--accent">{{ item.category }}</span>
+									<span class="tag tag--object">{{ item.table_name }}[{{ item.object_name }}]</span>
 								</div>
 
-								<div class="fix-section">
-									<div class="fix-label">Description</div>
+								<div class="v-detail__section">
+									<div class="v-detail__label">Description</div>
 									<p>{{ item.description }}</p>
 								</div>
 
-								<div class="fix-section">
-									<div class="fix-label">Suggested Fix</div>
+								<div class="v-detail__section">
+									<div class="v-detail__label">Suggested Fix</div>
 									<p>{{ item.fix_steps?.action || item.fix_template || 'Manual review required' }}</p>
 									@if (item.fix_steps?.steps?.length) {
 										<ol>
@@ -266,25 +257,27 @@
 
 				@if (filteredViolations.length) {
 					<nav class="pagination">
-						<button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+						<button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
 							<mat-icon>chevron_left</mat-icon>
 						</button>
 						@for (p of pageNumbers; track p) {
-							<button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+							<button class="pg-btn" [class.pg-btn--active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
 						}
-						<button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+						<button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
 							<mat-icon>chevron_right</mat-icon>
 						</button>
 					</nav>
 				}
 
 				@if (!violations.length) {
-					<div class="fix-box top-space">
+					<div class="empty-state">
+						<mat-icon>check_circle</mat-icon>
 						<strong>No BPA violations found.</strong>
-						<p>This can mean either no violations were returned, or BPA analysis did not complete for this project. Re-run Analyze from the project creation flow if needed.</p>
+						<p>No violations were returned, or BPA analysis did not complete. Re-run Analyze if needed.</p>
 					</div>
 				}
 			</section>
 		</div>
 	</div>
+
 </section>

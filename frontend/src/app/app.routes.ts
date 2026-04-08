@@ -34,6 +34,10 @@ export const routes: Routes = [
 		path: 'projects/:id/documentation',
 		loadComponent: () => import('./pages/model-catalog/model-catalog.component').then((m) => m.ModelCatalogComponent),
 	},
+	{
+		path: 'projects/:id/documentation/visuals',
+		loadComponent: () => import('./pages/visual-explorer/visual-explorer.component').then((m) => m.VisualExplorerComponent),
+	},
 
 	// Backward-compatible legacy paths
 	{

@@ -1,79 +1,71 @@
 @if (catalog && project) {
-	<section class="model-shell">
-		<mat-card class="project-header-card">
-			<div class="project-header-main">
-				<div class="project-thumb" aria-hidden="true">
-					<mat-icon>analytics</mat-icon>
-				</div>
-				<div class="project-meta">
-					<div class="project-title-row">
-						<h1>{{ project.name }}</h1>
-						<span class="env-chip">dev</span>
-					</div>
-					<p>Last updated {{ project.updated_at ? (project.updated_at | date:'medium') : 'n/a' }}</p>
-					<p>Created {{ project.created_at ? (project.created_at | date:'medium') : 'n/a' }}</p>
-				</div>
-			</div>
-			<div class="project-header-actions">
-				<app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
-				<a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']">View documentation</a>
-			</div>
-		</mat-card>
+	<section class="catalog-shell">
 
-		<div class="page-head">
-			<div>
-				<h1 class="page-title">Model Documentation Explorer</h1>
+		<!-- Page Header -->
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Model Explorer</h1>
 				<p class="page-subtitle">Browse every table, column, measure, relationship, and role with granular filters.</p>
 			</div>
-			<button mat-flat-button color="primary" class="primary-cta" (click)="exportCatalog()">
-				<mat-icon>download</mat-icon>
-				Export Catalog
-			</button>
-		</div>
-
-		<div class="nav-tabs">
-			<div class="tab-group">
-				<span class="group-label">Audit</span>
-				<div class="group-tabs">
-					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'overview']">Overview</a>
-					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'model']">Model</a>
-					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'visual']">Visual</a>
-					<a class="tab" [routerLink]="['/projects', projectId, 'audit', 'optimization']">Optimization</a>
-				</div>
-			</div>
-			<div class="tab-group doc-group">
-				<span class="group-label">Documentation</span>
-				<div class="group-tabs">
-					<a class="tab active report-catalog-tab" [routerLink]="['/projects', projectId, 'documentation']">
-						<mat-icon>menu_book</mat-icon>
-						<span>Report Catalog</span>
-					</a>
-				</div>
+			<div class="page-header-right">
+				<button mat-flat-button color="primary" (click)="exportCatalog()" class="export-btn">
+					<mat-icon>download</mat-icon>
+					Export Catalog
+				</button>
 			</div>
 		</div>
 
-		<!-- Top Stats Cards -->
-		<div class="top-cards-grid">
-			<mat-card class="top-card">
-				<div class="top-card-value">{{ (catalog.tables || []).length }}</div>
-				<div class="top-card-label">Tables</div>
-			</mat-card>
-			<mat-card class="top-card">
-				<div class="top-card-value">{{ allMeasures.length }}</div>
-				<div class="top-card-label">Measures</div>
-			</mat-card>
-			<mat-card class="top-card">
-				<div class="top-card-value">{{ totalPartitions }}</div>
-				<div class="top-card-label">Total Partitions</div>
-			</mat-card>
-			<mat-card class="top-card">
-				<div class="top-card-value">{{ (catalog.relationships || []).length }}</div>
-				<div class="top-card-label">Relationships</div>
-			</mat-card>
-			<mat-card class="top-card">
-				<div class="top-card-value">{{ (catalog.roles || []).length }}</div>
-				<div class="top-card-label">RLS Roles</div>
-			</mat-card>
+		<!-- KPI Strip -->
+		<div class="kpi-strip">
+			<div class="kpi-card">
+				<div class="kpi-icon kpi-icon--tables"><mat-icon>table_chart</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ project.table_count || (catalog.tables || []).length }}</div>
+					<div class="kpi-label">Tables</div>
+				</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-icon kpi-icon--columns"><mat-icon>view_column</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ project.column_count || 0 }}</div>
+					<div class="kpi-label">Columns</div>
+				</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-icon kpi-icon--measures"><mat-icon>functions</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ project.measure_count || allMeasures.length }}</div>
+					<div class="kpi-label">Measures</div>
+				</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-icon kpi-icon--relationships"><mat-icon>account_tree</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ project.relationship_count || (catalog.relationships || []).length }}</div>
+					<div class="kpi-label">Relationships</div>
+				</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-icon kpi-icon--pages"><mat-icon>web</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ project.visual_count || 0 }}</div>
+					<div class="kpi-label">Pages</div>
+				</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-icon kpi-icon--partitions"><mat-icon>storage</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ totalPartitions }}</div>
+					<div class="kpi-label">Partitions</div>
+				</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-icon kpi-icon--roles"><mat-icon>admin_panel_settings</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ (catalog.roles || []).length }}</div>
+					<div class="kpi-label">RLS Roles</div>
+				</div>
+			</div>
 		</div>
 
 		<mat-tab-group>
@@ -81,33 +73,6 @@
 				<div class="tab-content">
 					<div class="section-card documentation-overview-section">
 						<h2>Documentation Overview</h2>
-
-						<div class="top-cards-grid overview-cards-grid">
-							<mat-card class="top-card">
-								<div class="top-card-value">{{ project.table_count || (catalog.tables || []).length }}</div>
-								<div class="top-card-label">Tables</div>
-							</mat-card>
-							<mat-card class="top-card">
-								<div class="top-card-value">{{ project.column_count || 0 }}</div>
-								<div class="top-card-label">Columns</div>
-							</mat-card>
-							<mat-card class="top-card">
-								<div class="top-card-value">{{ project.measure_count || allMeasures.length }}</div>
-								<div class="top-card-label">Measures</div>
-							</mat-card>
-							<mat-card class="top-card">
-								<div class="top-card-value">{{ project.relationship_count || (catalog.relationships || []).length }}</div>
-								<div class="top-card-label">Relationships</div>
-							</mat-card>
-							<mat-card class="top-card">
-								<div class="top-card-value">{{ project.visual_count || 0 }}</div>
-								<div class="top-card-label">Pages</div>
-							</mat-card>
-							<mat-card class="top-card">
-								<div class="top-card-value">{{ project.data_source_count || 0 }}</div>
-								<div class="top-card-label">Data Sources</div>
-							</mat-card>
-						</div>
 
 						<div class="overview-split">
 							<mat-card class="split-card">
@@ -810,112 +775,6 @@
 				</div>
 			</mat-tab>
 
-			<!-- Lineage Tab -->
-			<mat-tab label="Lineage">
-				<ng-template matTabContent>
-					<div class="tab-content lineage-tab">
-							<div class="lineage-main">
-								<div class="lineage-head">
-									<h2>Visual Lineage</h2>
-								</div>
-
-								<div class="lineage-tabs">
-									<button class="lineage-tab-btn" [class.active]="lineageMode === 'full'" (click)="switchLineageMode('full')">Full Lineage</button>
-									<button class="lineage-tab-btn" [class.active]="lineageMode === 'visual'" (click)="switchLineageMode('visual')">Visual Trace</button>
-									<button class="lineage-tab-btn" [class.active]="lineageMode === 'impact'" (click)="switchLineageMode('impact')">Impact Analysis</button>
-									<button class="lineage-tab-btn" [class.active]="lineageMode === 'column'" (click)="switchLineageMode('column')">Column Impact</button>
-								</div>
-
-								@if (lineageMode === 'visual') {
-									<div class="lineage-controls">
-										<label>Select a visual:</label>
-										<mat-form-field appearance="outline" class="lineage-filter-field">
-											<mat-select [(value)]="selectedVisual" (selectionChange)="loadVisualTrace()">
-												@for (v of lineageVisuals; track v) {
-													<mat-option [value]="v">{{ v.page }} — {{ v.name }}</mat-option>
-												}
-											</mat-select>
-										</mat-form-field>
-										<button mat-flat-button color="primary" class="lineage-action-btn" (click)="loadVisualTrace()" [disabled]="!selectedVisual">
-											<mat-icon>refresh</mat-icon> Refresh Trace
-										</button>
-									</div>
-								}
-
-								@if (lineageMode === 'impact') {
-									<div class="lineage-controls">
-										<label>Select a measure:</label>
-										<mat-form-field appearance="outline" class="lineage-filter-field">
-											<mat-select [(value)]="selectedMeasure" (selectionChange)="loadMeasureImpact()">
-												@for (m of lineageMeasures; track m) {
-													<mat-option [value]="m">{{ m }}</mat-option>
-												}
-											</mat-select>
-										</mat-form-field>
-										<button mat-flat-button color="primary" class="lineage-action-btn" (click)="loadMeasureImpact()" [disabled]="!selectedMeasure">
-											<mat-icon>refresh</mat-icon> Refresh Trace
-										</button>
-									</div>
-								}
-
-								@if (lineageMode === 'column') {
-									<div class="lineage-controls">
-										<label>Table:</label>
-										<mat-form-field appearance="outline" class="lineage-filter-field">
-											<mat-select [(value)]="selectedLineageTable" (selectionChange)="onLineageTableChange(true)">
-												@for (t of lineageTables; track t) {
-													<mat-option [value]="t">{{ t }}</mat-option>
-												}
-											</mat-select>
-										</mat-form-field>
-										<label>Column:</label>
-										<mat-form-field appearance="outline" class="lineage-filter-field">
-											<mat-select [(value)]="selectedColumn" [disabled]="!selectedLineageTable" (selectionChange)="loadColumnImpact()">
-												@for (c of lineageColumns; track c) {
-													<mat-option [value]="c">{{ c }}</mat-option>
-												}
-											</mat-select>
-										</mat-form-field>
-										<button mat-flat-button class="lineage-impact-btn lineage-action-btn" (click)="loadColumnImpact()" [disabled]="!selectedColumn">
-											<mat-icon>refresh</mat-icon> Refresh Trace
-										</button>
-									</div>
-								}
-
-								<div class="lineage-container" #lineageContainer>
-									@if (lineageLoading) {
-										<div class="lineage-loading">
-											<mat-icon>hourglass_empty</mat-icon>
-											<p>Loading lineage data...</p>
-										</div>
-									}
-									@if (!lineageLoading && lineageNodes.length === 0 && lineageMode === 'full') {
-										<div class="lineage-empty">
-											<mat-icon>account_tree</mat-icon>
-											<p>No lineage data available. Click "Full Lineage" to load or run analysis first.</p>
-										</div>
-									}
-									@if (!lineageLoading && lineageNodes.length > 0) {
-										<app-lineage-renderer
-											[nodes]="lineageNodes"
-											[edges]="lineageEdges"
-											[zoom]="lineageZoom"
-											[recenterToken]="lineageRecenterToken"
-										></app-lineage-renderer>
-									}
-
-									<div class="lineage-zoom-controls">
-										<button mat-icon-button (click)="zoomIn()"><mat-icon>add</mat-icon></button>
-										<button mat-icon-button (click)="zoomOut()"><mat-icon>remove</mat-icon></button>
-										<button mat-icon-button (click)="toggleLineageFullscreen()"><mat-icon>fullscreen</mat-icon></button>
-										<button mat-icon-button (click)="resetZoom()"><mat-icon>center_focus_strong</mat-icon></button>
-										<button mat-icon-button (click)="exportLineageSvg()"><mat-icon>download</mat-icon></button>
-									</div>
-								</div>
-							</div>
-					</div>
-				</ng-template>
-			</mat-tab>
 		</mat-tab-group>
 	</section>
 }

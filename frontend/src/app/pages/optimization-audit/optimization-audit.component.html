@@ -1,286 +1,262 @@
-<section class="model-shell">
-  @if (project) {
-    <mat-card class="project-header-card">
-      <div class="project-header-main">
-        <div class="project-thumb" aria-hidden="true">
-          <mat-icon>tune</mat-icon>
-        </div>
-        <div class="project-meta">
-          <div class="project-title-row">
-            <h1>{{ project.name }}</h1>
-            <span class="env-chip">dev</span>
-          </div>
-          <p>Last updated {{ project.updated_at ? (project.updated_at | date:'medium') : 'n/a' }}</p>
-          <p>Created {{ project.created_at ? (project.created_at | date:'medium') : 'n/a' }}</p>
-        </div>
-      </div>
-      <div class="project-header-actions">
-        <app-severity-badge [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
-        <a mat-stroked-button [routerLink]="['/projects', projectId, 'documentation']">View documentation</a>
-      </div>
-    </mat-card>
-  }
+<section class="optimization-shell">
 
-  <div class="page-head">
-    <div>
-      <h1 class="page-title">Model Optimization Explorer</h1>
-      <p class="page-subtitle">Optimization checks with usage status, visibility context, DAX-aware relationship logic, and per-row explanations.</p>
-    </div>
-  </div>
+	<!-- Page Header -->
+	<div class="page-header">
+		<div class="page-header-left">
+			<h1 class="page-title">Model Optimization</h1>
+			<p class="page-subtitle">Optimization checks with usage status, visibility context, and DAX-aware relationship logic.</p>
+		</div>
+		<div class="page-header-right">
+			<app-severity-badge *ngIf="project" [label]="project.status" [tone]="statusTone(project.status)"></app-severity-badge>
+		</div>
+	</div>
 
-  <div class="nav-tabs">
-    <div class="tab-group">
-      <span class="group-label">Audit</span>
-      <div class="group-tabs">
-        <a class="tab" [routerLink]="['/projects', projectId, 'audit', 'overview']">Overview</a>
-        <a class="tab" [routerLink]="['/projects', projectId, 'audit', 'model']">Model</a>
-        <a class="tab" [routerLink]="['/projects', projectId, 'audit', 'visual']">Visual</a>
-        <a class="tab active" [routerLink]="['/projects', projectId, 'audit', 'optimization']">Optimization</a>
-      </div>
-    </div>
-    <div class="tab-group doc-group">
-      <span class="group-label">Documentation</span>
-      <div class="group-tabs">
-        <a class="tab" [routerLink]="['/projects', projectId, 'documentation']">Report Catalog</a>
-      </div>
-    </div>
-  </div>
+	<!-- KPI Strip -->
+	<div class="kpi-strip">
+		<div class="kpi-card">
+			<div class="kpi-icon kpi-icon--total"><mat-icon>checklist</mat-icon></div>
+			<div class="kpi-data">
+				<div class="kpi-value">{{ findings.length }}</div>
+				<div class="kpi-label">Total Findings</div>
+			</div>
+		</div>
+		@for (sev of severitySummary; track sev.label) {
+			<div class="kpi-card">
+				<div class="kpi-icon" [ngClass]="'kpi-icon--' + sev.label.toLowerCase()"><mat-icon>{{ sev.label === 'High' ? 'error' : sev.label === 'Medium' ? 'warning' : 'info' }}</mat-icon></div>
+				<div class="kpi-data">
+					<div class="kpi-value">{{ sev.count }}</div>
+					<div class="kpi-label">{{ sev.label }}</div>
+				</div>
+			</div>
+		}
+	</div>
 
-  <div class="top-cards-grid">
-    <mat-card class="top-card">
-      <div class="top-card-value">{{ findings.length }}</div>
-      <div class="top-card-label">Total Findings</div>
-    </mat-card>
-    @for (sev of severitySummary; track sev.label) {
-      <mat-card class="top-card">
-        <div class="top-card-value">{{ sev.count }}</div>
-        <div class="top-card-label">{{ sev.label }} Severity</div>
-      </mat-card>
-    }
-  </div>
+	<!-- Content -->
+	<div class="content-grid">
+		<aside class="content-nav">
+			<button type="button" (click)="scrollTo('optimization-overview')" class="nav-btn">
+				<mat-icon>dashboard</mat-icon> Checks Scope
+			</button>
+			<button type="button" (click)="scrollTo('optimization-findings')" class="nav-btn">
+				<mat-icon>list_alt</mat-icon> Findings
+			</button>
+		</aside>
 
-  <div class="model-layout">
-    <aside class="left-nav">
-      <button type="button" (click)="scrollTo('optimization-overview')">Optimization Overview</button>
-      <button type="button" (click)="scrollTo('optimization-findings')">Optimization Findings</button>
-    </aside>
+		<div class="content-main">
 
-    <div class="model-content">
-      <section id="optimization-overview" class="section-card">
-        <h2>Checks Scope</h2>
-        <p class="section-subtitle">Use the cards to focus by optimization theme. Hover a card to see detection logic.</p>
+			<!-- Checks Scope -->
+			<section id="optimization-overview" class="card">
+				<h2 class="card__title">Checks Scope</h2>
+				<p class="card__subtitle">Use the cards to focus by optimization theme. Hover a card to see detection logic.</p>
 
-        <div class="checks-grid">
-          @for (card of checkCards; track card.id) {
-            <mat-card
-              class="check-card"
-              [class.active]="isCheckActive(card.id)"
-              role="button"
-              tabindex="0"
-              [matTooltip]="checkTooltip(card.id)"
-              matTooltipPosition="above"
-              (click)="applyCheckFilter(card.id)"
-              (keydown.enter)="applyCheckFilter(card.id)"
-              (keydown.space)="applyCheckFilter(card.id); $event.preventDefault()"
-            >
-              <div class="check-id-row">
-                <div class="check-id">Check {{ card.id }}</div>
-                <span class="check-severity" [class.error]="card.severityTone === 'error'" [class.warning]="card.severityTone === 'warning'" [class.info]="card.severityTone === 'info'">
-                  {{ card.severityTone }}
-                </span>
-              </div>
-              <div class="check-title">{{ card.label }}</div>
-              <div class="check-count">{{ card.count }} finding{{ card.count !== 1 ? 's' : '' }}</div>
-            </mat-card>
-          }
-        </div>
+				<div class="checks-grid">
+					@for (card of checkCards; track card.id) {
+						<div
+							class="check-card"
+							[class.active]="isCheckActive(card.id)"
+							role="button"
+							tabindex="0"
+							[matTooltip]="checkTooltip(card.id)"
+							matTooltipPosition="above"
+							(click)="applyCheckFilter(card.id)"
+							(keydown.enter)="applyCheckFilter(card.id)"
+							(keydown.space)="applyCheckFilter(card.id); $event.preventDefault()"
+						>
+							<div class="check-id-row">
+								<div class="check-id">Check {{ card.id }}</div>
+								<span class="check-severity" [ngClass]="card.severityTone">{{ card.severityTone }}</span>
+							</div>
+							<div class="check-title">{{ card.label }}</div>
+							<div class="check-count">{{ card.count }} finding{{ card.count !== 1 ? 's' : '' }}</div>
+						</div>
+					}
+				</div>
 
-        <div class="confidence-legend-card compact">
-          <div class="confidence-legend-head">
-            <mat-icon>verified</mat-icon>
-            <h3>Confidence Legend</h3>
-          </div>
-          <div class="confidence-legend-grid">
-            <div class="legend-item">
-              <span class="tone-chip conf-high">High</span>
-              <p>Strong evidence from lineage and visual usage. Usually safe to prioritize first.</p>
-            </div>
-            <div class="legend-item">
-              <span class="tone-chip conf-medium">Medium</span>
-              <p>Partial or heuristic evidence. Recommended to review before applying changes.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+				<div class="confidence-legend">
+					<div class="confidence-legend__head">
+						<mat-icon>verified</mat-icon>
+						<h3>Confidence Legend</h3>
+					</div>
+					<div class="confidence-legend__grid">
+						<div class="legend-item">
+							<span class="tone-chip conf-high">High</span>
+							<p>Strong evidence from lineage and visual usage. Usually safe to prioritize first.</p>
+						</div>
+						<div class="legend-item">
+							<span class="tone-chip conf-medium">Medium</span>
+							<p>Partial or heuristic evidence. Recommended to review before applying changes.</p>
+						</div>
+					</div>
+				</div>
+			</section>
 
-      <section id="optimization-findings" class="section-card">
-        <h2>Optimization Findings</h2>
+			<!-- Optimization Findings -->
+			<section id="optimization-findings" class="card">
+				<h2 class="card__title">Optimization Findings</h2>
 
-        <div class="filters-shell">
-        <div class="toolbar-grid top-space">
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Search</mat-label>
-            <input matInput [formControl]="searchFilter" placeholder="Object, table, reason..." />
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
+				<div class="filters-shell">
+					<div class="filters-row">
+						<mat-form-field appearance="outline">
+							<mat-label>Search</mat-label>
+							<input matInput [formControl]="searchFilter" placeholder="Object, table, reason..." />
+							<mat-icon matSuffix>search</mat-icon>
+						</mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Check</mat-label>
-            <mat-select [formControl]="checkFilter">
-              <mat-option value="all">All checks</mat-option>
-              <mat-option value="1">1 - Unused Columns</mat-option>
-              <mat-option value="2">2 - Unused Measures</mat-option>
-              <mat-option value="3">3 - Unused Tables</mat-option>
-              <mat-option value="4">4 - Bi-Directional Relationships May Be Unnecessary</mat-option>
-              <mat-option value="5">5 - Inactive Relationships Never Activated In DAX</mat-option>
-              <mat-option value="6">6 - Hidden Measures Not Used In Visuals</mat-option>
-              <mat-option value="7">7 - Visible Technical Columns</mat-option>
-              <mat-option value="8">8 - Measures Without Format String</mat-option>
-              <mat-option value="9">9 - Large Text Columns Not Used In Visuals</mat-option>
-              <mat-option value="10">10 - Calculated Columns That Could Be Measures</mat-option>
-            </mat-select>
-          </mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Check</mat-label>
+							<mat-select [formControl]="checkFilter">
+								<mat-option value="all">All checks</mat-option>
+								<mat-option value="1">1 - Unused Columns</mat-option>
+								<mat-option value="2">2 - Unused Measures</mat-option>
+								<mat-option value="3">3 - Unused Tables</mat-option>
+								<mat-option value="4">4 - Bi-Directional Relationships</mat-option>
+								<mat-option value="5">5 - Inactive Relationships</mat-option>
+								<mat-option value="6">6 - Hidden Measures Not Used</mat-option>
+								<mat-option value="7">7 - Visible Technical Columns</mat-option>
+								<mat-option value="8">8 - Measures Without Format String</mat-option>
+								<mat-option value="9">9 - Large Text Columns</mat-option>
+								<mat-option value="10">10 - Calculated Columns</mat-option>
+							</mat-select>
+						</mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Table</mat-label>
-            <mat-select [formControl]="tableFilter">
-              <mat-option value="all">All tables</mat-option>
-              @for (table of tableOptions; track table) {
-                <mat-option [value]="table">{{ table }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Table</mat-label>
+							<mat-select [formControl]="tableFilter">
+								<mat-option value="all">All tables</mat-option>
+								@for (table of tableOptions; track table) {
+									<mat-option [value]="table">{{ table }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Object Type</mat-label>
-            <mat-select [formControl]="typeFilter">
-              <mat-option value="all">All types</mat-option>
-              <mat-option value="Table">Table</mat-option>
-              <mat-option value="Column">Column</mat-option>
-              <mat-option value="Measure">Measure</mat-option>
-              <mat-option value="Relationship">Relationship</mat-option>
-            </mat-select>
-          </mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Object Type</mat-label>
+							<mat-select [formControl]="typeFilter">
+								<mat-option value="all">All types</mat-option>
+								<mat-option value="Table">Table</mat-option>
+								<mat-option value="Column">Column</mat-option>
+								<mat-option value="Measure">Measure</mat-option>
+								<mat-option value="Relationship">Relationship</mat-option>
+							</mat-select>
+						</mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Severity</mat-label>
-            <mat-select [formControl]="severityFilter">
-              <mat-option value="all">All severities</mat-option>
-              <mat-option value="High">High</mat-option>
-              <mat-option value="Medium">Medium</mat-option>
-              <mat-option value="Low">Low</mat-option>
-            </mat-select>
-          </mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Severity</mat-label>
+							<mat-select [formControl]="severityFilter">
+								<mat-option value="all">All severities</mat-option>
+								<mat-option value="High">High</mat-option>
+								<mat-option value="Medium">Medium</mat-option>
+								<mat-option value="Low">Low</mat-option>
+							</mat-select>
+						</mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Safety</mat-label>
-            <mat-select [formControl]="safeOnlyFilter">
-              <mat-option value="all">All</mat-option>
-              <mat-option value="safe">Only safe-to-remove</mat-option>
-              <mat-option value="review">Needs review</mat-option>
-            </mat-select>
-          </mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Safety</mat-label>
+							<mat-select [formControl]="safeOnlyFilter">
+								<mat-option value="all">All</mat-option>
+								<mat-option value="safe">Only safe-to-remove</mat-option>
+								<mat-option value="review">Needs review</mat-option>
+							</mat-select>
+						</mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Usage Status</mat-label>
-            <mat-select [formControl]="usageStatusFilter">
-              <mat-option value="all">All</mat-option>
-              <mat-option value="unused">unused</mat-option>
-              <mat-option value="dependency-only">dependency-only</mat-option>
-              <mat-option value="used">used</mat-option>
-            </mat-select>
-          </mat-form-field>
+						<mat-form-field appearance="outline">
+							<mat-label>Usage Status</mat-label>
+							<mat-select [formControl]="usageStatusFilter">
+								<mat-option value="all">All</mat-option>
+								<mat-option value="unused">unused</mat-option>
+								<mat-option value="dependency-only">dependency-only</mat-option>
+								<mat-option value="used">used</mat-option>
+							</mat-select>
+						</mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Visibility</mat-label>
-            <mat-select [formControl]="visibilityFilter">
-              <mat-option value="all">All</mat-option>
-              <mat-option value="Visible">Visible</mat-option>
-              <mat-option value="Hidden">Hidden</mat-option>
-              <mat-option value="N/A">N/A</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        </div>
+						<mat-form-field appearance="outline">
+							<mat-label>Visibility</mat-label>
+							<mat-select [formControl]="visibilityFilter">
+								<mat-option value="all">All</mat-option>
+								<mat-option value="Visible">Visible</mat-option>
+								<mat-option value="Hidden">Hidden</mat-option>
+								<mat-option value="N/A">N/A</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</div>
 
-        <div class="table-stats">
-          <span class="stat-badge">{{ filteredFindings.length }} results</span>
-          <span class="stat-badge">Page {{ currentPage }} of {{ pageNumbers.length || 1 }}</span>
-        </div>
+				<div class="violations-meta">
+					<span>{{ filteredFindings.length }} results</span>
+					<span>Page {{ currentPage }} of {{ pageNumbers.length || 1 }}</span>
+				</div>
 
-        @if (loading) {
-          <div class="lineage-empty">
-            <mat-icon>hourglass_empty</mat-icon>
-            <p>Loading optimization findings...</p>
-          </div>
-        } @else if (!filteredFindings.length) {
-          <div class="lineage-empty">
-            <mat-icon>check_circle</mat-icon>
-            <p>No findings match the selected filters.</p>
-          </div>
-        } @else {
-          <div class="opt-table-wrap">
-            <table class="opt-table">
-              <thead>
-                <tr>
-                  <th>Check</th>
-                  <th>Object</th>
-                  <th>Type</th>
-                  <th>Table</th>
-                  <th>Usage</th>
-                  <th>Visibility</th>
-                  <th>Severity</th>
-                  <th>Confidence</th>
-                  <th>Reason</th>
-                  <th>Recommendation</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of pagedFindings; track row.checkId + '::' + row.objectType + '::' + row.tableName + '::' + row.objectName + '::' + $index) {
-                  <tr>
-                    <td><span class="check-chip">#{{ row.checkId }}</span></td>
-                    <td [matTooltip]="objectTooltip(row)" matTooltipPosition="above">{{ row.objectName }}</td>
-                    <td>{{ row.objectType }}</td>
-                    <td>{{ row.tableName }}</td>
-                    <td><span class="tone-chip" [ngClass]="usageStatusClass(row.usageStatus)">{{ row.usageStatus }}</span></td>
-                    <td>{{ row.visibility }}</td>
-                    <td><span class="tone-chip" [ngClass]="severityClass(row.severity)">{{ row.severity }}</span></td>
-                    <td><span class="tone-chip" [ngClass]="confidenceClass(row.confidence)">{{ row.confidence }}</span></td>
-                    <td>{{ row.reason }}</td>
-                    <td>
-                      <div>{{ row.recommendation }}</div>
-                      <div class="safe-tag" [class.safe-true]="row.safeToRemove" [class.safe-false]="!row.safeToRemove">
-                        {{ row.safeToRemove ? 'Safe-to-remove candidate' : 'Needs review' }}
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          @if (pageNumbers.length > 1) {
-            <div class="pagination-nav">
-              <button mat-icon-button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-              @for (item of visiblePageItems; track $index) {
-                @if (item === '...') {
-                  <span class="page-ellipsis">...</span>
-                } @else {
-                  <button mat-stroked-button (click)="goToPage(item)" [class.page-btn-active]="currentPage === item">
-                    {{ item }}
-                  </button>
-                }
-              }
-              <button mat-icon-button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === pageNumbers.length">
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </div>
-          }
-        }
-      </section>
+				@if (loading) {
+					<div class="empty-state">
+						<mat-icon>hourglass_empty</mat-icon>
+						<p>Loading optimization findings...</p>
+					</div>
+				} @else if (!filteredFindings.length) {
+					<div class="empty-state">
+						<mat-icon>check_circle</mat-icon>
+						<strong>No findings match the selected filters.</strong>
+					</div>
+				} @else {
+					<div class="opt-table-wrap">
+						<table class="opt-table">
+							<thead>
+								<tr>
+									<th>Check</th>
+									<th>Object</th>
+									<th>Type</th>
+									<th>Table</th>
+									<th>Usage</th>
+									<th>Visibility</th>
+									<th>Severity</th>
+									<th>Confidence</th>
+									<th>Reason</th>
+									<th>Recommendation</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (row of pagedFindings; track row.checkId + '::' + row.objectType + '::' + row.tableName + '::' + row.objectName + '::' + $index) {
+									<tr>
+										<td><span class="check-chip">#{{ row.checkId }}</span></td>
+										<td [matTooltip]="objectTooltip(row)" matTooltipPosition="above">{{ row.objectName }}</td>
+										<td>{{ row.objectType }}</td>
+										<td>{{ row.tableName }}</td>
+										<td><span class="tone-chip" [ngClass]="usageStatusClass(row.usageStatus)">{{ row.usageStatus }}</span></td>
+										<td>{{ row.visibility }}</td>
+										<td><span class="tone-chip" [ngClass]="severityClass(row.severity)">{{ row.severity }}</span></td>
+										<td><span class="tone-chip" [ngClass]="confidenceClass(row.confidence)">{{ row.confidence }}</span></td>
+										<td>{{ row.reason }}</td>
+										<td>
+											<div>{{ row.recommendation }}</div>
+											<div class="safe-tag" [class.safe-true]="row.safeToRemove" [class.safe-false]="!row.safeToRemove">
+												{{ row.safeToRemove ? 'Safe-to-remove candidate' : 'Needs review' }}
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
 
+					@if (pageNumbers.length > 1) {
+						<nav class="pagination">
+							<button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+								<mat-icon>chevron_left</mat-icon>
+							</button>
+							@for (item of visiblePageItems; track $index) {
+								@if (item === '...') {
+									<span class="pg-ellipsis">...</span>
+								} @else {
+									<button class="pg-btn" [class.pg-btn--active]="currentPage === item" (click)="goToPage(+item)">{{ item }}</button>
+								}
+							}
+							<button class="pg-btn" [disabled]="currentPage === pageNumbers.length" (click)="goToPage(currentPage + 1)">
+								<mat-icon>chevron_right</mat-icon>
+							</button>
+						</nav>
+					}
+				}
+			</section>
 
-    </div>
-  </div>
+		</div>
+	</div>
 </section>
